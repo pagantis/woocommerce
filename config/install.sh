@@ -49,7 +49,7 @@ if [ ! -f app/etc/local.xml ]; then
     echo "GENERATING PAGES + SETTING DEFAULT ONE"
     CARTIDPAGE=`wp --allow-root post create --post_type=page  --user=admin --post_title=Carro    --post_status=publish --post_content=[woocommerce_cart] --porcelain`
     CHECKOUTIDPAGE=`wp --allow-root post create --post_type=page  --user=admin --post_title=Checkout --post_status=publish --post_content=[woocommerce_checkout] --porcelain`
-    SHOPIDPAGE=`wp --allow-root post create --post_type=page  --user=admin --post_title=Shop --post_status=publish --post_content= --porcelain`
+    SHOPIDPAGE=`wp --allow-root post create --post_type=page  --user=admin --post_title=Shop --post_status=publish --post_content="<a class='button' href='http://$WORDPRESS_URL/?page_id=$CARTIDPAGE'>Go to cart</a></p>" --porcelain`
     wp --allow-root option update woocommerce_cart_page_id $CARTIDPAGE
     wp --allow-root option update woocommerce_checkout_page_id $CHECKOUTIDPAGE
     wp --allow-root option update woocommerce_shop_page_id $SHOPIDPAGE
