@@ -1,6 +1,7 @@
 FROM php:7.1-apache
 
 ENV WORDPRESS_VERSION=4.9.5
+ENV WOOCOMMERCE_VERSION=3.3.5
 
 RUN cd /tmp \
     && curl https://es.wordpress.org/wordpress-$WORDPRESS_VERSION-es_ES.tar.gz  -o $WORDPRESS_VERSION-es_ES.tar.gz \
@@ -16,6 +17,7 @@ RUN cd /tmp \
 RUN buildDeps="libxml2-dev" \
     && set -x \
     && apt-get update && apt-get install -y \
+        unzip \
         $buildDeps \
         less \
         mysql-client-5.5 \
@@ -27,6 +29,9 @@ RUN buildDeps="libxml2-dev" \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false $buildDeps
+
+RUN cd /tmp \
+    && curl -L https://github.com/woocommerce/woocommerce/archive/$WOOCOMMERCE_VERSION.zip  -o /tmp/woocommerce.zip
 
 ADD ./config/ /
 RUN chmod +x /*.sh
