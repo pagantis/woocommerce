@@ -30,14 +30,8 @@ RUN buildDeps="libxml2-dev" \
     && docker-php-ext-install -j$(nproc) gd \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false $buildDeps
 
-RUN cd /tmp \
-    && curl -L https://github.com/woocommerce/woocommerce/archive/$WOOCOMMERCE_VERSION.zip  -o /tmp/woocommerce.zip
-
 ADD ./config/ /
 RUN chmod +x /*.sh
 
 ENTRYPOINT ["/install.sh"]
 CMD ["apache2-foreground"]
-
-#TODO SIMBOLIC LINK
-#RUN ln -s /pmt/app/code/community/DigitalOrigin /var/www/html/app/code/community/DigitalOrigin \

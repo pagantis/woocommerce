@@ -35,8 +35,8 @@ if [ ! -f app/etc/local.xml ]; then
 
     echo "INSTALLING WOOCOMMERCE"
     wp --allow-root plugin install wordpress-importer --activate
-    wp --allow-root plugin install /tmp/woocommerce.zip --activate
-    wp --allow-root import wp-content/plugins/woocommerce-$WOOCOMMERCE_VERSION/sample-data/sample_products.xml --authors=create
+    wp --allow-root plugin install https://github.com/woocommerce/woocommerce/archive/$WOOCOMMERCE_VERSION.zip --activate
+    wp --allow-root import wp-content/plugins/woocommerce/sample-data/sample_products.xml --authors=create
 
     echo "SETTING WOOCOMMERCE OPTIONS"
     wp --allow-root option delete woocommerce_admin_notices
