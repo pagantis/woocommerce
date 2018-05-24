@@ -1,0 +1,26 @@
+{
+  "name": "paylater",
+  "version": "5.0.0",
+  "description": "Paga+Tarde integration in woocommerce",
+  "main": "Gruntfile.js",
+  "dependencies": {},
+  "devDependencies": {
+    "bower": "^1.8.0",
+    "grunt": "^1.0.1",
+    "grunt-contrib-compress": "^1.4.3",
+    "grunt-shell": "^2.1.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pagamastarde/pagamastarde-woocommerce.git"
+  },
+  "author": "DigitalOrigin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pagamastarde/pagamastarde-woocommerce/issues"
+  },
+  "homepage": "https://github.com/pagamastarde/pagamastarde-woocommerce#readme"
+}

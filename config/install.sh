@@ -55,6 +55,8 @@ if [ ! -f app/etc/local.xml ]; then
     wp --allow-root option update woocommerce_shop_page_id $SHOPIDPAGE
     wp --allow-root option update show_on_front	page
     wp --allow-root option update page_on_front	$SHOPIDPAGE
+
+    chown -R www-data:www-data /var/www/html/*
 fi
 
 exec "$@"

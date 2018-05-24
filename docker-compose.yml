@@ -8,7 +8,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./:/paylater
+      - ./:/var/www/html/wp-content/plugins/paylater
     environment:
       - WORDPRESS_DB_HOST=db
       - WORDPRESS_DB_USER=root
