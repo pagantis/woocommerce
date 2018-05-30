@@ -24,6 +24,7 @@ services:
     networks:
       - internal
       - public
+      - shopper
 
   db:
     image: mysql:5.7
@@ -36,3 +37,5 @@ services:
 networks:
   internal:
   public:
+  shopper:
+        name: shopper-network

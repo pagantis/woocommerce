@@ -45,6 +45,7 @@ if [ ! -f app/etc/local.xml ]; then
     wp --allow-root option update woocommerce_default_country ES
     wp --allow-root option update woocommerce_store_postcode 28008
     wp --allow-root option update woocommerce_currency EUR
+    wp --allow-root option update woocommerce_cart_redirect_after_add yes
 
     echo "GENERATING PAGES + SETTING DEFAULT ONE"
     CARTIDPAGE=`wp --allow-root post create --post_type=page  --user=admin --post_title=Carro    --post_status=publish --post_content=[woocommerce_cart] --porcelain`
