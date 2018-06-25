@@ -1,4 +1,4 @@
-version: "2"
+version: "3.5"
 
 services:
   woocommerce:
@@ -18,9 +18,32 @@ services:
       - WORDPRESS_SITE_NAME=PmtWooCommerce
       - WORDPRESS_ADMIN_EMAIL=demo@woocommerceshop.com
       - WORDPRESS_ADMIN_USER=admin
-      - WORDPRESS_ADMIN_PASSWORD=admin
+      - WORDPRESS_ADMIN_PASSWORD=woocommerceshop_demo
     ports:
       - "8090:80"
+    networks:
+      - internal
+      - public
+      - shopper
+
+  woocommerce-test:
+    build:
+      dockerfile: Dockerfile
+      context: ./
+    depends_on:
+      - db-test
+    environment:
+      - WORDPRESS_DB_HOST=db-test
+      - WORDPRESS_DB_USER=root
+      - WORDPRESS_DB_PASSWORD=password
+      - WORDPRESS_DB_NAME=wordpress
+      - WORDPRESS_URL=woocommerce-test:8091
+      - WORDPRESS_SITE_NAME=PmtWooCommerce
+      - WORDPRESS_ADMIN_EMAIL=demo@woocommerceshop.com
+      - WORDPRESS_ADMIN_USER=admin
+      - WORDPRESS_ADMIN_PASSWORD=woocommerceshop_demo
+    ports:
+      - "8091:80"
     networks:
       - internal
       - public
@@ -33,6 +56,21 @@ services:
       - MYSQL_DATABASE=wordpress
     networks:
       - internal
+
+  db-test:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=wordpress
+    networks:
+      - internal
+
+  selenium:
+    image: selenium/standalone-chrome
+    networks:
+      - public
+    ports:
+      - "4444:4444"
 
 networks:
   internal:

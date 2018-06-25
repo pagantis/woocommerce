@@ -37,6 +37,8 @@ if [ ! -f app/etc/local.xml ]; then
     wp --allow-root plugin install wordpress-importer --activate
     wp --allow-root plugin install https://github.com/woocommerce/woocommerce/archive/$WOOCOMMERCE_VERSION.zip --activate
     wp --allow-root import wp-content/plugins/woocommerce/sample-data/sample_products.xml --authors=create
+    wp --allow-root plugin activate paylater
+
 
     echo "SETTING WOOCOMMERCE OPTIONS"
     wp --allow-root option delete woocommerce_admin_notices
@@ -50,12 +52,13 @@ if [ ! -f app/etc/local.xml ]; then
     echo "GENERATING PAGES + SETTING DEFAULT ONE"
     CARTIDPAGE=`wp --allow-root post create --post_type=page  --user=admin --post_title=Carro    --post_status=publish --post_content=[woocommerce_cart] --porcelain`
     CHECKOUTIDPAGE=`wp --allow-root post create --post_type=page  --user=admin --post_title=Checkout --post_status=publish --post_content=[woocommerce_checkout] --porcelain`
-    SHOPIDPAGE=`wp --allow-root post create --post_type=page  --user=admin --post_title=Shop --post_status=publish --post_content="<a class='button' href='http://$WORDPRESS_URL/?page_id=$CARTIDPAGE'>Go to cart</a></p>" --porcelain`
+    SHOPIDPAGE=`wp --allow-root post create --post_type=page  --user=admin --post_title=Shop --post_status=publish --post_content="<a id='goToCart' class='button' href='http://$WORDPRESS_URL/?page_id=$CARTIDPAGE'>Ir al carro</a></p>" --porcelain`
     wp --allow-root option update woocommerce_cart_page_id $CARTIDPAGE
     wp --allow-root option update woocommerce_checkout_page_id $CHECKOUTIDPAGE
     wp --allow-root option update woocommerce_shop_page_id $SHOPIDPAGE
     wp --allow-root option update show_on_front	page
     wp --allow-root option update page_on_front	$SHOPIDPAGE
+    wp --allow-root wc --user=admin shipping_zone_method create 0 --method_id=flat_rate
 
     chown -R www-data:www-data /var/www/html/*
 fi

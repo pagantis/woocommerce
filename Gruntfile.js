@@ -1,19 +1,14 @@
 module.exports = function(grunt) {
     grunt.initConfig({
         shell: {
-            __rename: {
+            rename: {
                 command:
                     'cp paylater.zip paylater-$(git rev-parse --abbrev-ref HEAD).zip \n'
-            },
-            __autoindex: {
-                command:
-                'php vendor/pagamastarde/autoindex/index.php . \n' +
-                'rm -rf vendor/pagamastarde/autoindex \n'
             },
             composerProd: {
                 command: 'rm -rf vendor && composer install --no-dev'
             },
-            __composerDev: {
+            composerDev: {
                 command: 'composer install'
             },
         },
@@ -24,8 +19,12 @@ module.exports = function(grunt) {
                 },
                 files: [
                     {src: ['assets/**'], dest: 'paylater/', filter: 'isFile'},
+                    {src: ['controllers/**'], dest: 'paylater/', filter: 'isFile'},
                     {src: ['includes/**'], dest: 'paylater/', filter: 'isFile'},
-                    {src: 'class-wc-paylater.php', dest: 'paylater/'},
+                    {src: ['languages/**'], dest: 'paylater/', filter: 'isFile'},
+                    {src: ['templates/**'], dest: 'paylater/', filter: 'isFile'},
+                    {src: ['vendor/**'], dest: 'paylater/', filter: 'isFile'},
+                    {src: 'WC_Paylater.php', dest: 'paylater/'},
                 ]
             }
         }
@@ -36,15 +35,7 @@ module.exports = function(grunt) {
     grunt.registerTask('default', [
         'shell:composerProd',
         'compress',
+        'shell:composerDev',
+        'shell:rename'
     ]);
-
-    //manually run the selenium test: "grunt shell:testPrestashop16"
-    /*
-     'shell:rename'
-     'shell:composerDev'
-     'shell:autoindex',
-     'shell:composerDev',
-    *
-    *
-    * */
 };

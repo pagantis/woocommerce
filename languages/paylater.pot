@@ -1,0 +1,188 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Pagamastarde WooCommerce V2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-06-06 08:48+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/"
+
+#. Description of the plugin
+msgid "Financiar con Pagamastarde"
+msgstr ""
+
+#. URI of the plugin
+msgid "http://www.Pagamastarde.com/"
+msgstr ""
+
+#. Author of the plugin
+msgid "Pagamastarde"
+msgstr ""
+
+#. Name of the plugin
+msgid "Pagamastarde WooCommerce V2"
+msgstr ""
+
+msgid "Ajustes"
+msgstr ""
+
+msgid "Documentación"
+msgstr ""
+
+msgid "Documentación de la api"
+msgstr ""
+
+msgid "Soporte"
+msgstr ""
+
+msgid ""
+" no está configurado correctamente, los campos Public Key y Secret Key son "
+"obligatorios para su funcionamiento."
+msgstr ""
+
+msgid "solo puede ser usado en Euros."
+msgstr ""
+
+msgid "solo puede ser usado en Español."
+msgstr ""
+
+msgid " solo puede ser pagado de 2 a 12 plazos."
+msgstr ""
+
+msgid " no puede tener un importe mínimo menor a 0."
+msgstr ""
+
+msgid "Error en el pago "
+msgstr ""
+
+msgid "Login al panel de "
+msgstr ""
+
+msgid "Activar"
+msgstr ""
+
+msgid "Activar el modulo"
+msgstr ""
+
+msgid "Título"
+msgstr ""
+
+msgid "Título a mostrar junto al metodo de pago"
+msgstr ""
+
+msgid "Importe mínimo"
+msgstr ""
+
+msgid "Cantidad mínima para habilitar el módulo."
+msgstr ""
+
+msgid "Importe máximo"
+msgstr ""
+
+msgid "Cantidad maxima para habilitar el módulo"
+msgstr ""
+
+msgid "Mínimo número de pagos"
+msgstr ""
+
+msgid ""
+"Número máximo de pagos para mostrar en el simulador. Debe estar entre 2-12"
+msgstr ""
+
+msgid "Máximo número de pagos"
+msgstr ""
+
+msgid "Descuento"
+msgstr ""
+
+msgid "Asumir comisiones"
+msgstr ""
+
+msgid "Abrir el formulario en un pop-up."
+msgstr ""
+
+msgid "Simulador en el producto"
+msgstr ""
+
+msgid "Incluir un simulador de cuotas en la pagina de producto"
+msgstr ""
+
+msgid "Simple"
+msgstr ""
+
+msgid "Completo"
+msgstr ""
+
+msgid "Seleccionable"
+msgstr ""
+
+msgid "Texto descriptivo"
+msgstr ""
+
+msgid "Selector de precio"
+msgstr ""
+
+msgid "Selector de html para obtener el precio del producto."
+msgstr ""
+
+msgid "Selector de cantidad"
+msgstr ""
+
+msgid ""
+"Selector de html para obtener el número de productos a comprar. \n"
+"        Dejar en blanco para omitir su uso"
+msgstr ""
+
+msgid "Simulador al checkout"
+msgstr ""
+
+msgid "Incluir un simulador de cuotas al checkout"
+msgstr ""
+
+msgid "URL Confirmación"
+msgstr ""
+
+msgid "URL Fallo"
+msgstr ""
+
+msgid ""
+"Pagina donde será redirigido el usuario tras un proceso de pago correcto, "
+"ejemplo:/ok_url.\n"
+"        Dejar en blanco para omitir su uso"
+msgstr ""
+
+msgid ""
+"Pagina donde será redirigido el usuario tras un proceso de pago erroneo, "
+"ejemplo:/fail_url.\n"
+"        Dejar en blanco para omitir su uso"
+msgstr ""
+
+msgid ""
+"Selector de html para obtener el precio del producto. Dejar en blanco para "
+"omitir su uso"
+msgstr ""
+
+msgid "OBLIGATORIO. Puede obtenerla en su perfil de usuario de pagamastarde"
+msgstr ""
+
+msgid ""
+"es una plataforma de financiación online. Escoge Paga+Tarde como tu método "
+"de pago en WooCommerce para permitir el pago a plazos"
+msgstr ""
+
+msgid ""
+"Número mínimo de pagos para mostrar en el simulador. Debe estar entre 2-12"
+msgstr ""
+
+msgid ""
+"es una plataforma de financiación online. Escoge Paga+Tarde como tu método "
+"de pago en WooCommerce para permitir el pago \n"
+"a plazos"
+msgstr ""

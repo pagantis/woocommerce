@@ -1,12 +1,12 @@
 {
     "name": "pagamastarde/woocommerce",
-    "description": "Woocommerce module to add PagaMasTarde Edit",
+    "description": "Woocommerce module to add PagaMasTarde",
     "license": "propietary",
     "type": "module",
     "authors": [
         {
             "name": "DigitalOrigin",
-            "email": "cromero@digitalorigin.com"
+            "email": "pgarces@digitalorigin.com"
         }
     ],
     "require": {
@@ -20,5 +20,8 @@
     },
     "autoload": {
         "psr-0": {"": "lib/"}
+    },
+    "autoload-dev": {
+        "psr-4": {"Test\\": "test/"}
     }
 }
