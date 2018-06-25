@@ -1,11 +1,12 @@
 #!/bin/bash
 
 # Prepare environment and build package
-#docker-compose pull
 docker-compose down
 docker-compose up -d --build woocommerce-test
+docker-compose up -d selenium
+npm install
 composer install
-grunt default
+node_modules/.bin/grunt
 
 # Time to boot and install woocommerce
 sleep 30

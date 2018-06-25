@@ -37,7 +37,7 @@ services:
       - WORDPRESS_DB_USER=root
       - WORDPRESS_DB_PASSWORD=password
       - WORDPRESS_DB_NAME=wordpress
-      - WORDPRESS_URL=woocommerce-test:8091
+      - WORDPRESS_URL=woocommerce-test
       - WORDPRESS_SITE_NAME=PmtWooCommerce
       - WORDPRESS_ADMIN_EMAIL=demo@woocommerceshop.com
       - WORDPRESS_ADMIN_USER=admin
@@ -66,7 +66,7 @@ services:
       - internal
 
   selenium:
-    image: selenium/standalone-chrome
+    image: selenium/standalone-chrome:3.11.0
     networks:
       - public
     ports:

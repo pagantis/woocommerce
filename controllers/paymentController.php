@@ -18,7 +18,7 @@ EOD;
     const METHOD_TITLE          = "Paga Más Tarde";
     const METHOD_ABREV          = "Paga+Tarde";
     const PAGA_MAS_TARDE        = 'pagamastarde';
-    const PAYLATER_SHOPPER_URL  = 'http://shopper/woocommerce/';
+    const PAYLATER_SHOPPER_URL  = 'https://shopper.pagamastarde.com/woocommerce/';
 
     /**
      * WcPaylaterGateway constructor.

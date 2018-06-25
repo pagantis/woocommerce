@@ -20,7 +20,7 @@ RUN buildDeps="libxml2-dev" \
         unzip \
         $buildDeps \
         less \
-        mysql-client-5.5 \
+        mysql-client \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
         libmcrypt-dev \

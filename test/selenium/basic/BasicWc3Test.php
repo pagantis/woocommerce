@@ -9,7 +9,7 @@ use Test\Selenium\PaylaterWoocommerceTest;
  * Class BasicWc3Test
  * @package Test\Selenium\Basic
  *
- * @group woocommerce3-buy-basic
+ * @group woocommerce3-basic
  */
 class BasicWc3Test extends PaylaterWoocommerceTest
 {

@@ -39,7 +39,8 @@ class PaylaterWc3InstallTest extends PaylaterWoocommerceTest
         $this->waitUntil($condition);
         $this->findById('user_login')->clear()->sendKeys($this->configuration['username']);
         $this->findById('user_pass')->clear()->sendKeys($this->configuration['password']);
-        $this->findById('loginform')->submit();
+        $this->findById('wp-submit')->click();
+
         $emailElementSearch = WebDriverBy::id('adminmenumain');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($emailElementSearch);
         $this->waitUntil($condition);
