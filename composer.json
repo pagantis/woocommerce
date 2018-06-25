@@ -3,6 +3,20 @@
     "description": "Woocommerce module to add PagaMasTarde",
     "license": "propietary",
     "type": "module",
+    "keywords": [
+        "api",
+        "rest",
+        "woocommerce",
+        "module",
+        "ecommerce",
+        "payment",
+        "checkout",
+        "credit",
+        "pagamastarde",
+        "financiar",
+        "financiera",
+        "financiación"
+    ],
     "authors": [
         {
             "name": "DigitalOrigin",
@@ -17,9 +31,6 @@
         "phpunit/phpunit": "^5.7",
         "phpunit/phpunit-selenium": "^3.0",
         "facebook/webdriver": "^1.5"
-    },
-    "autoload": {
-        "psr-0": {"": "lib/"}
     },
     "autoload-dev": {
         "psr-4": {"Test\\": "test/"}
