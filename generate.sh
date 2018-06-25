@@ -14,5 +14,5 @@ set -e
 # Run test
 vendor/bin/phpunit --group woocommerce3-basic
 vendor/bin/phpunit --group woocommerce3-install
-#vendor/bin/phpunit --group woocommerce3-buy-unregistered
-#vendor/bin/phpunit --group woocommerce3-buy-registered
+vendor/bin/phpunit --group woocommerce3-buy-unregistered
+vendor/bin/phpunit --group woocommerce3-buy-registered
