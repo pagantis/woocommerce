@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/PagaMasTarde/WooCommerce.svg?branch=master)](https://travis-ci.org/PagaMasTarde/WooCommerce)
 [![Latest Stable Version](https://poser.pugx.org/pagamastarde/woocommerce/v/stable)](https://packagist.org/packages/pagamastarde/woocommerce)
 [![composer.lock](https://poser.pugx.org/pagamastarde/woocommerce/composerlock)](https://packagist.org/packages/pagamastarde/woocommerce)
-[![Maintainability](https://api.codeclimate.com/v1/badges/e9d4ec1224f2a37a7c59/maintainability)](https://codeclimate.com/github/PagaMasTarde/woocommerce/maintainability)
+[![Maintainability](https://api.codeclimate.com/v1/badges/9c4dea4aa1adc534653a/maintainability)](https://codeclimate.com/github/PagaMasTarde/WooCommerce/maintainability)
 
 ## Instrucciones de Instalación
 1. Crea tu cuenta en pagamastarde.com si aún no la tienes [desde aquí](https://bo.pagamastarde.com/users/sign_up)

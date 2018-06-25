@@ -1,8 +1,22 @@
 {
     "name": "pagamastarde/woocommerce",
     "description": "Woocommerce module to add PagaMasTarde",
-    "license": "propietary",
+    "license": "proprietary",
     "type": "module",
+    "keywords": [
+        "api",
+        "rest",
+        "woocommerce",
+        "module",
+        "ecommerce",
+        "payment",
+        "checkout",
+        "credit",
+        "pagamastarde",
+        "financiar",
+        "financiera",
+        "financiación"
+    ],
     "authors": [
         {
             "name": "DigitalOrigin",
