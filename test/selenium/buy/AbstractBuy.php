@@ -217,7 +217,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
         $this->assertEquals($this->getPrice(), $totalPrice, "PR35");
 
         $this->webDriver->executeScript("var button = document.getElementsByName('back_to_store_button');button[0].click();");
-        $condition = WebDriverExpectedCondition::titleContains(self::CART_TITLE);
+        $condition = WebDriverExpectedCondition::titleContains(self::CHECKOUT_TITLE);
         $this->webDriver->wait()->until($condition);
         $this->assertTrue((bool) $condition, "PR36");
     }

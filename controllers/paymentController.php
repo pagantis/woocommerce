@@ -207,7 +207,7 @@ EOD;
             $customer->num_full_refunds       = $total_refunds;
             $customer->num_partial_refunds    = $partial_refunds;
 
-            $woocommerceObjectModule = new \ShopperLibrary\ObjectModule\WoocommerceObjectModule();
+            $woocommerceObjectModule = new \ShopperLibrary\ObjectModule\WoocommerceObjectModule(WcPaylaterGateway::PAYLATER_SHOPPER_URL);
             $woocommerceObjectModule
                 ->setPublicKey($this->public_key)
                 ->setPrivateKey($this->secret_key)

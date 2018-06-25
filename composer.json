@@ -18,10 +18,7 @@
         "phpunit/phpunit-selenium": "^3.0",
         "facebook/webdriver": "^1.5"
     },
-    "autoload": {
-        "psr-0": {"": "lib/"}
-    },
     "autoload-dev": {
-        "psr-4": {"Test\\": "test/"}
+        "psr-4": {"Test\\Selenium\\": "test/selenium"}
     }
 }

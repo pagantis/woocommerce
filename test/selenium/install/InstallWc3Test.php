@@ -7,6 +7,7 @@ use Facebook\WebDriver\Remote\LocalFileDetector;
 use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Facebook\WebDriver\WebDriverKeys;
 use Test\Selenium\PaylaterWoocommerceTest;
 
 /**
@@ -34,12 +35,24 @@ class PaylaterWc3InstallTest extends PaylaterWoocommerceTest
     public function loginToBackOffice()
     {
         $this->webDriver->get(self::WC3URL.self::BACKOFFICE_FOLDER);
+        sleep(2);
+
         $emailElementSearch = WebDriverBy::id('user_login');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($emailElementSearch);
         $this->waitUntil($condition);
+
         $this->findById('user_login')->clear()->sendKeys($this->configuration['username']);
         $this->findById('user_pass')->clear()->sendKeys($this->configuration['password']);
-        $this->findById('wp-submit')->click();
+
+        $submitElementSearch = WebDriverBy::id('wp-submit');
+        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($submitElementSearch);
+        $this->waitUntil($condition);
+        $this->assertTrue((bool) $condition, "button OK");
+        $this->findById('loginform')->submit();
+
+        $loginElements = $this->webDriver->findElements(WebDriverBy::id('login_error'));
+        $errorMessage = (count($loginElements)) ? ($this->findById('login_error')->getText()) : '';
+        $this->assertEquals(0, count($loginElements), "Login KO - $errorMessage");
 
         $emailElementSearch = WebDriverBy::id('adminmenumain');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($emailElementSearch);
