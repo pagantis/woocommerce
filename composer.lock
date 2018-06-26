@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "67d3d0a65e1a78cb5bf48447ac1a3d79",
+    "content-hash": "ac1cc494362d5e8a09c8780d04170d37",
     "packages": [
         {
             "name": "nategood/httpful",
