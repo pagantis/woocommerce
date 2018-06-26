@@ -3,21 +3,29 @@
 <?php } ?>
 
 <?php
-if( $enabled!=='0' && isset($discount) && isset($total) ) {?>
+if ($enabled!=='0' && isset($discount) && isset($total)) { ?>
     <script type="text/javascript" src="https://cdn.pagamastarde.com/pmt-js-client-sdk/3/js/client-sdk.min.js"></script>
 
     <div class="PmtSimulator" style="width: max-content"
-         data-pmt-num-quota="<? echo $min_installments;?>" data-pmt-max-ins="<? echo $max_installments;?>"
-         data-pmt-style="blue" data-pmt-type="<? echo $enabled; ?>" data-pmt-discount="<? echo $discount; ?>"
-         data-pmt-amount="<? echo $total; ?>" data-pmt-expanded="no">
+         data-pmt-num-quota="<?php echo $min_installments;?>" data-pmt-max-ins="<?php echo $max_installments;?>"
+         data-pmt-style="blue" data-pmt-type="<?php echo $enabled; ?>" data-pmt-discount="<?php echo $discount; ?>"
+         data-pmt-amount="<?php echo $total; ?>" data-pmt-expanded="no">
     </div>
     <script>
 
     </script>
     <script>
         if (typeof pmtClient !== 'undefined') {
-            pmtClient.setPublicKey("<? echo $public_key; ?>");
+            pmtClient.setPublicKey("<?php echo $public_key; ?>");
             pmtClient.simulator.reload();
+        }
+
+        var paylaterButton = document.getElementById('payment_method_paylater');
+        if (paylaterButton !== undefined)
+        {
+            paylaterButton.addEventListener("click", function(){
+                pmtClient.simulator.reload();
+            });
         }
     </script>
 <?php }?>
