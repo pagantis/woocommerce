@@ -13,7 +13,7 @@ sleep 30
 set -e
 
 # Run test
-composer install && vendor/bin/phpunit --group woocommerce3-basic
-composer install && vendor/bin/phpunit --group woocommerce3-install
-composer install && vendor/bin/phpunit --group woocommerce3-buy-unregistered
-composer install && vendor/bin/phpunit --group woocommerce3-buy-registered
+docker-compose exec woocommerce-test vendor/bin/phpunit --group woocommerce3-basic
+docker-compose exec woocommerce-test vendor/bin/phpunit --group woocommerce3-install
+docker-compose exec woocommerce-test vendor/bin/phpunit --group woocommerce3-buy-unregistered
+docker-compose exec woocommerce-test vendor/bin/phpunit --group woocommerce3-buy-registered
