@@ -3,7 +3,7 @@
 <?php } ?>
 
 <?php
-if ($enabled!=='0' && isset($discount) && isset($total)) { ?>
+if ($enabled!=='0'&& isset($total)) { ?>
     <script type="text/javascript" src="https://cdn.pagamastarde.com/pmt-js-client-sdk/3/js/client-sdk.min.js"></script>
 
     <div class="PmtSimulator" style="width: max-content"

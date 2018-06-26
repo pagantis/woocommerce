@@ -491,11 +491,18 @@ EOD;
     }
 
     /**
+     * @param $status
+     * @param $order_id
+     * @param $order
+     *
      * @return string
      */
     public function paylaterCompleteStatus($status, $order_id, $order)
     {
-        $status = 'processing';
+        if ($order->get_payment_method() == WcPaylaterGateway::METHOD_ID && $order->get_status() == 'failed') {
+            $status = 'processing';
+        }
+
         return $status;
     }
 }
