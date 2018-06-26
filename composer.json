@@ -32,10 +32,8 @@
         "phpunit/phpunit-selenium": "^3.0",
         "facebook/webdriver": "^1.5"
     },
-    "autoload": {
-        "psr-4": {
-            "Test\\": ["test/"]
-        }
+    "autoload-dev": {
+      "psr-4": { "Test\\": "test/" }
     },
     "minimum-stability": "stable"
 }
