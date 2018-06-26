@@ -5,7 +5,7 @@ docker-compose down
 docker-compose up -d --build woocommerce-test
 docker-compose up -d selenium
 npm install
-docker-compose exec woocommerce-test node_modules/.bin/grunt
+node_modules/.bin/grunt
 docker-compose exec woocommerce-test curl -s https://getcomposer.org/installer | php
 docker-compose exec woocommerce-test ./composer.phar install
 
