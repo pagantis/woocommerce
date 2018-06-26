@@ -166,7 +166,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
     {
         $validatorSearch = WebDriverBy::className('payment_method_paylater');
         $actualString = $this->webDriver->findElement($validatorSearch)->getText();
-        $compareString = (strstr($actualString, $this->configuration['methodName'])) === false ? false : true;
+        $compareString = (strstr($actualString, \WcPaylaterGateway::PAYLATER_CHECKOUT)) === false ? false : true;
         $this->assertTrue($compareString, $actualString, "PR25,PR26");
 
         //$compareString = (strstr($actualString, self::LOGO_FILE)) === false ? false : true;

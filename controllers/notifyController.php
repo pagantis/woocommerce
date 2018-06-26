@@ -90,9 +90,7 @@ class WcPaylaterNotify extends WcPaylaterGateway
                     $payments     = $pmtClient->charge()->getChargesByOrderId($this->getOrder()->get_id());
                     $latestCharge = array_shift($payments);
                     $pmtAmount    = $latestCharge->getAmount();
-                    file_put_contents('/tmp/woocommerce.txt', "\n".$pmtAmount, 8);
-                    file_put_contents('/tmp/woocommerce.txt', "\n".(100 * intval($order->get_total())), 8);
-                    if ($pmtAmount == (100 * intval($order->get_total()))) {
+                    if ($pmtAmount == (intval(100 * $order->get_total()))) {
                         $paymentResult = $order->payment_complete();
                         if ($paymentResult) {
                             $order->add_order_note($this->origin);

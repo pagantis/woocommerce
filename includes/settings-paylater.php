@@ -52,26 +52,15 @@ return array(
         'description' => __('Número máximo de pagos para mostrar en el simulador. Debe estar entre 2-12', 'paylater'),
         'default'     => '12',
     ),
-    'discount' => array(
-        'title'       => __('Descuento', 'paylater'),
-        'type'        => 'select',
-        'description' => __('Asumir comisiones', 'paylater'),
-        'default'     => 'false',
-        'desc_tip'    => true,
-        'options'     => array(
-            'false' => __('No', 'paylater'),
-            'true' => __('Si', 'paylater'),
-        )
-    ),
     'iframe' => array(
-        'title'       => __('Iframe', 'paylater'),
+        'title'       => __('Visualización', 'paylater'),
         'type'        => 'select',
         'description' => __('Abrir el formulario en un pop-up.', 'paylater'),
         'default'     => 'false',
         'desc_tip'    => true,
         'options'     => array(
-            'false' => __('No', 'paylater'),
-            'true'  => __('Si', 'paylater'),
+            'false' => __('Redirect', 'paylater'),
+            'true'  => __('Iframe', 'paylater'),
         )
     ),
     'simulator_product' => array(
@@ -92,14 +81,14 @@ return array(
     'price_selector' => array(
         'title'       => __('Selector de precio', 'paylater'),
         'type'        => 'text',
-        'description' => __('Selector de html para obtener el precio del producto.', 'paylater'),
+        'description' => __('Selector de html para obtener el precio del producto. Por defecto: "div.summary.entry-summary span.woocommerce-Price-amount.amount"', 'paylater'),
         'default'     => 'div.summary.entry-summary span.woocommerce-Price-amount.amount',
     ),
     'quantity_selector' => array(
         'title'       => __('Selector de cantidad', 'paylater'),
         'type'        => 'text',
         'description' => __('Selector de html para obtener el número de productos a comprar. 
-        Dejar en blanco para omitir su uso', 'paylater'),
+        Dejar en blanco para omitir su uso. Por defecto: "div.quantity > input"', 'paylater'),
         'default'     => 'div.quantity > input',
     ),
     'simulator_checkout' => array(

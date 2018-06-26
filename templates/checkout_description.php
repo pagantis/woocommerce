@@ -1,5 +1,5 @@
 <?php if ($message) { ?>
-<p><? echo $message; ?></p>
+<p><?php echo $message; ?></p>
 <?php } ?>
 
 <?php
@@ -8,7 +8,7 @@ if ($enabled!=='0' && isset($discount) && isset($total)) { ?>
 
     <div class="PmtSimulator" style="width: max-content"
          data-pmt-num-quota="<?php echo $min_installments;?>" data-pmt-max-ins="<?php echo $max_installments;?>"
-         data-pmt-style="blue" data-pmt-type="<?php echo $enabled; ?>" data-pmt-discount="<?php echo $discount; ?>"
+         data-pmt-style="blue" data-pmt-type="<?php echo $enabled; ?>" data-pmt-discount="0"
          data-pmt-amount="<?php echo $total; ?>" data-pmt-expanded="no">
     </div>
     <script>

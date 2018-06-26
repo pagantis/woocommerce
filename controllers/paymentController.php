@@ -19,6 +19,7 @@ EOD;
     const METHOD_ABREV          = "Paga+Tarde";
     const PAGA_MAS_TARDE        = 'pagamastarde';
     const PAYLATER_SHOPPER_URL  = 'https://shopper.pagamastarde.com/woocommerce/';
+    const PAYLATER_CHECKOUT     = "Financiación instantánea - 100% online";
 
     /**
      * WcPaylaterGateway constructor.
@@ -45,7 +46,7 @@ EOD;
 
         $this->settings['ok_url'] = ($this->settings['ok_url']!='')?$this->settings['ok_url']:$this->generateOkUrl();
         $this->settings['ko_url'] = ($this->settings['ko_url']!='')?$this->settings['ko_url']:$this->generateKoUrl();
-        $this->settings['extra_title'] = $this->method_title;
+        $this->settings['extra_title'] = WcPaylaterGateway::PAYLATER_CHECKOUT;
         foreach ($this->settings as $setting_key => $setting_value) {
             $this->$setting_key = $setting_value;
         }
@@ -55,6 +56,7 @@ EOD;
         add_action('admin_notices', array($this, 'paylaterCheckFields'));                          //Check config fields
         add_action('woocommerce_receipt_'.$this->id, array($this, 'paylaterReceiptPage'));          //Pmt form
         add_action('woocommerce_api_wcpaylatergateway', array($this, 'paylaterNotification'));      //Json Notification
+        add_filter('woocommerce_payment_complete_order_status', array($this,'paylaterCompleteStatus'), 10, 3);
     }
 
     /***********
@@ -212,7 +214,7 @@ EOD;
                 ->setPublicKey($this->public_key)
                 ->setPrivateKey($this->secret_key)
                 ->setCurrency($currency)
-                ->setDiscount($this->discount)
+                ->setDiscount(false)
                 ->setOkUrl($callback_url)
                 ->setNokUrl($callback_url)
                 ->setIFrame($this->iframe)
@@ -242,7 +244,6 @@ EOD;
                     $url = $paymentForm->data->url;
                 }
             }
-            file_put_contents('/tmp/woocommerce.txt', "\n".$callback_url, 8);
             if ($url=="") {
                 throw new Exception(_("No ha sido posible obtener una respuesta de PagaMasTarde"));
             } elseif ($this->iframe !== 'true') {
@@ -366,7 +367,6 @@ EOD;
         $template_fields = array(
             'message' => $this->method_description,
             'public_key' => $this->public_key,
-            'discount'  => ($this->discount === 'true') ? '1' : '0',
             'total' => WC()->session->cart_totals['total'],
             'enabled' =>  $this->simulator_checkout,
             'min_installments' => $this->min_installments,
@@ -488,5 +488,14 @@ EOD;
         $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
         $path     = $parsed_url['path'];
         return $scheme . $host . $port . $path . $query . $fragment;
+    }
+
+    /**
+     * @return string
+     */
+    public function paylaterCompleteStatus($status, $order_id, $order)
+    {
+        $status = 'processing';
+        return $status;
     }
 }
