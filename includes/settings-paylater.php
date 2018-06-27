@@ -27,6 +27,7 @@ return array(
         'title'       => __('Título', 'paylater'),
         'description' => __('Título a mostrar junto al metodo de pago', 'paylater'),
         'type'        => 'text',
+        'default'     => 'Financiación instantánea - 100% online',
     ),
     'checkout_title' => array(
         'title'       => __('Descripción en el checkout', 'paylater'),
@@ -74,15 +75,15 @@ return array(
         'title'       => __('Simulador en el producto', 'paylater'),
         'type'        => 'select',
         'description' => __('Incluir un simulador de cuotas en la pagina de producto', 'paylater'),
-        'default'     => '7',
+        'default'     => '6',
         'desc_tip'    => true,
         'options'     => array(
-            '0'   => __('No', 'paylater'),
+            '0'       => __('No', 'paylater'),
             '1'       => __('Simple', 'paylater'),
             '2'       => __('Completo', 'paylater'),
-            '7'       => __('Mini', 'paylater'),
+            '6'       => __('Mini', 'paylater'),
             '3'       => __('Seleccionable', 'paylater'),
-            '6'       => __('Texto descriptivo', 'paylater'),
+            '4'       => __('Texto descriptivo', 'paylater'),
         )
     ),
     'price_selector' => array(
@@ -106,15 +107,15 @@ return array(
         'title'       => __('Simulador al checkout', 'paylater'),
         'type'        => 'select',
         'description' => __('Incluir un simulador de cuotas en el checkout', 'paylater'),
-        'default'     => '7',
+        'default'     => '6',
         'desc_tip'    => true,
         'options'     => array(
             '0'       => __('No', 'paylater'),
             '1'       => __('Simple', 'paylater'),
             '2'       => __('Completo', 'paylater'),
-            '7'       => __('Mini', 'paylater'),
+            '6'       => __('Mini', 'paylater'),
             '3'       => __('Seleccionable', 'paylater'),
-            '6'       => __('Texto descriptivo', 'paylater'),
+            '4'       => __('Texto descriptivo', 'paylater'),
         )
     ),
     'ok_url' => array(
