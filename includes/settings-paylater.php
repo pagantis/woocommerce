@@ -28,6 +28,13 @@ return array(
         'description' => __('Título a mostrar junto al metodo de pago', 'paylater'),
         'type'        => 'text',
     ),
+    'checkout_title' => array(
+        'title'       => __('Title checkout', 'paylater'),
+        'description' => __('Título a mostrar junto al simulador en el checkout', 'paylater'),
+        'type'        => 'text',
+        'default'     => 'Paga hasta en 12 cómodas cuotas con Paga+Tarde. Solicitud totalmente online y sin papeleos,
+¡y la respuesta es inmediata!',
+    ),
     'min_amount' => array(
         'title'       => __('Importe mínimo', 'paylater'),
         'type'        => 'text',

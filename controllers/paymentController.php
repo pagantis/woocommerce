@@ -10,16 +10,11 @@ define('__ROOT__', dirname(dirname(__FILE__)));
 
 class WcPaylaterGateway extends WC_Payment_Gateway
 {
-    const METHOD_DESC = <<<EOD
-es una plataforma de financiación online. Escoge Paga+Tarde como tu método de pago en WooCommerce para permitir el pago 
-a plazos
-EOD;
     const METHOD_ID             = "paylater";
     const METHOD_TITLE          = "Paga Más Tarde";
     const METHOD_ABREV          = "Paga+Tarde";
     const PAGA_MAS_TARDE        = 'pagamastarde';
     const PAYLATER_SHOPPER_URL  = 'https://shopper.pagamastarde.com/woocommerce/';
-    const PAYLATER_CHECKOUT     = "Financiación instantánea - 100% online";
 
     /**
      * WcPaylaterGateway constructor.
@@ -27,7 +22,6 @@ EOD;
     public function __construct()
     {
         //Mandatory vars for plugin
-        $this->method_description = WcPaylaterGateway::METHOD_ABREV.' '.__(WcPaylaterGateway::METHOD_DESC, 'paylater');
         $this->id = WcPaylaterGateway::METHOD_ID;
         $this->icon = esc_url(plugins_url('../assets/images/logo.png', __FILE__));
         $this->has_fields = true;
@@ -46,10 +40,10 @@ EOD;
 
         $this->settings['ok_url'] = ($this->settings['ok_url']!='')?$this->settings['ok_url']:$this->generateOkUrl();
         $this->settings['ko_url'] = ($this->settings['ko_url']!='')?$this->settings['ko_url']:$this->generateKoUrl();
-        $this->settings['extra_title'] = WcPaylaterGateway::PAYLATER_CHECKOUT;
         foreach ($this->settings as $setting_key => $setting_value) {
             $this->$setting_key = $setting_value;
         }
+        $this->method_description = $this->checkout_title;
 
         //Hooks
         add_action('woocommerce_update_options_payment_gateways_'.$this->id, array($this,'process_admin_options')); //Save plugin options
@@ -382,7 +376,7 @@ EOD;
     public function payment_fields()
     {
         $template_fields = array(
-            'message' => $this->method_description,
+            'message' => $this->checkout_title,
             'public_key' => $this->public_key,
             'total' => WC()->session->cart_totals['total'],
             'enabled' =>  $this->simulator_checkout,
