@@ -29,7 +29,7 @@ return array(
         'type'        => 'text',
     ),
     'checkout_title' => array(
-        'title'       => __('Title checkout', 'paylater'),
+        'title'       => __('Descripción en el checkout', 'paylater'),
         'description' => __('Título a mostrar junto al simulador en el checkout', 'paylater'),
         'type'        => 'text',
         'default'     => 'Paga hasta en 12 cómodas cuotas con Paga+Tarde. Solicitud totalmente online y sin papeleos,
