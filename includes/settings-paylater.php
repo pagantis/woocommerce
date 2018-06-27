@@ -27,9 +27,10 @@ return array(
         'title'       => __('Título', 'paylater'),
         'description' => __('Título a mostrar junto al metodo de pago', 'paylater'),
         'type'        => 'text',
+        'default'     => 'Financiación instantánea - 100% online',
     ),
     'checkout_title' => array(
-        'title'       => __('Title checkout', 'paylater'),
+        'title'       => __('Descripción en el checkout', 'paylater'),
         'description' => __('Título a mostrar junto al simulador en el checkout', 'paylater'),
         'type'        => 'text',
         'default'     => 'Paga hasta en 12 cómodas cuotas con Paga+Tarde. Solicitud totalmente online y sin papeleos,
@@ -48,10 +49,10 @@ return array(
         'default'     => '1000000',
     ),
     'min_installments' => array(
-        'title'       => __('Mínimo número de pagos', 'paylater'),
+        'title'       => __('Número de cuotas por defecto', 'paylater'),
         'type'        => 'number',
-        'description' => __('Número mínimo de pagos para mostrar en el simulador. Debe estar entre 2-12', 'paylater'),
-        'default'     => '2',
+        'description' => __('Número de cuotas que va a mostrar el simulador por defecto. Debe estar entre 2-12', 'paylater'),
+        'default'     => '3',
     ),
     'max_installments' => array(
         'title'       => __('Máximo número de pagos', 'paylater'),
@@ -74,15 +75,30 @@ return array(
         'title'       => __('Simulador en el producto', 'paylater'),
         'type'        => 'select',
         'description' => __('Incluir un simulador de cuotas en la pagina de producto', 'paylater'),
-        'default'     => '7',
+        'default'     => '6',
         'desc_tip'    => true,
         'options'     => array(
-            '0'   => __('No', 'paylater'),
+            '0'       => __('No', 'paylater'),
             '1'       => __('Simple', 'paylater'),
             '2'       => __('Completo', 'paylater'),
-            '7'       => __('Mini', 'paylater'),
+            '6'       => __('Mini', 'paylater'),
             '3'       => __('Seleccionable', 'paylater'),
-            '6'       => __('Texto descriptivo', 'paylater'),
+            '4'       => __('Texto descriptivo', 'paylater'),
+        )
+    ),
+    'simulator_checkout' => array(
+        'title'       => __('Simulador al checkout', 'paylater'),
+        'type'        => 'select',
+        'description' => __('Incluir un simulador de cuotas en el checkout', 'paylater'),
+        'default'     => '6',
+        'desc_tip'    => true,
+        'options'     => array(
+            '0'       => __('No', 'paylater'),
+            '1'       => __('Simple', 'paylater'),
+            '2'       => __('Completo', 'paylater'),
+            '6'       => __('Mini', 'paylater'),
+            '3'       => __('Seleccionable', 'paylater'),
+            '4'       => __('Texto descriptivo', 'paylater'),
         )
     ),
     'price_selector' => array(
@@ -101,21 +117,6 @@ return array(
         será el que se usará en el simulador de producto si este está activo. Dejar en blanco para omitir su uso. 
         Por defecto: "div.quantity > input"', 'paylater'),
         'default'     => 'div.quantity > input',
-    ),
-    'simulator_checkout' => array(
-        'title'       => __('Simulador al checkout', 'paylater'),
-        'type'        => 'select',
-        'description' => __('Incluir un simulador de cuotas en el checkout', 'paylater'),
-        'default'     => '7',
-        'desc_tip'    => true,
-        'options'     => array(
-            '0'       => __('No', 'paylater'),
-            '1'       => __('Simple', 'paylater'),
-            '2'       => __('Completo', 'paylater'),
-            '7'       => __('Mini', 'paylater'),
-            '3'       => __('Seleccionable', 'paylater'),
-            '6'       => __('Texto descriptivo', 'paylater'),
-        )
     ),
     'ok_url' => array(
         'title'       => __('Url Ok', 'paylater'),

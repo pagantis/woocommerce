@@ -112,22 +112,6 @@ class WcPaylaterNotify extends WcPaylaterGateway
     }
 
     /**
-     * @param $parsed_url
-     *
-     * @return string
-     */
-    private function unparseUrl($parsed_url)
-    {
-        $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
-        $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
-        $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
-        $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
-        $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
-        $path     = $parsed_url['path'];
-        return $scheme . $host . $port . $path . $query . $fragment;
-    }
-
-    /**
      * Set order to failed
      * @return bool
      */
