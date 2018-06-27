@@ -310,6 +310,23 @@ EOD;
         }
     }
 
+    /**
+     * After failed status, set to processing not complete -> Hook: woocommerce_payment_complete_order_status
+     * @param $status
+     * @param $order_id
+     * @param $order
+     *
+     * @return string
+     */
+    public function paylaterCompleteStatus($status, $order_id, $order)
+    {
+        if ($order->get_payment_method() == WcPaylaterGateway::METHOD_ID && $order->get_status() == 'failed') {
+            $status = 'processing';
+        }
+
+        return $status;
+    }
+
     /***********
      *
      * REDEFINED FUNCTIONS
@@ -488,21 +505,5 @@ EOD;
         $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
         $path     = $parsed_url['path'];
         return $scheme . $host . $port . $path . $query . $fragment;
-    }
-
-    /**
-     * @param $status
-     * @param $order_id
-     * @param $order
-     *
-     * @return string
-     */
-    public function paylaterCompleteStatus($status, $order_id, $order)
-    {
-        if ($order->get_payment_method() == WcPaylaterGateway::METHOD_ID && $order->get_status() == 'failed') {
-            $status = 'processing';
-        }
-
-        return $status;
     }
 }
