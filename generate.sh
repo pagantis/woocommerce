@@ -18,3 +18,5 @@ docker-compose exec woocommerce-test vendor/bin/phpunit --group woocommerce3-bas
 docker-compose exec woocommerce-test vendor/bin/phpunit --group woocommerce3-install
 docker-compose exec woocommerce-test vendor/bin/phpunit --group woocommerce3-buy-unregistered
 docker-compose exec woocommerce-test vendor/bin/phpunit --group woocommerce3-buy-registered
+
+
