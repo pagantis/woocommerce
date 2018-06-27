@@ -40,9 +40,9 @@ abstract class PaylaterWoocommerceTest extends TestCase
         'extra'         => 'Free Finance',
         'address'       => 'Av.Diagonal 579',
         'methodName'    => 'Financiación instantánea - 100% online',
-        'defaultMinIns' => 2,
+        'defaultMinIns' => 3,
         'defaultMaxIns' => 12,
-        'defaultSimulatorOpt' => 2
+        'defaultSimulatorOpt' => 6
     );
 
     /**
