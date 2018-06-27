@@ -67,7 +67,7 @@ return array(
         'title'       => __('Simulador en el producto', 'paylater'),
         'type'        => 'select',
         'description' => __('Incluir un simulador de cuotas en la pagina de producto', 'paylater'),
-        'default'     => '2',
+        'default'     => '7',
         'desc_tip'    => true,
         'options'     => array(
             '0'   => __('No', 'paylater'),
@@ -81,21 +81,25 @@ return array(
     'price_selector' => array(
         'title'       => __('Selector de precio', 'paylater'),
         'type'        => 'text',
-        'description' => __('Selector de html para obtener el precio del producto. Por defecto: "div.summary.entry-summary span.woocommerce-Price-amount.amount"', 'paylater'),
+        'description' => __('Selector de html para obtener el precio en la página de producto. Será la cantidad usada 
+        en el simulador de producto si este está activo. 
+        Por defecto: "div.summary.entry-summary span.woocommerce-Price-amount.amount"', 'paylater'),
         'default'     => 'div.summary.entry-summary span.woocommerce-Price-amount.amount',
     ),
     'quantity_selector' => array(
         'title'       => __('Selector de cantidad', 'paylater'),
         'type'        => 'text',
-        'description' => __('Selector de html para obtener el número de productos a comprar. 
-        Dejar en blanco para omitir su uso. Por defecto: "div.quantity > input"', 'paylater'),
+        'description' => __('Selector de html para obtener el número de productos a comprar en la página de producto.
+        La cantidad de productos será multiplicada por el precio de producto para obtener el precio final, este precio 
+        será el que se usará en el simulador de producto si este está activo. Dejar en blanco para omitir su uso. 
+        Por defecto: "div.quantity > input"', 'paylater'),
         'default'     => 'div.quantity > input',
     ),
     'simulator_checkout' => array(
         'title'       => __('Simulador al checkout', 'paylater'),
         'type'        => 'select',
         'description' => __('Incluir un simulador de cuotas en el checkout', 'paylater'),
-        'default'     => '2',
+        'default'     => '7',
         'desc_tip'    => true,
         'options'     => array(
             '0'       => __('No', 'paylater'),
