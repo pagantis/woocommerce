@@ -33,7 +33,7 @@
         "facebook/webdriver": "^1.5"
     },
     "autoload-dev": {
-      "psr-4": { "Test\\Selenium\\": "test/selenium/" }
+      "psr-4": { "Test\\Selenium\\Buy\\": "test/selenium/buy/" }
     },
     "minimum-stability": "stable"
 }
