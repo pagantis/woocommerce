@@ -72,7 +72,7 @@ if (selector != '') {
 </script>
 <script>
     if (typeof pmtClient !== 'undefined') {
-        pmtClient.setPublicKey("<?php echo $public_key; ?>");
+        pmtClient.setPublicKey("<?php echo $settings['public_key']; ?>");
         pmtClient.simulator.reload();
     }
 </script>
