@@ -32,7 +32,8 @@ class WcPaylaterGateway extends WC_Payment_Gateway
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
         $this->allowed_currencies = array("EUR");
         $this->allowed_languages  = array("es_ES");
-        $this->plugin_info = get_file_data(__FILE__, array('Version' => 'Version'), false);
+        $this->mainFileLocation = dirname(plugin_dir_path(__FILE__)) . '/WC_Paylater.php';
+        $this->plugin_info = get_file_data($this->mainFileLocation, array('Version' => 'Version'), false);
 
         //Panel form fields
         $this->form_fields = include(plugin_dir_path(__FILE__).'../includes/settings-paylater.php');//Panel options
@@ -470,6 +471,7 @@ EOD;
 
         $parsedUrl = parse_url($url);
         if ($parsedUrl !== false) {
+            //Replace parameters from url
             parse_str(html_entity_decode($parsedUrl['query']), $arrayParams);
             $commonKeys = array_intersect_key($arrayParams, $defaultFields);
             if (count($commonKeys)) {
@@ -478,6 +480,21 @@ EOD;
                 $arrayResult = $arrayParams;
             }
             $parsedUrl['query'] = urldecode(http_build_query($arrayResult));
+
+            //Replace path from url
+            $arrayParams = explode("/", $parsedUrl['path']);
+            if (count($arrayParams)) {
+                foreach ($arrayParams as $keyParam => $valueParam) {
+                    preg_match('#\{{.*?}\}#', $valueParam, $match);
+                    if (count($match)) {
+                        $key = str_replace(array('{{','}}'), array('',''), $match[0]);
+                        $arrayParams[$keyParam] = $defaultFields[$key];
+                    }
+                }
+
+                $parsedUrl['path'] = implode('/', $arrayParams);
+            }
+
             $returnUrl = $this->unparseUrl($parsedUrl);
             return $returnUrl;
         }

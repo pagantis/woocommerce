@@ -27,7 +27,7 @@ return array(
         'title'       => __('Título', 'paylater'),
         'description' => __('Título a mostrar junto al metodo de pago', 'paylater'),
         'type'        => 'text',
-        'default'     => 'Financiación instantánea - 100% online',
+        'default'     => 'Financiación instantánea',
     ),
     'checkout_title' => array(
         'title'       => __('Descripción en el checkout', 'paylater'),
