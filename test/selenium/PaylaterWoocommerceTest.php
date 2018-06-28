@@ -39,7 +39,7 @@ abstract class PaylaterWoocommerceTest extends TestCase
         'dni'           => '09422447Z',
         'extra'         => 'Free Finance',
         'address'       => 'Av.Diagonal 579',
-        'methodName'    => 'Financiación instantánea - 100% online',
+        'methodName'    => 'Financiación instantánea',
         'defaultMinIns' => 3,
         'defaultMaxIns' => 12,
         'defaultSimulatorOpt' => 6
