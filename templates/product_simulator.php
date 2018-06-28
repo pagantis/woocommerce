@@ -18,14 +18,21 @@ function getWoocommercePrice(simulatorObject)
         if( pricesLength !== 'undefined' && pricesLength > 0 ) {
             pricesLength = pricesLength - 1;
             price = document.querySelectorAll(selector)[pricesLength].innerText.toString();
-            price = price.replace(/€|&euro/g, '').replace(',','.');
+            price = price.replace(/€|&euro/g, '').replace(',','.').replace(',','.');
+            pointPieces = price.split(".");
+            if (pointPieces!=='undefined' && pointPieces.length == '3')
+            {
+                price = pointPieces[0].concat(pointPieces[1]).concat('.').concat(pointPieces[2]);
+            }
+
+            price = parseFloat(price);
             if( price!=='undefined' && price!='' ) {
                 currentPrice = document.getElementsByClassName('PmtSimulator')[0].getAttribute('data-pmt-amount');
                 if( simulatorObject.quantity_selector !== 'undefined' && simulatorObject.quantity_selector!='' ) {
                     qtys = document.querySelectorAll(simulatorObject.quantity_selector);
                     if(qtys.length == 1) {
                         qty = parseFloat(document.querySelector(simulatorObject.quantity_selector).value);
-                        price = parseFloat(price) * qty;
+                        price = price * qty;
                     }
                 }
 
