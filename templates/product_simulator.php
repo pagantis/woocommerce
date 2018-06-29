@@ -17,7 +17,7 @@ function getWoocommercePrice(simulatorObject)
         pricesLength = document.querySelectorAll(simulatorObject.selector).length;
         if( pricesLength !== 'undefined' && pricesLength > 0 ) {
             pricesLength = pricesLength - 1;
-            price = document.querySelectorAll(selector)[pricesLength].innerText.toString();
+            price = document.querySelectorAll(simulatorObject.selector)[pricesLength].innerText.toString();
             price = price.replace(/€|&euro/g, '').replace(',','.').replace(',','.');
             pointPieces = price.split(".");
             if (pointPieces!=='undefined' && pointPieces.length == '3')
@@ -28,6 +28,7 @@ function getWoocommercePrice(simulatorObject)
             price = parseFloat(price);
             if( price!=='undefined' && price!='' ) {
                 currentPrice = document.getElementsByClassName('PmtSimulator')[0].getAttribute('data-pmt-amount');
+
                 if( simulatorObject.quantity_selector !== 'undefined' && simulatorObject.quantity_selector!='' ) {
                     qtys = document.querySelectorAll(simulatorObject.quantity_selector);
                     if(qtys.length == 1) {
@@ -35,10 +36,9 @@ function getWoocommercePrice(simulatorObject)
                         price = price * qty;
                     }
                 }
-
                 if( price < simulatorObject.min_amount || price > simulatorObject.max_amount ) {
                     document.getElementsByClassName('PmtSimulator')[0].style.display = 'none';
-                    document.getElementsByClassName('PmtSimulator')[0].setAttribute('data-pmt-amount', 'Pri');
+                    document.getElementsByClassName('PmtSimulator')[0].setAttribute('data-pmt-amount', '0');
                 } else if (currentPrice != price ) {
                         document.getElementsByClassName('PmtSimulator')[0].style.display = '';
                         document.getElementsByClassName('PmtSimulator')[0].setAttribute('data-pmt-amount', price);
@@ -72,7 +72,7 @@ if (selector != '') {
 </script>
 <script>
     if (typeof pmtClient !== 'undefined') {
-        pmtClient.setPublicKey("<?php echo $settings['public_key']; ?>");
+        pmtClient.setPublicKey('<?php echo $settings['public_key']; ?>');
         pmtClient.simulator.reload();
     }
 </script>
