@@ -1,5 +1,7 @@
 <script type="text/javascript" src="https://cdn.pagamastarde.com/pmt-js-client-sdk/3/js/client-sdk.min.js"></script>
 
+<br/>
+<span class="js-pmt-payment-type"></span>
 <div class="PmtSimulator" style="width: max-content; display:none"
      data-pmt-num-quota="<?php echo $settings['min_installments'] ; ?>"
      data-pmt-max-ins="<?php echo $settings['max_installments']; ?>" data-pmt-style="blue"
