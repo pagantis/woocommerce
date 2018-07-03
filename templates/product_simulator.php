@@ -2,7 +2,7 @@
 
 <br/>
 <span class="js-pmt-payment-type"></span>
-<div class="PmtSimulator" style="width: max-content; display:none"
+<div class="PmtSimulator" style="display:none"
      data-pmt-num-quota="<?php echo $settings['min_installments'] ; ?>"
      data-pmt-max-ins="<?php echo $settings['max_installments']; ?>" data-pmt-style="blue"
      data-pmt-type="<?php echo $settings['simulator_product']; ?>"
