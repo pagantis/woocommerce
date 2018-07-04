@@ -146,7 +146,7 @@ EOD;
                 'wc-api'=>'wcpaylatergateway',
                 'key'=>$order->get_order_key(),
                 'order-received'=>$order->get_id());
-            $callback_url = str_replace('https:', 'http:', add_query_arg($callback_arg, home_url('/')));
+            $callback_url = add_query_arg($callback_arg, home_url('/'));
 
             $current_user = $order->get_user();
             $sign_up = '';
