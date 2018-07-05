@@ -63,10 +63,10 @@ class WcPaylaterNotify extends WcPaylaterGateway
     {
         require_once(__ROOT__.'/vendor/autoload.php');
         global $woocommerce;
-        $result = array('notification_error'=>true,'notification_message'=>'ERROR - Fallo en el proceso de pago');
+        $result = array('notification_error'=>true,'notification_message'=>'No se ha podido confirmar el pago');
         if (!$this->getOrder()->get_id()) {
-            $result['notification_message'] = 'ERROR - La orden no existe en esta tienda';
-            $result['notification_error'] = true;
+            $result['notification_message'] = 'La orden no existe en esta tienda';
+            $result['notification_error'] = false;
         } else {
             $order         = new WC_Order($this->getOrder()->get_id());
             $validStatus   = array('on-hold', 'pending', 'failed');
@@ -77,14 +77,14 @@ class WcPaylaterNotify extends WcPaylaterGateway
             );
 
             if (!$order->has_status($isValidStatus)) {
-                $result['notification_message'] = 'ERROR - El pago ya ha sido procesado en PagaMasTarde ';
+                $result['notification_message'] = 'El pago ya ha sido procesado';
                 $result['notification_error']   = false;
             } else {
                 $cfg       = get_option('woocommerce_paylater_settings');
                 $pmtClient = new \PagaMasTarde\PmtApiClient($cfg['secret_key']);
                 $payed     = $pmtClient->charge()->validatePaymentForOrderId($this->getOrder()->get_id());
                 if (!$payed) {
-                    $result['notification_message'] = 'ERROR - El pago no existe en PagaMasTarde ';
+                    $result['notification_message'] = 'El pago no existe en PagaMasTarde ';
                     $result['notification_error']   = true;
                 } else {
                     $payments     = $pmtClient->charge()->getChargesByOrderId($this->getOrder()->get_id());
@@ -97,12 +97,13 @@ class WcPaylaterNotify extends WcPaylaterGateway
                             $order->reduce_order_stock();
                             $woocommerce->cart->empty_cart();
                             $result['notification_error'] = false;
+                            $result['notification_message'] = 'Pago completado';
                         } else {
                             $this->setToFailed();
-                            $result['notification_message'] = 'ERROR - Pago incompleto ';
+                            $result['notification_message'] = 'Pago incompleto';
                         }
                     } else {
-                        $result['notification_message'] = 'ERROR - La cantidad del pedido es incorrecta ';
+                        $result['notification_message'] = 'La cantidad del pedido es incorrecta ';
                         $this->setToFailed();
                     }
                 }

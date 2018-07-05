@@ -286,7 +286,8 @@ EOD;
             $response = json_encode(array(
                 'timestamp' => time(),
                 'order_id' => $order_id,
-                'result' => (!$result['notification_error']) ? 'success' : $result['notification_message']
+                'result' => (!$result['notification_error']) ? 'success' : 'failed',
+                'result_description' => $result['notification_message']
             ));
 
             if ($result['notification_error']) {
