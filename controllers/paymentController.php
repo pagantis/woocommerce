@@ -473,33 +473,58 @@ EOD;
         $parsedUrl = parse_url($url);
         if ($parsedUrl !== false) {
             //Replace parameters from url
-            parse_str(html_entity_decode($parsedUrl['query']), $arrayParams);
-            $commonKeys = array_intersect_key($arrayParams, $defaultFields);
-            if (count($commonKeys)) {
-                $arrayResult = array_merge($arrayParams, $defaultFields);
-            } else {
-                $arrayResult = $arrayParams;
-            }
-            $parsedUrl['query'] = urldecode(http_build_query($arrayResult));
+            $parsedUrl['query'] = $this->getKeysParametersUrl($parsedUrl['query'], $defaultFields);
 
             //Replace path from url
-            $arrayParams = explode("/", $parsedUrl['path']);
-            if (count($arrayParams)) {
-                foreach ($arrayParams as $keyParam => $valueParam) {
-                    preg_match('#\{{.*?}\}#', $valueParam, $match);
-                    if (count($match)) {
-                        $key = str_replace(array('{{','}}'), array('',''), $match[0]);
-                        $arrayParams[$keyParam] = $defaultFields[$key];
-                    }
-                }
-
-                $parsedUrl['path'] = implode('/', $arrayParams);
-            }
+            $parsedUrl['path'] = $this->getKeysPathUrl($parsedUrl['path'], $defaultFields);
 
             $returnUrl = $this->unparseUrl($parsedUrl);
             return $returnUrl;
         }
         return $url;
+    }
+
+    /**
+     * Replace {{}} by vars values inside parameters
+     * @param $queryString
+     * @param $defaultFields
+     *
+     * @return string
+     */
+    private function getKeysParametersUrl($queryString, $defaultFields)
+    {
+        parse_str(html_entity_decode($queryString), $arrayParams);
+        $commonKeys = array_intersect_key($arrayParams, $defaultFields);
+        if (count($commonKeys)) {
+            $arrayResult = array_merge($arrayParams, $defaultFields);
+        } else {
+            $arrayResult = $arrayParams;
+        }
+        return urldecode(http_build_query($arrayResult));
+    }
+
+    /**
+     * Replace {{}} by vars values inside path
+     * @param $pathString
+     * @param $defaultFields
+     *
+     * @return string
+     */
+    private function getKeysPathUrl($pathString, $defaultFields)
+    {
+        $arrayParams = explode("/", $pathString);
+        if (count($arrayParams)) {
+            foreach ($arrayParams as $keyParam => $valueParam) {
+                preg_match('#\{{.*?}\}#', $valueParam, $match);
+                if (count($match)) {
+                    $key = str_replace(array('{{','}}'), array('',''), $match[0]);
+                    $arrayParams[$keyParam] = $defaultFields[$key];
+                }
+            }
+            return implode('/', $arrayParams);
+        }
+        else
+            return $pathString;
     }
 
     /**
