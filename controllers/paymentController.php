@@ -32,7 +32,8 @@ class WcPaylaterGateway extends WC_Payment_Gateway
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
         $this->allowed_currencies = array("EUR");
         $this->allowed_languages  = array("es_ES");
-        $this->plugin_info = get_file_data(__FILE__, array('Version' => 'Version'), false);
+        $this->mainFileLocation = dirname(plugin_dir_path(__FILE__)) . '/WC_Paylater.php';
+        $this->plugin_info = get_file_data($this->mainFileLocation, array('Version' => 'Version'), false);
 
         //Panel form fields
         $this->form_fields = include(plugin_dir_path(__FILE__).'../includes/settings-paylater.php');//Panel options
@@ -145,7 +146,7 @@ EOD;
                 'wc-api'=>'wcpaylatergateway',
                 'key'=>$order->get_order_key(),
                 'order-received'=>$order->get_id());
-            $callback_url = str_replace('https:', 'http:', add_query_arg($callback_arg, home_url('/')));
+            $callback_url = add_query_arg($callback_arg, home_url('/'));
 
             $current_user = $order->get_user();
             $sign_up = '';
@@ -285,7 +286,8 @@ EOD;
             $response = json_encode(array(
                 'timestamp' => time(),
                 'order_id' => $order_id,
-                'result' => (!$result['notification_error']) ? 'success' : 'failed'
+                'result' => (!$result['notification_error']) ? 'success' : 'failed',
+                'result_description' => $result['notification_message']
             ));
 
             if ($result['notification_error']) {
@@ -470,18 +472,55 @@ EOD;
 
         $parsedUrl = parse_url($url);
         if ($parsedUrl !== false) {
-            parse_str(html_entity_decode($parsedUrl['query']), $arrayParams);
-            $commonKeys = array_intersect_key($arrayParams, $defaultFields);
-            if (count($commonKeys)) {
-                $arrayResult = array_merge($arrayParams, $defaultFields);
-            } else {
-                $arrayResult = $arrayParams;
-            }
-            $parsedUrl['query'] = urldecode(http_build_query($arrayResult));
+            //Replace parameters from url
+            $parsedUrl['query'] = $this->getKeysParametersUrl($parsedUrl['query'], $defaultFields);
+
+            //Replace path from url
+            $parsedUrl['path'] = $this->getKeysPathUrl($parsedUrl['path'], $defaultFields);
+
             $returnUrl = $this->unparseUrl($parsedUrl);
             return $returnUrl;
         }
         return $url;
+    }
+
+    /**
+     * Replace {{}} by vars values inside parameters
+     * @param $queryString
+     * @param $defaultFields
+     *
+     * @return string
+     */
+    private function getKeysParametersUrl($queryString, $defaultFields)
+    {
+        parse_str(html_entity_decode($queryString), $arrayParams);
+        $commonKeys = array_intersect_key($arrayParams, $defaultFields);
+        if (count($commonKeys)) {
+            $arrayResult = array_merge($arrayParams, $defaultFields);
+        } else {
+            $arrayResult = $arrayParams;
+        }
+        return urldecode(http_build_query($arrayResult));
+    }
+
+    /**
+     * Replace {{}} by vars values inside path
+     * @param $pathString
+     * @param $defaultFields
+     *
+     * @return string
+     */
+    private function getKeysPathUrl($pathString, $defaultFields)
+    {
+        $arrayParams = explode("/", $pathString);
+        foreach ($arrayParams as $keyParam => $valueParam) {
+            preg_match('#\{{.*?}\}#', $valueParam, $match);
+            if (count($match)) {
+                $key = str_replace(array('{{','}}'), array('',''), $match[0]);
+                $arrayParams[$keyParam] = $defaultFields[$key];
+            }
+        }
+        return implode('/', $arrayParams);
     }
 
     /**

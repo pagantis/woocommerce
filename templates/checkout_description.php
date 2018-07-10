@@ -5,7 +5,7 @@
 <?php
 if ($enabled!=='0'&& isset($total)) { ?>
     <script type="text/javascript" src="https://cdn.pagamastarde.com/pmt-js-client-sdk/3/js/client-sdk.min.js"></script>
-
+    <span class="js-pmt-payment-type"></span>
     <div class="PmtSimulator" style="width: max-content"
          data-pmt-num-quota="<?php echo $min_installments;?>" data-pmt-max-ins="<?php echo $max_installments;?>"
          data-pmt-style="blue" data-pmt-type="<?php echo $enabled; ?>" data-pmt-discount="0"
