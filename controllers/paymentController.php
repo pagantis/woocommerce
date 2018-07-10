@@ -513,18 +513,14 @@ EOD;
     private function getKeysPathUrl($pathString, $defaultFields)
     {
         $arrayParams = explode("/", $pathString);
-        if (count($arrayParams)) {
-            foreach ($arrayParams as $keyParam => $valueParam) {
-                preg_match('#\{{.*?}\}#', $valueParam, $match);
-                if (count($match)) {
-                    $key = str_replace(array('{{','}}'), array('',''), $match[0]);
-                    $arrayParams[$keyParam] = $defaultFields[$key];
-                }
+        foreach ($arrayParams as $keyParam => $valueParam) {
+            preg_match('#\{{.*?}\}#', $valueParam, $match);
+            if (count($match)) {
+                $key = str_replace(array('{{','}}'), array('',''), $match[0]);
+                $arrayParams[$keyParam] = $defaultFields[$key];
             }
-            return implode('/', $arrayParams);
         }
-        else
-            return $pathString;
+        return implode('/', $arrayParams);
     }
 
     /**
