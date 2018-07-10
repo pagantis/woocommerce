@@ -50,7 +50,7 @@ class WcPaylaterNotify extends WcPaylaterGateway
         if (get_class($order)=='WC_Order') {
             $this->order = $order;
         } else {
-            throw new Exception('Invalid order');
+            throw new Exception('La orden no existe en esta tienda');
         }
     }
 
