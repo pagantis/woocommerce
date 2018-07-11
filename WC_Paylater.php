@@ -13,6 +13,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+
+
 class WcPaylater
 {
     const GIT_HUB_URL     = 'https://github.com/PagaMasTarde/woocommerce';
@@ -32,6 +34,7 @@ class WcPaylater
         add_filter('plugin_row_meta', array($this,'paylaterRowMeta'), 10, 2);
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this,'paylaterActionLinks'));
         add_action('woocommerce_after_add_to_cart_form', array( $this, 'paylaterAddProductSimulator'));
+        add_action('wp_enqueue_scripts', 'add_widget_js');
     }
 
     /**
@@ -119,6 +122,14 @@ class WcPaylater
         }
         return $links;
     }
+}
+
+/**
+ * Add widget Js
+ **/
+function add_widget_js()
+{
+    wp_enqueue_script('pmtSdk', 'https://cdn.pagamastarde.com/pmt-js-client-sdk/3/js/client-sdk.min.js', '', '', true);
 }
 
 new WcPaylater();

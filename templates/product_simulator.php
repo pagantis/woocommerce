@@ -1,5 +1,3 @@
-<script type="text/javascript" src="https://cdn.pagamastarde.com/pmt-js-client-sdk/3/js/client-sdk.min.js"></script>
-
 <br/>
 <span class="js-pmt-payment-type"></span>
 <div class="PmtSimulator" style="display:none"
