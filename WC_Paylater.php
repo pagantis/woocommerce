@@ -19,7 +19,7 @@ class WcPaylater
 {
     const GIT_HUB_URL     = 'https://github.com/PagaMasTarde/woocommerce';
     const PMT_DOC_URL     = 'https://docs.pagamastarde.com';
-    const SUPPORT_EML     = 'mailto:comercial@pagamastarde.com?Subject=woocommerce_plugin';
+    const SUPPORT_EML     = 'mailto:soporte@pagamastarde.com?Subject=woocommerce_plugin';
 
     /**
      * WC_Paylater constructor.
@@ -115,9 +115,9 @@ class WcPaylater
     public function paylaterRowMeta($links, $file)
     {
         if ($file == plugin_basename(__FILE__)) {
-            $links[]='<a href="'.GIT_HUB_URL.'" target="_blank">'.__('Documentación', 'paylater').'</a>';
-            $links[]='<a href="'.PMT_DOC_URL.'" target="_blank">'.__('Documentación de la API', 'paylater').'</a>';
-            $links[]='<a href="'.SUPPORT_EML.'">'.__('Soporte', 'paylater').'</a>';
+            $links[]='<a href="'.WcPaylater::GIT_HUB_URL.'" target="_blank">'.__('Documentación', 'paylater').'</a>';
+            $links[]='<a href="'.WcPaylater::PMT_DOC_URL.'" target="_blank">'.__('Documentación de la API', 'paylater').'</a>';
+            $links[]='<a href="'.WcPaylater::SUPPORT_EML.'">'.__('Soporte', 'paylater').'</a>';
             return $links;
         }
         return $links;

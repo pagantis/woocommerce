@@ -421,6 +421,7 @@ EOD;
     {
         $parsed_url = parse_url($url);
         if ($parsed_url !== false) {
+            $parsed_url['query'] = !isset($parsed_url['query']) ? '' : $parsed_url['query'];
             parse_str($parsed_url['query'], $arrayParams);
             foreach ($arrayParams as $keyParam => $valueParam) {
                 if ($valueParam=='') {
