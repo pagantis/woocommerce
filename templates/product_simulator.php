@@ -12,7 +12,7 @@
 function getWoocommercePrice(simulatorObject)
 {
     if (typeof pmtClient !== 'undefined' && typeof pmtClient.simulator.getPublicKey()=='undefined') {
-        pmtClient.setPublicKey(simulatorObject.publicKey);
+        pmtClient.setPublicKey(simulatorObject.public_key);
     }
     // PRICE
     priceDiv = document.querySelectorAll(simulatorObject.selector);
