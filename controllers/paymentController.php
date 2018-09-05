@@ -369,10 +369,16 @@ EOD;
         try {
             $order = new WC_Order($order_id);
 
+            $redirectUrl = $order->get_checkout_payment_url(true); //paylaterReceiptPage function
+            if (strpos($redirectUrl, 'order-pay=')===false) {
+                $redirectUrl = "&order-pay=".$order->getId();
+            }
+
             return array(
                 'result'   => 'success',
-                'redirect' => $order->get_checkout_payment_url(true) //paylaterReceiptPage function
+                'redirect' => $redirectUrl
             );
+
         } catch (Exception $e) {
             wc_add_notice(__('Error en el pago ', 'paylater') . $e->getMessage(), 'error');
             return array();
