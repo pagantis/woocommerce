@@ -3,7 +3,7 @@
  * Plugin Name: Pagamastarde
  * Plugin URI: http://www.pagamastarde.com/
  * Description: Financiar con Pagamastarde
- * Version: 6.2.4
+ * Version: 7.0.0
  * Author: Pagamastarde
  */
 

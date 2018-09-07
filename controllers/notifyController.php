@@ -1,11 +1,31 @@
 <?php
 
+use PagaMasTarde\OrdersApiClient\Client;
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
 class WcPaylaterNotify extends WcPaylaterGateway
 {
+    /**
+     * EXCEPTION RESPONSES
+     */
+    const NOT_CONFIRMED = 'No se ha podido confirmar el pago';
+    const ORDER_NOT_FOUND = 'No se ha podido encontrar la orden en la tienda';
+    const ALREADY_PROCESSED = 'El pago ya ha sido procesado';
+    const PAYMENT_COMPLETE = 'Pago completado';
+    const PAYMENT_INCOMPLETE = 'Pago incompleto';
+    const NO_ORDERID = 'No se ha podido recuperar el identificador del pedido en PagaMasTarde.';
+    const WRONG_AMOUNT = 'La cantidad del pedido es incorrecta';
+    const WRONG_STATUS = 'El estado del pedido es inválido';
+
+    /** @var Array_ $notifyResult */
+    protected $notifyResult;
+
+    /** @var mixed $pmtOrder */
+    protected $pmtOrder;
+
     /**
      * @var $string
      */
@@ -57,16 +77,18 @@ class WcPaylaterNotify extends WcPaylaterGateway
     /**
      * Validation vs PmtClient
      *
-     * @return array
+     * @return array|Array_
+     * @throws Exception
      */
     public function processInformation()
     {
         require_once(__ROOT__.'/vendor/autoload.php');
         global $woocommerce;
-        $result = array('notification_error'=>true,'notification_message'=>'No se ha podido confirmar el pago');
+        //Notification_error = true => Status 400 - Retry. = false => Status 200 - OK.
+        $this->notifyResult = array('notification_error'=>true,'notification_message'=>self::NOT_CONFIRMED);
         if (!$this->getOrder()->get_id()) {
-            $result['notification_message'] = 'La orden no existe en esta tienda';
-            $result['notification_error'] = false;
+            $this->notifyResult['notification_message'] = self::ORDER_NOT_FOUND;
+            $this->notifyResult['notification_error'] = false;
         } else {
             $order         = new WC_Order($this->getOrder()->get_id());
             $validStatus   = array('on-hold', 'pending', 'failed');
@@ -77,39 +99,37 @@ class WcPaylaterNotify extends WcPaylaterGateway
             );
 
             if (!$order->has_status($isValidStatus)) {
-                $result['notification_message'] = 'El pago ya ha sido procesado';
-                $result['notification_error']   = false;
+                $this->notifyResult['notification_message'] = self::ALREADY_PROCESSED;
+                $this->notifyResult['notification_error']   = false;
             } else {
-                $cfg       = get_option('woocommerce_paylater_settings');
-                $pmtClient = new \PagaMasTarde\PmtApiClient($cfg['secret_key']);
-                $payed     = $pmtClient->charge()->validatePaymentForOrderId($this->getOrder()->get_id());
-                if (!$payed) {
-                    $result['notification_message'] = 'El pago no existe en PagaMasTarde ';
-                    $result['notification_error']   = true;
-                } else {
-                    $payments     = $pmtClient->charge()->getChargesByOrderId($this->getOrder()->get_id());
-                    $latestCharge = array_shift($payments);
-                    $pmtAmount    = $latestCharge->getAmount();
-                    if ($pmtAmount == (intval(100 * $order->get_total()))) {
-                        $paymentResult = $order->payment_complete();
-                        if ($paymentResult) {
-                            $order->add_order_note($this->origin);
-                            $order->reduce_order_stock();
-                            $woocommerce->cart->empty_cart();
-                            $result['notification_error'] = false;
-                            $result['notification_message'] = 'Pago completado';
-                        } else {
-                            $this->setToFailed();
-                            $result['notification_message'] = 'Pago incompleto';
+                if ($pmtOrderId = $this->getPmtOrderId()) {
+                    $cfg       = get_option('woocommerce_paylater_settings');
+                    $orderClient = new Client($cfg['public_key'], $cfg['secret_key']);
+                    $this->pmtOrder = $orderClient->getOrder($pmtOrderId);
+                    if ($this->checkPmtStatus(array('CONFIRMED','AUTHORIZED'))) {
+                        if ($this->comparePrices()) {
+                            $paymentResult = $order->payment_complete();
+                            if ($paymentResult) {
+                                $order->add_order_note($this->origin);
+                                $order->reduce_order_stock();
+                                $woocommerce->cart->empty_cart();
+                                $this->pmtOrder = $orderClient->confirmOrder($pmtOrderId);
+                                if ($this->checkPmtStatus(array('CONFIRMED'))) {
+                                    $this->notifyResult['notification_error'] = false;
+                                    $this->notifyResult['notification_message'] =  self::PAYMENT_COMPLETE;
+                                }
+                            } else {
+                                $this->setToFailed();
+                                $this->notifyResult['notification_error'] = true;
+                                $this->notifyResult['notification_message'] = self::PAYMENT_INCOMPLETE;
+                            }
                         }
-                    } else {
-                        $result['notification_message'] = 'La cantidad del pedido es incorrecta ';
-                        $this->setToFailed();
                     }
                 }
             }
         }
-        return $result;
+
+        return $this->notifyResult;
     }
 
     /**
@@ -136,5 +156,85 @@ class WcPaylaterNotify extends WcPaylaterGateway
             $order->update_status('pending', __('Pending payment', 'woocommerce'));
         }
         return true;
+    }
+
+    /**
+     * Get the pmt order id from db
+     *
+     * @return bool
+     */
+    private function getPmtOrderId()
+    {
+        global $wpdb;
+        $this->checkDbTable();
+        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+
+        //Check if id exists
+        $queryResult = $wpdb->get_row("select order_id from $tableName where id='".$this->getOrder()->get_id()."'");
+        if ($queryResult->order_id == '') {
+            $this->notifyResult['notification_error'] = false;
+            $this->notifyResult['notification_message'] = self::NO_ORDERID;
+            return false;
+        }
+
+        return $queryResult->order_id;
+    }
+
+    /**
+     * Check if orders table exists
+     */
+    private function checkDbTable()
+    {
+        global $wpdb;
+        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+
+        if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
+            $charset_collate = $wpdb->get_charset_collate();
+            $sql             = "CREATE TABLE $tableName ( id int, order_id varchar(50), 
+                  UNIQUE KEY id (id)) $charset_collate";
+
+            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
+            dbDelta($sql);
+        }
+    }
+
+    /**
+     * @param $statusArray
+     *
+     * @return bool
+     */
+    private function checkPmtStatus($statusArray)
+    {
+        $pmtStatus = array();
+        foreach ($statusArray as $status) {
+            $pmtStatus[] = constant("\PagaMasTarde\OrdersApiClient\Model\Order::STATUS_$status");
+        }
+        $payed = in_array($this->pmtOrder->getStatus(), $pmtStatus);
+        if (!$payed) {
+            $this->notifyResult['notification_error'] = true;
+            $this->notifyResult['notification_message'] = self::WRONG_STATUS.' => '.$this->pmtOrder->getStatus();
+            $responseStatus = false;
+        } else {
+            $responseStatus = true;
+        }
+
+        return $responseStatus;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function comparePrices()
+    {
+        $pmtAmount = $this->pmtOrder->getShoppingCart()->getTotalAmount();
+        $wcAmount = intval(strval(100 * $this->getOrder()->get_total()));
+        if ($pmtAmount != $wcAmount) {
+            $this->notifyResult['notification_error'] = true;
+            $this->notifyResult['notification_message'] = self::WRONG_AMOUNT;
+            $pricesResponse = false;
+        } else {
+            $pricesResponse = true;
+        }
+        return $pricesResponse;
     }
 }
