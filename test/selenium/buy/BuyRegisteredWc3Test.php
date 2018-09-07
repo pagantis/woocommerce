@@ -22,6 +22,7 @@ class BuyRegisteredWc3Test extends AbstractBuy
         $this->login();
         $this->prepareCheckout();
         $this->makeCheckoutAndPmt();
+        $this->makeValidation();
     }
 
     /**

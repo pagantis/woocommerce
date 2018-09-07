@@ -5,6 +5,7 @@ namespace Test\Selenium\Buy;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Test\Selenium\PaylaterWoocommerceTest;
+use PagaMasTarde\SeleniumFormUtils\SeleniumHelper;
 
 /**
  * Class AbstractBuy
@@ -79,9 +80,17 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      */
     public function makeCheckoutAndPmt()
     {
-        $resultChechout = $this->checkCheckoutPage();
+        $this->checkCheckoutPage();
         $this->goToPmt();
-        $this->checkPmtPage();
+        $this->verifyPaylater();
+    }
+
+    /**
+     * STEP3: Order Validation
+     */
+    public function makeValidation()
+    {
+        $this->verifyOrderInformation();
         $this->quit();
     }
 
@@ -188,17 +197,13 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
     public function goToPmt()
     {
         $this->findByName('checkout')->submit();
-        $paymentFormElement = WebDriverBy::className('FieldsPreview-desc');
-        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($paymentFormElement);
-        $this->waitUntil($condition);
-        $this->assertTrue((bool) $condition);
     }
 
     /**
      * @throws \Facebook\WebDriver\Exception\NoSuchElementException
      * @throws \Facebook\WebDriver\Exception\TimeOutException
      */
-    public function checkPmtPage()
+    /*public function checkPmtPage()
     {
         $paymentFormElement = WebDriverBy::className('FieldsPreview-desc');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($paymentFormElement);
@@ -220,7 +225,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
         $condition = WebDriverExpectedCondition::titleContains(self::CHECKOUT_TITLE);
         $this->webDriver->wait()->until($condition);
         $this->assertTrue((bool) $condition, "PR36");
-    }
+    }*/
 
     /**
      * Check simulator product and/or checkout
@@ -260,5 +265,43 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
 
         $this->findById('billing_phone')->clear()->sendKeys($this->configuration['phone']);
         $this->findById('billing_email')->clear()->sendKeys($this->configuration['email']);
+    }
+
+    /**
+     * Verify Paylater
+     *
+     * @throws \Exception
+     */
+    public function verifyPaylater()
+    {
+        SeleniumHelper::finishForm($this->webDriver);
+    }
+
+    /**
+     * Verify Order Information
+     */
+    public function verifyOrderInformation()
+    {
+        $messageElementSearch = WebDriverBy::className('entry-title');
+        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($messageElementSearch);
+        $this->waitUntil($condition);
+        $actualString = $this->webDriver->findElement($messageElementSearch)->getText();
+        $this->assertNotEmpty($actualString, "PR45");
+        $this->assertNotEmpty($this->configuration['confirmationMsg'], "PR45");
+        $compareString = (strstr($actualString, $this->configuration['confirmationMsg'])) === false ? false : true;
+        $this->assertTrue($compareString, $actualString." PR45");
+
+        $menuSearch = WebDriverBy::cssSelector("li.woocommerce-order-overview__total > strong > span.woocommerce-Price-amount");
+        $menuElement = $this->webDriver->findElement($menuSearch);
+        $actualString = $menuElement->getText();
+        $compareString = (strstr($actualString, $this->getPrice())) === false ? false : true;
+        $this->assertNotEmpty($compareString, "PR46");
+        $this->assertNotEmpty($this->getPrice(), "PR46");
+        $this->assertTrue($compareString, $actualString . $this->getPrice() ." PR46");
+
+        $validatorSearch = WebDriverBy::className('woocommerce-order-overview__payment-method');
+        $actualString = $this->webDriver->findElement($validatorSearch)->getText();
+        $compareString = (strstr($actualString, $this->configuration['methodName'])) === false ? false : true;
+        $this->assertTrue($compareString, $actualString, "PR25,PR26");
     }
 }
