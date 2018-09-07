@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "ac1cc494362d5e8a09c8780d04170d37",
+    "content-hash": "ddfb09d0108dee654e47f1e761374832",
     "packages": [
         {
             "name": "nategood/httpful",
@@ -96,31 +96,32 @@
             "time": "2015-06-04T13:11:29+00:00"
         },
         {
-            "name": "pagamastarde/pmt-api-client",
-            "version": "v1.2.4",
+            "name": "pagamastarde/orders-api-client",
+            "version": "v1.0.8",
             "source": {
                 "type": "git",
-                "url": "https://github.com/PagaMasTarde/pmtApiClient.git",
-                "reference": "fc16c13f5f232221716e48991594b7448362d1ab"
+                "url": "https://github.com/PagaMasTarde/ordersApiClient.git",
+                "reference": "c4c3a897ceec44ed52c7ae2a51d82e47f1476641"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PagaMasTarde/pmtApiClient/zipball/fc16c13f5f232221716e48991594b7448362d1ab",
-                "reference": "fc16c13f5f232221716e48991594b7448362d1ab",
+                "url": "https://api.github.com/repos/PagaMasTarde/ordersApiClient/zipball/c4c3a897ceec44ed52c7ae2a51d82e47f1476641",
+                "reference": "c4c3a897ceec44ed52c7ae2a51d82e47f1476641",
                 "shasum": ""
             },
             "require": {
-                "nategood/httpful": "*",
+                "nategood/httpful": "^0.2",
                 "nayjest/str-case-converter": "^1.0",
                 "php": ">=5.3"
             },
             "require-dev": {
+                "fzaninotto/faker": "^1.7",
                 "phpunit/phpunit": "^4.8"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "PagaMasTarde": "src/"
+                "psr-4": {
+                    "PagaMasTarde\\OrdersApiClient\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -133,47 +134,8 @@
                     "email": "cromero@digitalorigin.com"
                 }
             ],
-            "description": "PagaMasTarde Api Client in PHP. Use the api with simple methods and using POO.",
-            "time": "2018-02-15T10:24:48+00:00"
-        },
-        {
-            "name": "pagamastarde/shopper-library",
-            "version": "v1.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/PagaMasTarde/shopperLibrary.git",
-                "reference": "437b00c19a070f3a6df6a7ac61a1d3699b79d482"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/PagaMasTarde/shopperLibrary/zipball/437b00c19a070f3a6df6a7ac61a1d3699b79d482",
-                "reference": "437b00c19a070f3a6df6a7ac61a1d3699b79d482",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.8"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "ShopperLibrary\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "DigitalOrigin",
-                    "email": "cromero@digitalorigin.com"
-                }
-            ],
-            "description": "Library with the models of the shop modules and shopper client",
-            "time": "2018-06-18T07:42:29+00:00"
+            "description": "PagaMasTarde Orders Api Client in PHP. Use the api with simple methods and using OOP.",
+            "time": "2018-08-30T11:09:38+00:00"
         }
     ],
     "packages-dev": [
@@ -340,6 +302,49 @@
             "time": "2018-06-11T23:09:50+00:00"
         },
         {
+            "name": "pagamastarde/selenium-form-utils",
+            "version": "v1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PagaMasTarde/selenium-form-utils.git",
+                "reference": "4e6ecf61afd9eb0f099f67b738a29528277c8903"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PagaMasTarde/selenium-form-utils/zipball/4e6ecf61afd9eb0f099f67b738a29528277c8903",
+                "reference": "4e6ecf61afd9eb0f099f67b738a29528277c8903",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "facebook/webdriver": "^1.1",
+                "fzaninotto/faker": "^1.7",
+                "pagamastarde/orders-api-client": "^1.0",
+                "phpunit/phpunit": "^4.8",
+                "phpunit/phpunit-selenium": "^2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PagaMasTarde\\SeleniumFormUtils\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "DigitalOrigin",
+                    "email": "cromero@digitalorigin.com"
+                }
+            ],
+            "description": "Paga+Tarde PHP Library. Selenium helper to end a test purchase. Helper to test the payment validation and redirection",
+            "time": "2018-08-27T08:26:26+00:00"
+        },
+        {
             "name": "phpdocumentor/reflection-common",
             "version": "1.0.1",
             "source": {
@@ -493,16 +498,16 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "1.7.6",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "33a7e3c4fda54e912ff6338c48823bd5c0f0b712"
+                "reference": "4ba436b55987b4bf311cb7c6ba82aa528aac0a06"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/33a7e3c4fda54e912ff6338c48823bd5c0f0b712",
-                "reference": "33a7e3c4fda54e912ff6338c48823bd5c0f0b712",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/4ba436b55987b4bf311cb7c6ba82aa528aac0a06",
+                "reference": "4ba436b55987b4bf311cb7c6ba82aa528aac0a06",
                 "shasum": ""
             },
             "require": {
@@ -514,12 +519,12 @@
             },
             "require-dev": {
                 "phpspec/phpspec": "^2.5|^3.2",
-                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.5"
+                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.5 || ^7.1"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.7.x-dev"
+                    "dev-master": "1.8.x-dev"
                 }
             },
             "autoload": {
@@ -552,7 +557,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2018-04-18T13:57:24+00:00"
+            "time": "2018-08-05T17:53:17+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -1527,25 +1532,28 @@
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.8.0",
+            "version": "v1.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
-                "reference": "7cc359f1b7b80fc25ed7796be7d96adc9b354bae"
+                "reference": "e3d826245268269cd66f8326bd8bc066687b4a19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/7cc359f1b7b80fc25ed7796be7d96adc9b354bae",
-                "reference": "7cc359f1b7b80fc25ed7796be7d96adc9b354bae",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/e3d826245268269cd66f8326bd8bc066687b4a19",
+                "reference": "e3d826245268269cd66f8326bd8bc066687b4a19",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
             },
+            "suggest": {
+                "ext-ctype": "For best performance"
+            },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.8-dev"
+                    "dev-master": "1.9-dev"
                 }
             },
             "autoload": {
@@ -1578,20 +1586,20 @@
                 "polyfill",
                 "portable"
             ],
-            "time": "2018-04-30T19:57:29+00:00"
+            "time": "2018-08-06T14:22:27+00:00"
         },
         {
             "name": "symfony/process",
-            "version": "v4.1.1",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "1d1677391ecf00d1c5b9482d6050c0c27aa3ac3a"
+                "reference": "86cdb930a6a855b0ab35fb60c1504cb36184f843"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/1d1677391ecf00d1c5b9482d6050c0c27aa3ac3a",
-                "reference": "1d1677391ecf00d1c5b9482d6050c0c27aa3ac3a",
+                "url": "https://api.github.com/repos/symfony/process/zipball/86cdb930a6a855b0ab35fb60c1504cb36184f843",
+                "reference": "86cdb930a6a855b0ab35fb60c1504cb36184f843",
                 "shasum": ""
             },
             "require": {
@@ -1627,20 +1635,20 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "https://symfony.com",
-            "time": "2018-05-31T10:17:53+00:00"
+            "time": "2018-08-03T11:13:38+00:00"
         },
         {
             "name": "symfony/yaml",
-            "version": "v4.1.1",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "80e4bfa9685fc4a09acc4a857ec16974a9cd944e"
+                "reference": "b832cc289608b6d305f62149df91529a2ab3c314"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/80e4bfa9685fc4a09acc4a857ec16974a9cd944e",
-                "reference": "80e4bfa9685fc4a09acc4a857ec16974a9cd944e",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/b832cc289608b6d305f62149df91529a2ab3c314",
+                "reference": "b832cc289608b6d305f62149df91529a2ab3c314",
                 "shasum": ""
             },
             "require": {
@@ -1686,7 +1694,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2018-05-30T07:26:09+00:00"
+            "time": "2018-08-18T16:52:46+00:00"
         },
         {
             "name": "webmozart/assert",

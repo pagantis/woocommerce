@@ -14,18 +14,16 @@ services:
       - WORDPRESS_DB_USER=root
       - WORDPRESS_DB_PASSWORD=password
       - WORDPRESS_DB_NAME=wordpress
-      - WORDPRESS_URL=woocommerce.docker:8090
+      - WORDPRESS_URL=woocommerce-dev.docker:8090
       - WORDPRESS_SITE_NAME=PmtWooCommerce
       - WORDPRESS_ADMIN_EMAIL=demo@woocommerceshop.com
       - WORDPRESS_ADMIN_USER=admin
       - WORDPRESS_ADMIN_PASSWORD=woocommerceshop_demo
     ports:
       - "8090:80"
-    networks:
-      - internal
-      - public
-      - shopper
     working_dir: /var/www/html/wp-content/plugins/paylater
+    extra_hosts:
+      - "woocommerce-dev.docker:127.0.0.1"
 
   woocommerce-test:
     build:
@@ -40,45 +38,34 @@ services:
       - WORDPRESS_DB_USER=root
       - WORDPRESS_DB_PASSWORD=password
       - WORDPRESS_DB_NAME=wordpress
-      - WORDPRESS_URL=woocommerce-test
+      - WORDPRESS_URL=woocommerce-test.docker:8091
       - WORDPRESS_SITE_NAME=PmtWooCommerce
       - WORDPRESS_ADMIN_EMAIL=demo@woocommerceshop.com
       - WORDPRESS_ADMIN_USER=admin
       - WORDPRESS_ADMIN_PASSWORD=woocommerceshop_demo
     ports:
       - "8091:80"
-    networks:
-      - internal
-      - public
-      - shopper
     working_dir: /paylater
+    extra_hosts:
+      - "woocommerce-test.docker:127.0.0.1"
 
   db:
     image: mysql:5.7
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_DATABASE=wordpress
-    networks:
-      - internal
 
   db-test:
     image: mysql:5.7
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_DATABASE=wordpress
-    networks:
-      - internal
 
   selenium:
     image: selenium/standalone-chrome:3.11.0
-    networks:
-      - public
-      - internal
     ports:
       - "4444:4444"
+    extra_hosts:
+      - "woocommerce-test.docker:${DOCKERHOST}"
+      - "woocommerce-dev.docker:${DOCKERHOST}"
 
-networks:
-  internal:
-  public:
-  shopper:
-        name: shopper-network
