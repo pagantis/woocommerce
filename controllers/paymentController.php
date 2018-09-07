@@ -367,8 +367,12 @@ EOD;
      */
     public function paylaterCompleteStatus($status, $order_id, $order)
     {
-        if ($order->get_payment_method() == WcPaylaterGateway::METHOD_ID && $order->get_status() == 'failed') {
-            $status = 'processing';
+        if ($order->get_payment_method() == WcPaylaterGateway::METHOD_ID) {
+            if ($order->get_status() == 'failed') {
+                $status = 'processing';
+            } elseif ($order->get_status() == 'pending' && $status=='completed') {
+                $status = 'processing';
+            }
         }
 
         return $status;
