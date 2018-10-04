@@ -45,6 +45,36 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      */
     const LOGO_FILE = 'logo.png';
 
+    /**
+     *  Logout URL
+     */
+    const NOTIFICATION_FOLDER = '/?wc-api=wcpaylatergateway';
+
+    /**
+     *  Notification param1
+     */
+    const NOTIFICATION_PARAMETER1 = 'key';
+
+    /**
+     *  Notification param2
+     */
+    const NOTIFICATION_PARAMETER2 = 'order-received';
+
+    /**
+     * Pmt Order Title
+     */
+    const PMT_TITLE = 'Paga+Tarde';
+
+    /**
+     * Already processed
+     */
+    const NOTFOUND_TITLE = 'Merchant Order Not Found';
+
+    /**
+     * Wrong order
+     */
+    const NOORDER_TITLE = 'We can not get the PagaMasTarde identification in database';
+
     public $price;
 
     /**
@@ -91,7 +121,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
     public function makeValidation()
     {
         $this->verifyOrderInformation();
-        $this->quit();
+
     }
 
     /**
@@ -182,6 +212,11 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
         //$this->assertTrue($compareString, $actualString, "PR27 // ".$actualString);
 
         $this->checkSimulator();
+
+        $descriptionSearch = WebDriverBy::cssSelector("div#payment.woocommerce-checkout-payment > ul.wc_payment_methods > li.payment_method_paylater > div.payment_method_paylater");
+        $descriptionElement = $this->webDriver->findElement($descriptionSearch);
+        $actualString = $descriptionElement->getText();
+        $this->assertContains($this->configuration['checkoutDescription'], $actualString, "PR54");
 
         $priceSearch = WebDriverBy::className('woocommerce-Price-amount');
         $priceElements = $this->webDriver->findElements($priceSearch);
@@ -274,6 +309,10 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      */
     public function verifyPaylater()
     {
+        $condition = WebDriverExpectedCondition::titleContains(self::PMT_TITLE);
+        $this->webDriver->wait(300)->until($condition, $this->webDriver->getCurrentURL());
+        $this->assertTrue((bool)$condition, "PR32");
+
         SeleniumHelper::finishForm($this->webDriver);
     }
 
@@ -302,6 +341,29 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
         $validatorSearch = WebDriverBy::className('woocommerce-order-overview__payment-method');
         $actualString = $this->webDriver->findElement($validatorSearch)->getText();
         $compareString = (strstr($actualString, $this->configuration['methodName'])) === false ? false : true;
-        $this->assertTrue($compareString, $actualString, "PR25,PR26");
+        $this->assertTrue($compareString, $actualString, "PR49");
+
+        //Get the confirmation page url
+        $orderUrl = $this->webDriver->getCurrentURL();
+        $this->assertNotEmpty($orderUrl);
+        $orderArray = explode('&', $orderUrl);
+
+        $orderReceived = explode("=", $orderArray['1']);
+        $orderReceived = $orderReceived[1];
+
+        $orderKey = explode("=", $orderArray['2']);
+        $orderKey = $orderKey[1];
+
+        $notifyUrl = self::WC3URL.self::NOTIFICATION_FOLDER.'&'.self::NOTIFICATION_PARAMETER1.'='.$orderKey.'&'.self::NOTIFICATION_PARAMETER2.'='.$orderReceived;
+        $this->assertNotEmpty($notifyUrl);
+        $response = Request::post($notifyUrl)->expects('json')->send();
+        $this->assertNotEmpty($response->body->result);
+        $this->assertContains(self::NOORDER_TITLE, $response->body->result_description, "PR51=>".$response->body->result_description);
+
+        $orderReceived = 0;
+        $notifyUrl = self::WC3URL.self::NOTIFICATION_FOLDER.'&'.self::NOTIFICATION_PARAMETER1.'='.$orderKey.'&'.self::NOTIFICATION_PARAMETER2.'='.$orderReceived;
+        $response = Request::post($notifyUrl)->expects('json')->send();
+        $this->assertNotEmpty($response->body->result);
+        $this->assertContains(self::NOTFOUND_TITLE, $response->body->result, "PR53=>".$response->body->result);
     }
 }

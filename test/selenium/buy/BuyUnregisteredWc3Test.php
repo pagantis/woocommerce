@@ -23,6 +23,7 @@ class BuyUnregisteredWc3Test extends AbstractBuy
         $this->register();
         $this->makeCheckoutAndPmt();
         $this->makeValidation();
+        $this->quit();
     }
 
     /**

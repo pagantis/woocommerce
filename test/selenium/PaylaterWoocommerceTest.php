@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
  */
 abstract class PaylaterWoocommerceTest extends TestCase
 {
-    const WC3URL = 'http://woocommerce-test.docker:8091';
+    const WC3URL = 'http://woocommerce-dev.docker:8090';
 
     const BACKOFFICE_FOLDER = '/wp-admin';
 
@@ -43,7 +43,8 @@ abstract class PaylaterWoocommerceTest extends TestCase
         'defaultMinIns' => 3,
         'defaultMaxIns' => 12,
         'defaultSimulatorOpt' => 6,
-        'confirmationMsg'=>'Pedido recibido'
+        'confirmationMsg'=>'Pedido recibido',
+        'checkoutDescription'=> 'Paga hasta en 12 cómodas cuotas con Paga+Tarde'
     );
 
     /**
@@ -59,8 +60,8 @@ abstract class PaylaterWoocommerceTest extends TestCase
         $this->webDriver = RemoteWebDriver::create(
             'http://localhost:4444/wd/hub',
             DesiredCapabilities::chrome(),
-            60000,
-            60000
+            240000,
+            240000
         );
     }
 
