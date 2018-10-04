@@ -19,6 +19,9 @@ class WcPaylaterGateway extends WC_Payment_Gateway
     /** Orders tablename */
     const ORDERS_TABLE = 'cart_process';
 
+    /** Concurrency tablename */
+    const LOGS_TABLE = 'pmt_logs';
+
     const NOT_CONFIRMED = 'No se ha podido confirmar el pago';
 
     /**
@@ -257,14 +260,7 @@ EOD;
                 ->setShoppingCart($orderShoppingCart)
                 ->setUser($orderUser)
             ;
-        } catch (\PagaMasTarde\OrdersApiClient\Exception\ValidationException $validationException) {
-            wc_add_notice(__('Error en el pago - ', 'paylater') . $validationException->getMessage(), 'error');
-            $checkout_url = get_permalink(wc_get_page_id('checkout'));
-            wp_redirect($checkout_url);
-            exit;
-        }
 
-        try {
             if ($this->public_key=='' || $this->secret_key=='') {
                 throw new \Exception('Public and Secret Key not found');
             }
@@ -293,6 +289,7 @@ EOD;
                 wc_get_template('iframe.php', $template_fields, '', $this->template_path);
             }
         } catch (\Exception $exception) {
+            var_dump('<pre>',$exception);
             wc_add_notice(__('Error en el pago - ', 'paylater') . $exception->getMessage(), 'error');
             $checkout_url = get_permalink(wc_get_page_id('checkout'));
             wp_redirect($checkout_url);
@@ -306,39 +303,28 @@ EOD;
     public function paylaterNotification()
     {
         try {
-            $order_id = $_GET['order-received'];
             $origin = ($_SERVER['REQUEST_METHOD'] == 'POST') ? 'Notify' : 'Order';
 
             include_once('notifyController.php');
             $notify = new WcPaylaterNotify();
-            $paymentOrder = new WC_Order($order_id);
-            $notify->setOrder($paymentOrder);
             $notify->setOrigin($origin);
             $result = $notify->processInformation();
+            $response = $result['response'];
+            $status = $result['status'];
         } catch (Exception $exception) {
             $result['notification_message'] = $exception->getMessage();
             $result['notification_error'] = true;
         }
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $response = json_encode(array(
-                'timestamp' => time(),
-                'order_id' => $order_id,
-                'result' => (!$result['notification_error']) ? 'success' : 'failed',
-                'result_description' => $result['notification_message']
-            ));
-
-            if ($result['notification_error']) {
-                header('HTTP/1.1 400 Bad Request', true, 400);
-            } else {
-                header('HTTP/1.1 200 Ok', true, 200);
-            }
+            header("HTTP/1.1 $status", true, $status);
             header('Content-Type: application/json', true);
             header('Content-Length: ' . strlen($response));
             echo ($response);
             exit();
         } else {
-            $paymentOrder = new WC_Order($order_id);
+            $response = json_decode($response);
+            $paymentOrder = new WC_Order($response->order_id);
             if ($paymentOrder instanceof WC_Order) {
                 $orderStatus = strtolower($paymentOrder->get_status());
             } else {
@@ -690,7 +676,7 @@ EOD;
 
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
-            $sql             = "CREATE TABLE $tableName ( id int, order_id varchar(50), 
+            $sql             = "CREATE TABLE $tableName ( id int, order_id varchar(50), wc_order_id varchar(50),  
                   UNIQUE KEY id (id)) $charset_collate";
 
             require_once(ABSPATH.'wp-admin/includes/upgrade.php');
