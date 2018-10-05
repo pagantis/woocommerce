@@ -122,6 +122,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
     public function makeValidation()
     {
         $this->verifyOrderInformation();
+        $this->checkProcessed();
     }
 
     /**
@@ -342,7 +343,10 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
         $actualString = $this->webDriver->findElement($validatorSearch)->getText();
         $compareString = (strstr($actualString, $this->configuration['methodName'])) === false ? false : true;
         $this->assertTrue($compareString, $actualString, "PR49");
+    }
 
+    public function checkProcessed()
+    {
         //Get the confirmation page url
         $orderUrl = $this->webDriver->getCurrentURL();
         $this->assertNotEmpty($orderUrl);
