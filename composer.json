@@ -33,7 +33,7 @@
         "pagamastarde/selenium-form-utils": "^1.0"
     },
     "autoload-dev": {
-      "psr-4": { "Test\\Selenium\\Buy\\": "test/selenium/buy/" }
+      "psr-4": { "Test\\Selenium\\Buy\\": "test/selenium/buy/", "Test\\Selenium\\": "test/selenium/" }
     },
     "minimum-stability": "stable"
 }

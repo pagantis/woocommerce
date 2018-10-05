@@ -1,9 +1,12 @@
-# Woocommerce Module <img src="https://pagamastarde.com/img/icons/logo.svg" width="100" align="right">
+# Module installation <img src="https://pagamastarde.com/img/icons/logo.svg" width="100" align="right">
 
 [![Build Status](https://travis-ci.org/PagaMasTarde/WooCommerce.svg?branch=master)](https://travis-ci.org/PagaMasTarde/WooCommerce)
 [![Latest Stable Version](https://poser.pugx.org/pagamastarde/woocommerce/v/stable)](https://packagist.org/packages/pagamastarde/woocommerce)
 [![composer.lock](https://poser.pugx.org/pagamastarde/woocommerce/composerlock)](https://packagist.org/packages/pagamastarde/woocommerce)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/PagaMasTarde/woocommerce/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/PagaMasTarde/woocommerce/?branch=master)
+
+## :hand: Requirements
+
 
 ## Instrucciones de Instalación
 1. Crea tu cuenta en pagamastarde.com si aún no la tienes [desde aquí](https://bo.pagamastarde.com/users/sign_up)

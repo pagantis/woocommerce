@@ -390,8 +390,8 @@ class WcPaylaterNotify extends WcPaylaterGateway
     {
         global $wpdb;
         $tableName   = $wpdb->prefix.self::ORDERS_TABLE;
-        $queryResult = $wpdb->get_row("select wc_order_id from $tableName where id='$this->quoteId' and order_id='$this->pmtOrderId'");
-        return $queryResult['wc_order_id'];
+        $queryResult = $wpdb->get_row("select wc_order_id from $tableName where id='$this->woocommerceOrderId' and order_id='$this->pmtOrderId'");
+        return $queryResult->wc_order_id;
     }
 
     /** STEP 7 VA - Validate Amount */
