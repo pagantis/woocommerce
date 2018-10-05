@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
  */
 abstract class PaylaterWoocommerceTest extends TestCase
 {
-    const WC3URL = 'http://woocommerce-dev.docker:8090';
+    const WC3URL = 'http://woocommerce-test.docker:8091';
 
     const BACKOFFICE_FOLDER = '/wp-admin';
 
