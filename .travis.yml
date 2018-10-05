@@ -8,6 +8,10 @@ services:
 php:
   - '7.1'
 
+addons:
+  hosts:
+  - woocommerce-test.docker
+
 env:
   - DOCKER_COMPOSE_VERSION=1.21.0
 
