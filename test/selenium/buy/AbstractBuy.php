@@ -6,6 +6,7 @@ use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Test\Selenium\PaylaterWoocommerceTest;
 use PagaMasTarde\SeleniumFormUtils\SeleniumHelper;
+use Httpful\Request;
 
 /**
  * Class AbstractBuy
@@ -68,12 +69,12 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
     /**
      * Already processed
      */
-    const NOTFOUND_TITLE = 'Merchant Order Not Found';
+    const NOTFOUND_TITLE = 'Pmt Order Not Found';
 
     /**
      * Wrong order
      */
-    const NOORDER_TITLE = 'We can not get the PagaMasTarde identification in database';
+    const NOORDER_TITLE = 'Cart already processed';
 
     public $price;
 
@@ -121,7 +122,6 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
     public function makeValidation()
     {
         $this->verifyOrderInformation();
-
     }
 
     /**
@@ -355,7 +355,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
         $orderKey = $orderKey[1];
 
         $notifyUrl = self::WC3URL.self::NOTIFICATION_FOLDER.'&'.self::NOTIFICATION_PARAMETER1.'='.$orderKey.'&'.self::NOTIFICATION_PARAMETER2.'='.$orderReceived;
-        $this->assertNotEmpty($notifyUrl);
+        $this->assertNotEmpty($notifyUrl, $notifyUrl);
         $response = Request::post($notifyUrl)->expects('json')->send();
         $this->assertNotEmpty($response->body->result);
         $this->assertContains(self::NOORDER_TITLE, $response->body->result_description, "PR51=>".$response->body->result_description);
