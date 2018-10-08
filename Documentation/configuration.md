@@ -2,9 +2,9 @@
 
 ## :house: Access
 
-To access to Paga+Tarde admin panel, we need to open the Magento admin panel and follow the next steps:
+To access to Paga+Tarde admin panel, we need to open the Woocommerce admin panel and follow the next steps:
 
-1 – STORES => Configuration
+1 – Plugins => Add new
 ![Step 1](./woocommerce_step1.png?raw=true "Step 1")
 
 2 – SALES => Payment Methods

@@ -4,7 +4,6 @@
 
 If the plugin is enabled and configured rightly, you can see Paga+Tarde like new payment method in checkout.
 
-The plugin has an installments simulator, this simulator can be watched on screen after press our payment method.
 In Paga+Tarde admin panel we can modify title, description and installment simulator.
 
 ![Step 1](./woocommerce_checkout.png?raw=true "Step 1")

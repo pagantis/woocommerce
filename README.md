@@ -11,17 +11,17 @@ Wordpress and Woocommerce plugin enabled.
 ## :floppy_disk: Installation
 To install the plugin of Paga+Tarde in your Woocommerce shop
 
-##### Installation using marketplace
+#### Common steps
 1. Navigate to plugins dashboard
 2. Click on "Add new"
+
+#### Installation using marketplace
 3. Search for 'PagaMasTarde'
 4. Click 'Install Now'
-5. Activate the plugin on the plugins dashboard
+5. Click 'Activate'
 
-##### Installation using zip file
-1. Download the zip file from [here](https://github.com/pagamastarde/woocommerce/releases/latest)
-2. Navigate to plugins dashboard
-3. Click on "Add new"
+#### Installation using zip file
+3. Download the zip file from [here](https://github.com/pagamastarde/woocommerce/releases/latest)
 4. Click 'Upload plugin'
 5. Select the downloaded file and click 'Open'.
 6. Click on 'Install'
