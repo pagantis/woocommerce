@@ -113,28 +113,6 @@ class WcPaylaterNotify extends WcPaylaterGateway
     /**
      * @throws Exception
      */
-    private function readLogs()
-    {
-        try {
-            global $wpdb;
-            $this->checkDbLogTable();
-            $tableName = $wpdb->prefix.self::LOGS_TABLE;
-            $queryResult = $wpdb->get_results("select * from $tableName");
-            var_dump("<pre>", $queryResult);
-            die;
-        } catch (\Exception $e) {
-            $exceptionObject = new \stdClass();
-            $exceptionObject->method= __FUNCTION__;
-            $exceptionObject->status='429';
-            $exceptionObject->result= self::CC_ERR_MSG;
-            $exceptionObject->result_description = $e->getMessage();
-            throw new \Exception(serialize($exceptionObject));
-        }
-    }
-
-    /**
-     * @throws Exception
-     */
     private function checkConcurrency()
     {
         try {
