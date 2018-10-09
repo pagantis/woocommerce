@@ -18,13 +18,13 @@ In Paga+tarde admin panel, we can set the following options:
 
 | Field &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Description<br/><br/>
 | :------------- |:-------------| 
-| Enabled      | - Yes => Module enabled<br/> - No => Módule disabled (Por defecto)
-| Public API Key(*) |  String you can get from your [Paga+Tarde profile](https://bo.pagamastarde.com/shop).
-| Secret API Key(*) |  String you can get from your [Paga+Tarde profile](https://bo.pagamastarde.com/shop). 
+| Activate plugin   | - Clicked => Module enabled<br/> - Not clicked => Módule disabled (Por defecto)
+| Public Key(*) |  String you can get from your [Paga+Tarde profile](https://bo.pagamastarde.com/shop).
+| Secret Key(*) |  String you can get from your [Paga+Tarde profile](https://bo.pagamastarde.com/shop). 
 | Title      |  Payment title to show in checkout page. By default:"Financiación instantanea" 
 | Checkout description | Description to show in checkout page after payment title. <br/>Leave blank to disabled. By default:"Paga hasta en 12 cómodas cuotas con Paga+Tarde. Solicitud totalmente online y sinpapeleos, ¡y la respuesta es inmediata!".
-| Minimum cart amount | Minimum amount to use the module and show the payment method to checkout       
-| Maximum cart amount | Maximum amount to use the module and show the payment method to checkout       
+| Minimum amount | Minimum amount to use the module and show the payment method to checkout       
+| Maximum amount | Maximum amount to use the module and show the payment method to checkout       
 | Number of installments by default | Number of installments by default to use in simulator
 | Maximum number of installments   | Maximum number of installments by default to use in simulator   
 | How to open payment  |  - Redirect => After checkout, the user will be redirected to Paga+Tarde side to fill the form. Recommended option. <br/> - Iframe => After checkout, the user will watch a pop-up with Paga+Tarde side to fill the form without leave the current page
