@@ -11,6 +11,9 @@
 
 function getWoocommercePrice(simulatorObject)
 {
+    if (typeof pmtClient !== 'undefined' && typeof pmtClient.simulator.getPublicKey()=='undefined') {
+        pmtClient.setPublicKey(simulatorObject.public_key);
+    }
     // PRICE
     priceDiv = document.querySelectorAll(simulatorObject.selector);
     if( priceDiv !== 'undefined' ) {
@@ -59,11 +62,16 @@ max_amount = (max_amount != '') ? parseFloat(max_amount) : '10000000.00';
 var quantity_selector = '<?php echo html_entity_decode($settings['quantity_selector']); ?>';
 
 var selector = '<?php echo html_entity_decode($settings['price_selector']);?>';
+
+var public_key = '<?php echo html_entity_decode($settings['public_key']);?>';
+
 if (selector != '') {
     var simulatorObject = {min_amount:min_amount,
                             max_amount:max_amount,
                             selector:selector,
-                            quantity_selector:quantity_selector};
+                            quantity_selector:quantity_selector,
+                            public_key:public_key
+    };
     setInterval(function () {
         getWoocommercePrice(simulatorObject);
     }, 2000);

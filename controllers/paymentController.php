@@ -300,7 +300,14 @@ EOD;
             echo ($response);
             exit();
         } else {
-            $returnUrl = $this->getOkUrl($order);
+            $orderStatus = strtolower($order->get_status());
+            $acceptedStatus = array('processing', 'completed');
+            if (in_array($orderStatus, $acceptedStatus)) {
+                $returnUrl = $this->getOkUrl($order);
+            } else {
+                $returnUrl = $this->getKoUrl($order);
+            }
+
             wp_redirect($returnUrl);
             exit;
         }

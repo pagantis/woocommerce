@@ -40,6 +40,12 @@ Do you have questions or issues with PagaMasTarde financing payment gateway? mai
 
 == Changelog ==
 
+= 6.2.3 =
+- Ready to marketplace
+- Updated readme file
+- Using actions for loading script
+- Panel links
+
 = 6.2.2 =
 - Add module version to metadata.
 - Remove "100%online" from default checkout title.

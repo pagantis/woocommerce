@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
  */
 abstract class PaylaterWoocommerceTest extends TestCase
 {
-    const WC3URL = 'http://woocommerce-test';
+    const WC3URL = 'http://woocommerce-test.docker:8091';
 
     const BACKOFFICE_FOLDER = '/wp-admin';
 
@@ -55,11 +55,11 @@ abstract class PaylaterWoocommerceTest extends TestCase
      */
     protected function setUp()
     {
-        $this->webDriver = RemoteWebDriver::create(
-            'http://selenium:4444/wd/hub',
+        $this->webDriver = PmtWebDriver::create(
+            'http://localhost:4444/wd/hub',
             DesiredCapabilities::chrome(),
-            60000,
-            60000
+            240000,
+            240000
         );
     }
 
