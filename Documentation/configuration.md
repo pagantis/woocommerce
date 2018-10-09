@@ -4,14 +4,14 @@
 
 To access to Paga+Tarde admin panel, we need to open the Woocommerce admin panel and follow the next steps:
 
-1 – Plugins => Add new
-![Step 1](./woocommerce_step1.png?raw=true "Step 1")
+1 – Woocommerce => Settings
+![Step 1](./woocommerce_configuration_1.png?raw=true "Step 1")
 
-2 – SALES => Payment Methods
-![Step 2](./woocommerce_step2.png?raw=true "Step 2")
+2 – Checkout => Paga+Tarde
+![Step 2](./woocommerce_configuration_2.png?raw=true "Step 2")
 
 3 – Paga+Tarde
-![Step 3](./woocommerce_step3.png?raw=true "Step 3")
+![Step 3](./woocommerce_configuration_3.png?raw=true "Step 3")
 
 ## :clipboard: Options
 In Paga+tarde admin panel, we can set the following options:

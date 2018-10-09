@@ -20,7 +20,7 @@ To install the plugin of Paga+Tarde in your Woocommerce shop, we need to open th
 ![Step 4](./woocommerce_installation_4a.png?raw=true "Step 4")
 
 #### Installation using zip file
-3. Download the zip file from [here](https://github.com/pagamastarde/woocommerce/releases/latest)
+3. Download the zip file from [here](https://github.com/pagamastarde/woocommerce/releases/latest). The name could be different according the last version of the plugin(Vx.x.x)
 ![Step 3](./woocommerce_installation_3b.png?raw=true "Step 3")
 
 4. Click 'Upload plugin'
