@@ -18,7 +18,7 @@ In Paga+tarde admin panel, we can set the following options:
 
 | Field &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Description<br/><br/>
 | :------------- |:-------------| 
-| Activate plugin   | - Clicked => Module enabled<br/> - Not clicked => Módule disabled (Por defecto)
+| Activate plugin   | - Clicked => Module enabled<br/> - Not clicked => Módule disabled (Default)
 | Public Key(*) |  String you can get from your [Paga+Tarde profile](https://bo.pagamastarde.com/shop).
 | Secret Key(*) |  String you can get from your [Paga+Tarde profile](https://bo.pagamastarde.com/shop). 
 | Title      |  Payment title to show in checkout page. By default:"Financiación instantanea" 
