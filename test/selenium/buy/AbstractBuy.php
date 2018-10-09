@@ -5,6 +5,7 @@ namespace Test\Selenium\Buy;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Test\Selenium\PaylaterWoocommerceTest;
+use PagaMasTarde\SeleniumFormUtils\SeleniumHelper;
 
 /**
  * Class AbstractBuy
@@ -43,6 +44,11 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      * Logo file
      */
     const LOGO_FILE = 'logo.png';
+
+    /**
+     * Pmt Order Title
+     */
+    const PMT_TITLE = 'Paga+Tarde';
 
     public $price;
 
@@ -177,6 +183,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
         $priceSearch = WebDriverBy::className('woocommerce-Price-amount');
         $priceElements = $this->webDriver->findElements($priceSearch);
 
+        $this->assertNotNull($priceElements['2']->getText(), json_encode($priceElements));
         $this->setPrice($priceElements['2']->getText());
     }
 
@@ -187,11 +194,11 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      */
     public function goToPmt()
     {
-        $this->findByName('checkout')->submit();
-        $paymentFormElement = WebDriverBy::className('FieldsPreview-desc');
-        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($paymentFormElement);
-        $this->waitUntil($condition);
-        $this->assertTrue((bool) $condition);
+        try {
+            $this->findByName('checkout')->submit();
+        } catch (\Exception $e) {
+            $this->findById('place_order')->click();
+        }
     }
 
     /**
@@ -200,26 +207,11 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      */
     public function checkPmtPage()
     {
-        $paymentFormElement = WebDriverBy::className('FieldsPreview-desc');
-        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($paymentFormElement);
-        $this->waitUntil($condition);
-        $this->assertTrue((bool) $condition, "PR32");
+        $condition = WebDriverExpectedCondition::titleContains(self::PMT_TITLE);
+        $this->webDriver->wait()->until($condition, $this->webDriver->getCurrentURL());
+        $this->assertTrue((bool)$condition, "PR32");
 
-        $this->assertSame(
-            $this->configuration['firstname'] . ' ' . $this->configuration['lastname'],
-            $this->findByClass('FieldsPreview-desc')->getText(),
-            "PR34"
-        );
-
-        $priceSearch = WebDriverBy::className('LoanSummaryList-desc');
-        $priceElements = $this->webDriver->findElements($priceSearch);
-        $totalPrice = $this->setPrice($priceElements['0']->getText());
-        $this->assertEquals($this->getPrice(), $totalPrice, "PR35");
-
-        $this->webDriver->executeScript("var button = document.getElementsByName('back_to_store_button');button[0].click();");
-        $condition = WebDriverExpectedCondition::titleContains(self::CHECKOUT_TITLE);
-        $this->webDriver->wait()->until($condition);
-        $this->assertTrue((bool) $condition, "PR36");
+        SeleniumHelper::finishForm($this->webDriver);
     }
 
     /**
