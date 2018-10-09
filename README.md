@@ -27,7 +27,7 @@ To install the plugin of Paga+Tarde in your Woocommerce shop
 6. Click on 'Install'
 7. Activate the plugin on the plugins dashboard
 
-For more information about how to install the plugin, see our [configuration section](/Documentation/installation.md).
+For more information about how to install the plugin, see our [installation section](/Documentation/installation.md).
 
 ## :gear: Configuration
 Configure the plugin in Woocommerce admin panel using the information found in your [Paga+Tarde profile](https://bo.pagamastarde.com/shop). 
