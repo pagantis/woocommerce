@@ -104,7 +104,7 @@ class WcPaylater
     {
         $params_array = array('page' => 'wc-settings', 'tab' => 'checkout', 'section' => 'paylater');
         $setting_url  = esc_url(add_query_arg($params_array, admin_url('admin.php?')));
-        $setting_link = '<a href="'.$setting_url.'">'.__('Ajustes', 'paylater').'</a>';
+        $setting_link = '<a href="'.$setting_url.'">'.__('Settings', 'paylater').'</a>';
 
         array_unshift($links, $setting_link);
 
@@ -122,12 +122,10 @@ class WcPaylater
     public function paylaterRowMeta($links, $file)
     {
         if ($file == plugin_basename(__FILE__)) {
-            $links[] = '<a href="'.WcPaylater::GIT_HUB_URL.'" target="_blank">'.__('Documentación', 'paylater').'</a>';
-            $links[] = '<a href="'.WcPaylater::PMT_DOC_URL.'" target="_blank">'.__(
-                'Documentación de la API',
-                'paylater'
-            ).'</a>';
-            $links[] = '<a href="'.WcPaylater::SUPPORT_EML.'">'.__('Soporte', 'paylater').'</a>';
+            $links[] = '<a href="'.WcPaylater::GIT_HUB_URL.'" target="_blank">'.__('Documentation', 'paylater').'</a>';
+            $links[] = '<a href="'.WcPaylater::PMT_DOC_URL.'" target="_blank">'.
+            __('API documentation', 'paylater').'</a>';
+            $links[] = '<a href="'.WcPaylater::SUPPORT_EML.'">'.__('Support', 'paylater').'</a>';
 
             return $links;
         }

@@ -1,0 +1,213 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Pagamastarde WooCommerce V2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-06-06 08:48+0000\n"
+"PO-Revision-Date: 2018-10-11 08:45+0000\n"
+"Last-Translator: admin <demo@woocommerceshop.com>\n"
+"Language-Team: Español\n"
+"Language: es_ES\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/"
+#. Description of the plugin
+
+msgid "Finance with Pagamastarde"
+msgstr "Financiar con Pagamastarde"
+
+#. URI of the plugin
+msgid "http://www.pagamastarde.com/"
+msgstr "http://www.pagamastarde.com/"
+
+#. Author of the plugin
+msgid "Pagamastarde"
+msgstr "Pagamastarde"
+
+#. Name of the plugin
+msgid "Pagamastarde WooCommerce V2"
+msgstr "Pagamastarde WooCommerce V2"
+
+msgid " it is not compatible with your version of php and / or curl"
+msgstr " no es compatible con su versión de php y/o curl"
+
+msgid "Public Key"
+msgstr "Clave Pública"
+
+msgid "Secret Key"
+msgstr "Clave Privada"
+
+msgid "Checkout description"
+msgstr "Descripción en el checkout"
+
+msgid "Title to show with the checkout simulator"
+msgstr "Título a mostrar junto al simulador en el checkout"
+
+msgid "Instant financing"
+msgstr "Financiación instantánea"
+
+msgid "Pay up to 12 comfortable installments with Paga + Tarde. Application totally online and without paperwork, And the answer is immediate!"
+msgstr "Paga hasta en 12 cómodas cuotas con Paga + Tarde. Solicitud totalmente online y sin papeleos, ¡y la respuesta es inmediata!"
+
+msgid "Number of default installments"
+msgstr "Número de cuotas por defecto"
+
+msgid "Number of installments that the simulator will show by default. Must be between 2-12"
+msgstr "Número de cuotas que va a mostrar el simulador por defecto. Debe estar entre 2-12"
+
+msgid "Display mode"
+msgstr "Modo de Visualización"
+
+msgid "Redirect"
+msgstr "Redirect"
+
+msgid "Iframe"
+msgstr "Iframe"
+
+msgid "No"
+msgstr "No"
+
+msgid "Url Ok"
+msgstr "Url Ok"
+
+msgid "Url Ko"
+msgstr "Url Ko"
+
+msgid "Pay Later"
+msgstr "Paga Más Tarde"
+
+msgid "Settings"
+msgstr "Ajustes"
+
+msgid "Documentation"
+msgstr "Documentación"
+
+msgid "API documentation"
+msgstr "Documentación de la API"
+
+msgid "Support"
+msgstr "Soporte"
+
+msgid " only can be used in Euros"
+msgstr " solo puede ser usado en Euros"
+
+msgid " only can be used in Spanish"
+msgstr " solo puede ser usado en Español"
+
+msgid " only can be payed from 2 to 12 installments"
+msgstr " solo puede ser pagado de 2 a 12 plazos"
+
+msgid " can not have a minimum amount less than 0"
+msgstr " no puede tener un importe mínimo menor a 0"
+
+msgid "Payment error "
+msgstr "Error en el pago "
+
+msgid "Login to panel of "
+msgstr "Login al panel de "
+
+msgid "Activate"
+msgstr "Activar"
+
+msgid "Activate the module"
+msgstr "Activar el modulo"
+
+msgid "Title"
+msgstr "Título"
+
+msgid "Title to show near to payment method"
+msgstr "Título a mostrar junto al metodo de pago"
+
+msgid "Minimum amount"
+msgstr "Importe mínimo"
+
+msgid "Minimum amount to activate the plugin"
+msgstr "Cantidad mínima para habilitar el módulo"
+
+msgid "Maximum amount"
+msgstr "Importe máximo"
+
+msgid "Maximum amount to activate the plugin"
+msgstr "Cantidad máxima para habilitar el módulo"
+
+msgid "Minimum numbers of installments"
+msgstr "Mínimo número de pagos"
+
+msgid "Maximum number of installments to show in simulator. Must be between 2-12"
+msgstr "Número máximo de pagos para mostrar en el simulador. Debe estar entre 2-12"
+
+msgid "Maximum numbers of installments"
+msgstr "Máximo número de pagos"
+
+msgid "Discount"
+msgstr "Descuento"
+
+msgid "Get fees"
+msgstr "Asumir comisiones"
+
+msgid "Open form in a pop-up"
+msgstr "Abrir el formulario en un pop-up"
+
+msgid "Product simulator"
+msgstr "Simulador en el producto"
+
+msgid "Include simulator in product page"
+msgstr "Incluir un simulador de cuotas en la pagina de producto"
+
+msgid "Simple"
+msgstr "Simple"
+
+msgid "Full"
+msgstr "Completo"
+
+msgid "Selectable"
+msgstr "Seleccionable"
+
+msgid "Descriptive text"
+msgstr "Texto descriptivo"
+
+msgid "Price selector"
+msgstr "Selector de precio"
+
+msgid "Quantity selector"
+msgstr "Selector de cantidad"
+
+msgid "Checkout simulator"
+msgstr "Simulador en el checkout"
+
+msgid "Include simulator in checkout page"
+msgstr "Incluir el simulador de cuotas al checkout"
+
+msgid "Confirmation Url"
+msgstr "URL Confirmación"
+
+msgid "Fail url"
+msgstr "URL Fallo"
+
+msgid "MANDATORY. You can get in your pagamastarde profile"
+msgstr "OBLIGATORIO. Puede obtenerla en su perfil de usuario de pagamastarde"
+
+msgid "is not configured correctly, the fields Public Key and Secret Key are mandatory for use this plugin"
+msgstr "no está configurado correctamente, los campos Clave Pública y Clave Privada son obligatorios para su funcionamiento"
+
+msgid "Html selector to obtain the number of products to buy on the product page. The quantity of products will be multiplied by the price of the product to obtain the final price, this price will be the one that will be used in the product simulator if it is active. Leave blank to omit its use. By default: "
+msgstr "Selector de html para obtener el número de productos a comprar en la página de producto. La cantidad de productos será multiplicada por el precio de producto para obtener el precio final, este precio será el que se usará en el simulador de producto si este está activo. Dejar en blanco para omitir su uso. By default: "
+
+msgid "Page where the user will be redirected after a correct payment process. {{order-received}} will be replaced by the value of the order_id"
+msgstr "Pagina donde será redirigido el usuario tras un proceso de pago correcto. {{order-received}} sera reemplazado por el valor del order_id"
+
+msgid "Page where the user will be redirected after a failure payment process. {{order-received}} will be replaced by the value of the order_id"
+msgstr "Pagina donde será redirigido el usuario tras un proceso de pago erroneo. {{order-received}} sera reemplazado por el valor del order_id"
+
+msgid "Html selector to get the price on the product page. It will be the amount used in the product simulator if it is active. By default: "
+msgstr "Selector de html para obtener el precio en la página de producto. Será la cantidad usada  en el simulador de producto si este está activo. Por defecto: "
+
+msgid "is a payment method online. Choose Paga + Tarde as your payment method in Woocommerce to allow the partial payments."
+msgstr "es una plataforma de financiación online. Escoge Paga+Tarde como tu método de pago en WooCommerce para permitir el pago a plazos"
+
+msgid "Minimum number of installments to show in simulator. Must be between 2-12"
+msgstr "Número mínimo de pagos para mostrar en el simulador. Debe estar entre 2-12"
+
+msgid "is a payment gateway to get partial payment. Choose Paga + Tarde like your payment method in Woocommerce to allow the partial payment."
+msgstr "es una plataforma de financiación online. Escoge Paga+Tarde como tu método de pago en WooCommerce para permitir el pago a plazos"
