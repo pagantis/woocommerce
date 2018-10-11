@@ -33,7 +33,7 @@ return array(
         'title'       => __('Checkout description', 'paylater'),
         'description' => __('Title to show with the checkout simulator', 'paylater'),
         'type'        => 'text',
-        'default'     => __('Pay up to 12 comfortable installments with Pay + Afternoon. Application totally online and without paperwork, And the answer is immediate!', 'paylater'),
+        'default'     => __('Pay up to 12 comfortable installments with Paga + Tarde. Application totally online and without paperwork, And the answer is immediate!', 'paylater'),
     ),
     'min_amount' => array(
         'title'       => __('Minimum amount', 'paylater'),

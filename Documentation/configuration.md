@@ -21,8 +21,8 @@ In Paga+tarde admin panel, we can set the following options:
 | Activate plugin   | - Clicked => Module enabled<br/> - Not clicked => Módule disabled (Default)
 | Public Key(*) |  String you can get from your [Paga+Tarde profile](https://bo.pagamastarde.com/shop).
 | Secret Key(*) |  String you can get from your [Paga+Tarde profile](https://bo.pagamastarde.com/shop). 
-| Title      |  Payment title to show in checkout page. By default:"Financiación instantanea" 
-| Checkout description | Description to show in checkout page after payment title. <br/>Leave blank to disabled. By default:"Paga hasta en 12 cómodas cuotas con Paga+Tarde. Solicitud totalmente online y sinpapeleos, ¡y la respuesta es inmediata!".
+| Title      |  Payment title to show in checkout page. By default:"Instant financing" 
+| Checkout description | Description to show in checkout page after payment title. <br/>Leave blank to disabled. By default:"Pay up to 12 comfortable installments with Paga + Tarde. Application totally online and without paperwork, And the answer is immediate!".
 | Minimum amount | Minimum amount to use the module and show the payment method to checkout       
 | Maximum amount | Maximum amount to use the module and show the payment method to checkout       
 | Number of installments by default | Number of installments by default to use in simulator
