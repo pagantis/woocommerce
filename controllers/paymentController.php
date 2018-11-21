@@ -229,7 +229,8 @@ class WcPaylaterGateway extends WC_Payment_Gateway
             $orderConfigurationUrls
                 ->setCancel($cancelUrl)
                 ->setKo($callback_url)
-                ->setNotificationCallback($callback_url)
+                ->setAuthorizedNotificationCallback($callback_url)
+                ->setRejectedNotificationCallback($callback_url)
                 ->setOk($callback_url)
             ;
             $orderChannel = new \PagaMasTarde\OrdersApiClient\Model\Order\Configuration\Channel();

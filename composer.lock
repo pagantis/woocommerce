@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
     "content-hash": "ddfb09d0108dee654e47f1e761374832",
@@ -97,16 +97,16 @@
         },
         {
             "name": "pagamastarde/orders-api-client",
-            "version": "v1.0.11",
+            "version": "v1.0.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PagaMasTarde/ordersApiClient.git",
-                "reference": "934a4caa53526056e9982db614510b47fac59b28"
+                "reference": "8daca8f3be7fd32fbbbe77fc8cb7ab388e641c59"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PagaMasTarde/ordersApiClient/zipball/934a4caa53526056e9982db614510b47fac59b28",
-                "reference": "934a4caa53526056e9982db614510b47fac59b28",
+                "url": "https://api.github.com/repos/PagaMasTarde/ordersApiClient/zipball/8daca8f3be7fd32fbbbe77fc8cb7ab388e641c59",
+                "reference": "8daca8f3be7fd32fbbbe77fc8cb7ab388e641c59",
                 "shasum": ""
             },
             "require": {
@@ -135,7 +135,7 @@
                 }
             ],
             "description": "PagaMasTarde Orders Api Client in PHP. Use the api with simple methods and using OOP.",
-            "time": "2018-10-04T11:05:10+00:00"
+            "time": "2018-11-05T15:50:44+00:00"
         }
     ],
     "packages-dev": [
