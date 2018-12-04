@@ -2,7 +2,7 @@
 Contributors: pgarcess
 Tags: WooCommerce, Payment Gateway, PagaMasTarde, pagamastarde payment gateway, gateway for woocommerce, Card payment woocommerce, woocommerce financing
 Requires at least: 2.0.1.3
-Tested up to: 4.9.6
+Tested up to: 5.0.0
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -39,6 +39,12 @@ Do you have questions or issues with PagaMasTarde financing payment gateway? mai
 3. Enable the Payment Method, and add the keys from your account (you can obtain it from  https://bo.pagantis.com/api). Click Save.
 
 == Changelog ==
+
+= 6.2.4 =
+- SeleniumHelper
+- Docker extended domain
+- Simulator reload
+- Redirect according order status
 
 = 6.2.3 =
 - Ready to marketplace
