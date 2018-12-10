@@ -1,6 +1,6 @@
 # SVN Instructions
 
-This file demonstrates how to upload the module to Woocommerce market.
+This file explains how to upload a new module version to Woocommerce market.
 
 ## Upload
 
@@ -32,7 +32,7 @@ cp readme.txt svn/trunk/readme.txt
 cp WC_Paylater.php svn/trunk/WC_paylater.php
 ``` 
 
-4-Add the files to svn track
+4- Add the files to svn track
 ```
 svn add -f svn/.
 ```
