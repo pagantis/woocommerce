@@ -31,7 +31,7 @@ class BuyRegisteredWc3Test extends AbstractBuy
      */
     public function login()
     {
-        $this->findByLinkText('Haz clic aquí para acceder')->click();
+        $this->findByLinkText($this->configuration['enter'])->click();
         $checkboxSelector = WebDriverBy::id('username');
         $condition = WebDriverExpectedCondition::elementToBeClickable($checkboxSelector);
         $this->waitUntil($condition);

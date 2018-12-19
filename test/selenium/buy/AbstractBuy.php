@@ -4,6 +4,11 @@ namespace Test\Selenium\Buy;
 
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use PagaMasTarde\ModuleUtils\Exception\AlreadyProcessedException;
+use PagaMasTarde\ModuleUtils\Exception\ConcurrencyException;
+use PagaMasTarde\ModuleUtils\Exception\MerchantOrderNotFoundException;
+use PagaMasTarde\ModuleUtils\Exception\NoIdentificationException;
+use PagaMasTarde\ModuleUtils\Exception\NoQuoteFoundException;
 use Test\Selenium\PaylaterWoocommerceTest;
 use PagaMasTarde\SeleniumFormUtils\SeleniumHelper;
 use Httpful\Request;
@@ -76,7 +81,25 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      */
     const NOORDER_TITLE = 'Cart already processed';
 
+    /**
+     * @var String $price
+     */
     public $price;
+
+    /**
+     * @var String $orderUrl
+     */
+    public $orderUrl;
+
+    /**
+     * @var String $orderKey
+     */
+    public $orderKey;
+
+    /**
+     * @var String $orderReceived
+     */
+    public $orderReceived;
 
     /**
      * @return mixed
@@ -122,7 +145,8 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
     public function makeValidation()
     {
         $this->verifyOrderInformation();
-        $this->checkProcessed();
+        $this->orderUrl = $this->webDriver->getCurrentURL();
+        $this->checkNotificationException();
     }
 
     /**
@@ -345,29 +369,67 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
         $this->assertTrue($compareString, $actualString, "PR49");
     }
 
-    public function checkProcessed()
+    /**
+     * Check the notifications
+     *
+     * @throws \Httpful\Exception\ConnectionErrorException
+     */
+    public function checkNotificationException()
     {
         //Get the confirmation page url
-        $orderUrl = $this->webDriver->getCurrentURL();
-        $this->assertNotEmpty($orderUrl);
+        $orderUrl = $this->orderUrl;
+        $this->assertNotEmpty($orderUrl, $orderUrl);
         $orderArray = explode('&', $orderUrl);
 
         $orderReceived = explode("=", $orderArray['1']);
-        $orderReceived = $orderReceived[1];
+        $this->orderReceived = $orderReceived[1];
 
         $orderKey = explode("=", $orderArray['2']);
-        $orderKey = $orderKey[1];
+        $this->orderKey = $orderKey[1];
 
-        $notifyUrl = self::WC3URL.self::NOTIFICATION_FOLDER.'&'.self::NOTIFICATION_PARAMETER1.'='.$orderKey.'&'.self::NOTIFICATION_PARAMETER2.'='.$orderReceived;
+        $this->checkConcurrency();
+        $this->checkPmtOrderId();
+        $this->checkAlreadyProcessed();
+    }
+
+    /**
+     * Check if with a empty parameter called order-received we can get a NoQuoteFoundException
+     *
+     * @throws \Httpful\Exception\ConnectionErrorException
+     */
+    protected function checkConcurrency()
+    {
+        $notifyUrl = self::WC3URL.self::NOTIFICATION_FOLDER.'&'.self::NOTIFICATION_PARAMETER1.'='.$this->orderKey.'&'.self::NOTIFICATION_PARAMETER2.'=';
+        $this->assertNotEmpty($notifyUrl, $notifyUrl);
+        $response = Request::post($notifyUrl)->expects('json')->send();
+        $this->assertNotEmpty($response->body->result, $response->body->result);
+        $this->assertContains(NoQuoteFoundException::ERROR_MESSAGE, $response->body->result, "PR=>".$response->body->result);
+    }
+
+    /**
+     * Check if with a parameter called order-received set to a invalid identification, we can get a NoIdentificationException
+     *
+     * @throws \Httpful\Exception\ConnectionErrorException
+     */
+    protected function checkPmtOrderId()
+    {
+        $notifyUrl = self::WC3URL.self::NOTIFICATION_FOLDER.'&'.self::NOTIFICATION_PARAMETER1.'='.$this->orderKey.'&'.self::NOTIFICATION_PARAMETER2.'=0';
         $this->assertNotEmpty($notifyUrl, $notifyUrl);
         $response = Request::post($notifyUrl)->expects('json')->send();
         $this->assertNotEmpty($response->body->result);
-        $this->assertContains(self::NOORDER_TITLE, $response->body->result_description, "PR51=>".$response->body->result_description);
+        $this->assertContains(NoIdentificationException::ERROR_MESSAGE, $response->body->result, "PR=>".$response->body->result);
+    }
 
-        $orderReceived = 0;
-        $notifyUrl = self::WC3URL.self::NOTIFICATION_FOLDER.'&'.self::NOTIFICATION_PARAMETER1.'='.$orderKey.'&'.self::NOTIFICATION_PARAMETER2.'='.$orderReceived;
+    /**
+     * Check if re-launching the notification we can get a AlreadyProcessedException
+     *
+     * @throws \Httpful\Exception\ConnectionErrorException
+     */
+    protected function checkAlreadyProcessed()
+    {
+        $notifyUrl = self::WC3URL.self::NOTIFICATION_FOLDER.'&'.self::NOTIFICATION_PARAMETER1.'='.$this->orderKey.'&'.self::NOTIFICATION_PARAMETER2.'='.$this->orderReceived;
         $response = Request::post($notifyUrl)->expects('json')->send();
         $this->assertNotEmpty($response->body->result);
-        $this->assertContains(self::NOTFOUND_TITLE, $response->body->result, "PR53=>".$response->body->result);
+        $this->assertContains(AlreadyProcessedException::ERROR_MESSAGE, $response->body->result, "PR51=>".$response->body->result);
     }
 }
