@@ -11,7 +11,7 @@ define('__ROOT__', dirname(dirname(__FILE__)));
 class WcPaylaterGateway extends WC_Payment_Gateway
 {
     const METHOD_ID             = "paylater";
-    const METHOD_TITLE          = "Pay Later";
+    const METHOD_TITLE          = "Paga Más Tarde";
     const METHOD_ABREV          = "Paga+Tarde";
     const PAGA_MAS_TARDE        = 'pagamastarde';
     const PAYLATER_SHOPPER_URL  = 'https://shopper.pagamastarde.com/woocommerce/';
@@ -33,8 +33,8 @@ class WcPaylaterGateway extends WC_Payment_Gateway
         $this->id = WcPaylaterGateway::METHOD_ID;
         $this->icon = esc_url(plugins_url('../assets/images/logo.png', __FILE__));
         $this->has_fields = true;
-        $this->method_title = __(WcPaylaterGateway::METHOD_TITLE, 'paylater');
-        $this->title = __(WcPaylaterGateway::METHOD_TITLE, 'paylater');
+        $this->method_title = WcPaylaterGateway::METHOD_TITLE;
+        $this->title = WcPaylaterGateway::METHOD_TITLE;
 
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
@@ -76,8 +76,8 @@ class WcPaylaterGateway extends WC_Payment_Gateway
         $template_fields = array(
             'panel_header' => $this->title,
             'panel_description' => $this->method_description,
-            'button1_label' => __('Login to panel of ', 'paylater') . __(WcPaylaterGateway::METHOD_TITLE, 'paylater'),
-            'button2_label' => __('Documentation', 'paylater'),
+            'button1_label' => __('Login al panel de ', 'paylater') . WcPaylaterGateway::METHOD_TITLE,
+            'button2_label' => __('Documentación', 'paylater'),
             'logo' => $this->icon,
             'settings' => $this->generate_settings_html($this->form_fields, false)
         );
@@ -93,32 +93,34 @@ class WcPaylaterGateway extends WC_Payment_Gateway
         if ($this->settings['enabled'] !== 'yes') {
             return;
         } elseif (!version_compare(phpversion(), '5.3.0', '>=')) {
-            $error_string =  __(' it is not compatible with your version of php and / or curl', 'paylater');
+            $error_string =  __(' no es compatible con su versión de php y/o curl', 'paylater');
             $this->settings['enabled'] = 'no';
         } elseif ($this->settings['public_key']=="" || $this->settings['secret_key']=="") {
-            $keys_error = __('is not configured correctly, the fields Public Key and Secret Key are mandatory for use this plugin');
+            $keys_error =  <<<EOD
+no está configurado correctamente, los campos Public Key y Secret Key son obligatorios para su funcionamiento
+EOD;
             $error_string = __($keys_error, 'paylater');
             $this->settings['enabled'] = 'no';
         } elseif (!in_array(get_woocommerce_currency(), $this->allowed_currencies)) {
-            $error_string =  __(' only can be used in Euros', 'paylater');
+            $error_string =  __(' solo puede ser usado en Euros', 'paylater');
             $this->settings['enabled'] = 'no';
         } elseif (!in_array(get_locale(), $this->allowed_languages)) {
-            $error_string = __(' only can be used in Spanish', 'paylater');
+            $error_string = __(' solo puede ser usado en Español', 'paylater');
             $this->settings['enabled'] = 'no';
         } elseif ($this->min_installments<2 ||  $this->min_installments>12 ||
                   $this->max_installments<2 ||  $this->max_installments>12 ) {
-            $error_string = __(' only can be payed from 2 to 12 installments', 'paylater');
+            $error_string = __(' solo puede ser pagado de 2 a 12 plazos.', 'paylater');
             $this->settings['min_installments'] = 2;
             $this->settings['max_installments'] = 12;
         } elseif ($this->min_amount<0 || $this->max_amount<0) {
-            $error_string = __(' can not have a minimum amount less than 0', 'paylater');
+            $error_string = __(' el importe debe ser mayor a 0.', 'paylater');
             $this->settings['min_amount'] = 0;
             $this->settings['max_amount'] = 10000;
         }
 
         if ($error_string!='') {
             $template_fields = array(
-                'error_msg' => __(WcPaylaterGateway::METHOD_TITLE, 'paylater') .' '.$error_string,
+                'error_msg' => WcPaylaterGateway::METHOD_TITLE .' '.$error_string,
             );
             wc_get_template('error_msg.php', $template_fields, '', $this->template_path);
         }
@@ -288,8 +290,7 @@ class WcPaylaterGateway extends WC_Payment_Gateway
                 wc_get_template('iframe.php', $template_fields, '', $this->template_path);
             }
         } catch (\Exception $exception) {
-            var_dump('<pre>',$exception);
-            wc_add_notice(__('Payment error ', 'paylater') . '- '. $exception->getMessage(), 'error');
+            wc_add_notice(__('Error en el pago - ', 'paylater') . $exception->getMessage(), 'error');
             $checkout_url = get_permalink(wc_get_page_id('checkout'));
             wp_redirect($checkout_url);
             exit;
@@ -307,39 +308,28 @@ class WcPaylaterGateway extends WC_Payment_Gateway
             include_once('notifyController.php');
             $notify = new WcPaylaterNotify();
             $notify->setOrigin($origin);
+            /** @var \PagaMasTarde\ModuleUtils\Model\JsonResponse $result */
             $result = $notify->processInformation();
-            $response = $result['response'];
-            $status = $result['status'];
         } catch (Exception $exception) {
             $result['notification_message'] = $exception->getMessage();
             $result['notification_error'] = true;
         }
 
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            header("HTTP/1.1 $status", true, $status);
-            header('Content-Type: application/json', true);
-            header('Content-Length: ' . strlen($response));
-            echo ($response);
-            exit();
+        $paymentOrder = new WC_Order($result->getMerchantOrderId());
+        if ($paymentOrder instanceof WC_Order) {
+            $orderStatus = strtolower($paymentOrder->get_status());
         } else {
-            $response = json_decode($response);
-            $paymentOrder = new WC_Order($response->order_id);
-            if ($paymentOrder instanceof WC_Order) {
-                $orderStatus = strtolower($paymentOrder->get_status());
-            } else {
-                $orderStatus = 'cancelled';
-            }
-
-            $acceptedStatus = array('processing', 'completed');
-            if (in_array($orderStatus, $acceptedStatus)) {
-                $returnUrl = $this->getOkUrl($paymentOrder);
-            } else {
-                $returnUrl = $this->getKoUrl($paymentOrder);
-            }
-
-            wp_redirect($returnUrl);
-            exit;
+            $orderStatus = 'cancelled';
         }
+        $acceptedStatus = array('processing', 'completed');
+        if (in_array($orderStatus, $acceptedStatus)) {
+            $returnUrl = $this->getOkUrl($paymentOrder);
+        } else {
+            $returnUrl = $this->getKoUrl($paymentOrder);
+        }
+
+        wp_redirect($returnUrl);
+        exit;
     }
 
     /**
@@ -413,7 +403,7 @@ class WcPaylaterGateway extends WC_Payment_Gateway
             );
 
         } catch (Exception $e) {
-            wc_add_notice(__('Payment error ', 'paylater') . $e->getMessage(), 'error');
+            wc_add_notice(__('Error en el pago ', 'paylater') . $e->getMessage(), 'error');
             return array();
         }
     }

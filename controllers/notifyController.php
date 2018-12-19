@@ -1,6 +1,17 @@
 <?php
 
 use PagaMasTarde\OrdersApiClient\Client;
+use PagaMasTarde\ModuleUtils\Exception\AlreadyProcessedException;
+use PagaMasTarde\ModuleUtils\Exception\AmountMismatchException;
+use PagaMasTarde\ModuleUtils\Exception\MerchantOrderNotFoundException;
+use PagaMasTarde\ModuleUtils\Exception\NoIdentificationException;
+use PagaMasTarde\ModuleUtils\Exception\NoOrderFoundException;
+use PagaMasTarde\ModuleUtils\Exception\NoQuoteFoundException;
+use PagaMasTarde\ModuleUtils\Exception\UnknownException;
+use PagaMasTarde\ModuleUtils\Exception\WrongStatusException;
+use PagaMasTarde\ModuleUtils\Model\Response\JsonSuccessResponse;
+use PagaMasTarde\ModuleUtils\Model\Response\JsonExceptionResponse;
+use PagaMasTarde\ModuleUtils\Model\Log\LogEntry;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -8,29 +19,6 @@ if (!defined('ABSPATH')) {
 
 class WcPaylaterNotify extends WcPaylaterGateway
 {
-    /**
-     * EXCEPTION RESPONSES
-     */
-    const CC_ERR_MSG = 'Unable to block resource';
-    const CC_NO_QUOTE = 'OrderId not found';
-    const CC_NO_VALIDATE ='Validation in progress, try again later';
-    const GMO_ERR_MSG = 'Merchant Order Not Found';
-    const GPOI_ERR_MSG = 'Pmt Order Not Found';
-    const GPOI_NO_ORDERID = 'We can not get the PagaMasTarde identification in database.';
-    const GPO_ERR_MSG = 'Unable to get Order';
-    const COS_ERR_MSG = 'Order status is not authorized';
-    const COS_WRONG_STATUS = 'Invalid Pmt status';
-    const CMOS_ERR_MSG = 'Merchant Order status is invalid';
-    const CMOS_ALREADY_PROCESSED = 'Cart already processed.';
-    const VA_ERR_MSG = 'Amount conciliation error';
-    const VA_WRONG_AMOUNT = 'Wrong order amount';
-    const PMO_ERR_MSG = 'Unknown Error';
-    const CPO_ERR_MSG = 'Order not confirmed';
-    const CPO_OK_MSG = 'Order confirmed';
-
-    /** @var Array_ $notifyResult */
-    protected $notifyResult;
-
     /** @var mixed $pmtOrder */
     protected $pmtOrder;
 
@@ -41,7 +29,7 @@ class WcPaylaterNotify extends WcPaylaterGateway
     public $order;
 
     /** @var mixed $woocommerceOrderId */
-    protected $woocommerceOrderId;
+    protected $woocommerceOrderId = '';
 
     /** @var mixed $cfg */
     protected $cfg;
@@ -53,7 +41,7 @@ class WcPaylaterNotify extends WcPaylaterGateway
     protected $woocommerceOrder;
 
     /** @var mixed $pmtOrderId */
-    protected $pmtOrderId;
+    protected $pmtOrderId = '';
 
     /**
      * Validation vs PmtClient
@@ -74,36 +62,35 @@ class WcPaylaterNotify extends WcPaylaterGateway
             $this->validateAmount();
             $this->processMerchantOrder();
         } catch (\Exception $exception) {
+            $jsonResponse = new JsonExceptionResponse();
+            $jsonResponse->setMerchantOrderId($this->woocommerceOrderId);
+            $jsonResponse->setPmtOrderId($this->pmtOrderId);
+            $jsonResponse->setException($exception);
+            $response = $jsonResponse->toJson();
             $this->insertLog($exception);
-            $exception = unserialize($exception->getMessage());
-            $status = $exception->status;
-            $response = array();
-            $response['timestamp'] = time();
-            $response['order_id']= $this->woocommerceOrderId;
-            $response['result'] = $exception->result;
-            $response['result_description'] = $exception->result_description;
-            $response = json_encode($response);
         }
         try {
             if (!isset($response)) {
-                $response = $this->confirmPmtOrder();
-                $status = isset($response['status']) ? $response['status'] : 200;
-                $response = json_encode($response);
+                $this->confirmPmtOrder();
+                $jsonResponse = new JsonSuccessResponse();
+                $jsonResponse->setMerchantOrderId($this->woocommerceOrderId);
+                $jsonResponse->setPmtOrderId($this->pmtOrderId);
             }
         } catch (\Exception $exception) {
-            $this->insertLog($exception);
             $this->rollbackMerchantOrder();
-            $exception = unserialize($exception->getMessage());
-            $status = $exception->status;
-            $response = array();
-            $response['timestamp'] = time();
-            $response['order_id']= $this->woocommerceOrderId;
-            $response['result'] = self::CPO_ERR_MSG;
-            $response['result_description'] = $exception->result_description;
-            $response = json_encode($response);
+            $jsonResponse = new JsonExceptionResponse();
+            $jsonResponse->setMerchantOrderId($this->woocommerceOrderId);
+            $jsonResponse->setPmtOrderId($this->pmtOrderId);
+            $jsonResponse->setException($exception);
+            $jsonResponse->toJson();
+            $this->insertLog($exception);
         }
 
-        return array('response'=>$response, 'status'=>$status);
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $jsonResponse->printResponse();
+        } else {
+            return $jsonResponse;
+        }
     }
 
     /**
@@ -115,15 +102,9 @@ class WcPaylaterNotify extends WcPaylaterGateway
      */
     private function checkConcurrency()
     {
-        try {
-            $this->getOrderId();
-        } catch (\Exception $e) {
-            $exceptionObject = new \stdClass();
-            $exceptionObject->method= __FUNCTION__;
-            $exceptionObject->status='429';
-            $exceptionObject->result= self::CC_ERR_MSG;
-            $exceptionObject->result_description = $e->getMessage();
-            throw new \Exception(serialize($exceptionObject));
+        $this->woocommerceOrderId = $_GET['order-received'];
+        if ($this->woocommerceOrderId == '') {
+            throw new NoQuoteFoundException();
         }
     }
 
@@ -135,12 +116,7 @@ class WcPaylaterNotify extends WcPaylaterGateway
         try {
             $this->woocommerceOrder = new WC_Order($this->woocommerceOrderId);
         } catch (\Exception $e) {
-            $exceptionObject = new \stdClass();
-            $exceptionObject->method= __FUNCTION__;
-            $exceptionObject->status='404';
-            $exceptionObject->result= self::GMO_ERR_MSG;
-            $exceptionObject->result_description = $e->getMessage();
-            throw new \Exception(serialize($exceptionObject));
+            throw new MerchantOrderNotFoundException();
         }
     }
 
@@ -149,18 +125,20 @@ class WcPaylaterNotify extends WcPaylaterGateway
      */
     private function getPmtOrderId()
     {
-        try {
-            $this->getPmtOrderIdDb();
-        } catch (\Exception $e) {
-            $exceptionObject = new \stdClass();
-            $exceptionObject->method= __FUNCTION__;
-            $exceptionObject->status='404';
-            $exceptionObject->result= self::GPOI_ERR_MSG;
-            $exceptionObject->result_description = $e->getMessage();
-            throw new \Exception(serialize($exceptionObject));
+        global $wpdb;
+        $this->checkDbTable();
+        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $queryResult = $wpdb->get_row("select order_id from $tableName where id='".$this->woocommerceOrderId."'");
+        $this->pmtOrderId = $queryResult->order_id;
+
+        if ($this->pmtOrderId == '') {
+            throw new NoIdentificationException();
         }
     }
 
+    /**
+     * @throws NoOrderFoundException
+     */
     private function getPmtOrder()
     {
         try {
@@ -168,112 +146,89 @@ class WcPaylaterNotify extends WcPaylaterGateway
             $this->orderClient = new Client($this->cfg['public_key'], $this->cfg['secret_key']);
             $this->pmtOrder = $this->orderClient->getOrder($this->pmtOrderId);
         } catch (\Exception $e) {
-            $exceptionObject = new \stdClass();
-            $exceptionObject->method= __FUNCTION__;
-            $exceptionObject->status='400';
-            $exceptionObject->result= self::GPO_ERR_MSG;
-            $exceptionObject->result_description = $e->getMessage();
-            throw new \Exception(serialize($exceptionObject));
+            throw new NoOrderFoundException();
         }
     }
 
+    /**
+     * @throws AlreadyProcessedException
+     * @throws WrongStatusException
+     */
     private function checkOrderStatus()
     {
         try {
             $this->checkPmtStatus(array('AUTHORIZED'));
         } catch (\Exception $e) {
-            $exceptionObject = new \stdClass();
-            $exceptionObject->method= __FUNCTION__;
-            if ($this->getWoocommerceOrderId()!='') {
-                $exceptionObject->status='200';
-                $exceptionObject->result= self::CMOS_ALREADY_PROCESSED;
-                $exceptionObject->result_description = self::CMOS_ALREADY_PROCESSED;
+            if ($this->woocommerceOrderId!='') {
+                throw new AlreadyProcessedException();
             } else {
-                $exceptionObject->status='403';
-                $exceptionObject->result= self::COS_ERR_MSG;
-                $exceptionObject->result_description = $e->getMessage();
+                if ($this->pmtOrder instanceof \PagaMasTarde\OrdersApiClient\Model\Order) {
+                    $status = $this->pmtOrder->getStatus();
+                } else {
+                    $status = '-';
+                }
+                throw new WrongStatusException($status);
             }
-            throw new \Exception(serialize($exceptionObject));
         }
     }
 
+    /**
+     * @throws AlreadyProcessedException
+     */
     private function checkMerchantOrderStatus()
     {
-        try {
-            $this->checkCartStatus();
-        } catch (\Exception $e) {
-            $exceptionObject = new \stdClass();
-            $exceptionObject->method= __FUNCTION__;
-            $exceptionObject->status='409';
-            $exceptionObject->result= self::CMOS_ERR_MSG;
-            $exceptionObject->result_description = $e->getMessage();
-            throw new \Exception(serialize($exceptionObject));
+        $validStatus   = array('on-hold', 'pending', 'failed');
+        $isValidStatus = apply_filters(
+            'woocommerce_valid_order_statuses_for_payment_complete',
+            $validStatus,
+            $this
+        );
+
+        if (!$this->woocommerceOrder->has_status($isValidStatus)) {
+            throw new AlreadyProcessedException();
         }
     }
 
+    /**
+     * @throws AmountMismatchException
+     */
     private function validateAmount()
     {
-        try {
-            $this->comparePrices();
-        } catch (\Exception $e) {
-            $exceptionObject = new \stdClass();
-            $exceptionObject->method= __FUNCTION__;
-            $exceptionObject->status='409';
-            $exceptionObject->result= self::VA_ERR_MSG;
-            $exceptionObject->result_description = $e->getMessage();
-            throw new \Exception(serialize($exceptionObject));
+        $pmtAmount = $this->pmtOrder->getShoppingCart()->getTotalAmount();
+        $wcAmount = intval(strval(100 * $this->woocommerceOrder->get_total()));
+        if ($pmtAmount != $wcAmount) {
+            throw new AmountMismatchException($pmtAmount, $wcAmount);
         }
     }
 
+    /**
+     * @throws Exception
+     */
     private function processMerchantOrder()
     {
-        try {
-            $this->saveOrder();
-            $this->updateBdInfo();
-        } catch (\Exception $e) {
-            $exceptionObject = new \stdClass();
-            $exceptionObject->method= __FUNCTION__;
-            $exceptionObject->status='500';
-            $exceptionObject->result= self::PMO_ERR_MSG;
-            $exceptionObject->result_description = $e->getMessage();
-            throw new \Exception(serialize($exceptionObject));
-        }
+        $this->saveOrder();
+        $this->updateBdInfo();
     }
 
+    /**
+     * @return false|string
+     * @throws UnknownException
+     */
     private function confirmPmtOrder()
     {
         try {
             $this->pmtOrder = $this->orderClient->confirmOrder($this->pmtOrderId);
         } catch (\Exception $e) {
-            $exceptionObject = new \stdClass();
-            $exceptionObject->method= __FUNCTION__;
-            $exceptionObject->status='500';
-            $exceptionObject->result= self::CPO_ERR_MSG;
-            $exceptionObject->result_description = $e->getMessage();
-            throw new \Exception(serialize($exceptionObject));
+            throw new UnknownException($e->getMessage());
         }
-        $response = array();
-        $response['status'] = '200';
-        $response['timestamp'] = time();
-        $response['order_id']= $this->woocommerceOrderId;
-        $response['result'] = self::CPO_OK_MSG;
-        return $response;
+
+        $jsonResponse = new JsonSuccessResponse();
+        return $jsonResponse->toJson();
     }
     /**
      * UTILS FUNCTIONS
      */
     /** STEP 1 CC - Check concurrency */
-    /**
-     * @throws \Exception
-     */
-    private function getOrderId()
-    {
-        $this->woocommerceOrderId = $_GET['order-received'];
-        if ($this->woocommerceOrderId == '') {
-            throw new \Exception(self::CC_NO_QUOTE);
-        }
-    }
-
     /**
      * Check if orders table exists
      */
@@ -313,21 +268,6 @@ class WcPaylaterNotify extends WcPaylaterGateway
 
     /** STEP 2 GMO - Get Merchant Order */
     /** STEP 3 GPOI - Get Pmt OrderId */
-    /**
-     * @throws \Exception
-     */
-    private function getPmtOrderIdDb()
-    {
-        global $wpdb;
-        $this->checkDbTable();
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
-        $queryResult = $wpdb->get_row("select order_id from $tableName where id='".$this->woocommerceOrderId."'");
-        $this->pmtOrderId = $queryResult->order_id;
-
-        if ($this->pmtOrderId == '') {
-            throw new \Exception(self::GPOI_NO_ORDERID);
-        }
-    }
     /** STEP 4 GPO - Get Pmt Order */
     /** STEP 5 COS - Check Order Status */
     /**
@@ -341,50 +281,18 @@ class WcPaylaterNotify extends WcPaylaterGateway
         foreach ($statusArray as $status) {
             $pmtStatus[] = constant("\PagaMasTarde\OrdersApiClient\Model\Order::STATUS_$status");
         }
-        $payed = in_array($this->pmtOrder->getStatus(), $pmtStatus);
-        if (!$payed) {
-            throw new \Exception(self::CMOS_ERR_MSG."=>".$this->pmtOrder->getStatus());
+
+        if ($this->pmtOrder instanceof \PagaMasTarde\OrdersApiClient\Model\Order) {
+            $payed = in_array($this->pmtOrder->getStatus(), $pmtStatus);
+            if (!$payed) {
+                throw new WrongStatusException($this->pmtOrder->getStatus());
+            }
+        } else {
+            throw new NoOrderFoundException();
         }
     }
     /** STEP 6 CMOS - Check Merchant Order Status */
-    /**
-     * @throws \Exception
-     */
-    private function checkCartStatus()
-    {
-        $validStatus   = array('on-hold', 'pending', 'failed');
-        $isValidStatus = apply_filters(
-            'woocommerce_valid_order_statuses_for_payment_complete',
-            $validStatus,
-            $this
-        );
-
-        if (!$this->woocommerceOrder->has_status($isValidStatus)) {
-            throw new \Exception(self::CMOS_ALREADY_PROCESSED);
-        }
-    }
-
-    private function getWoocommerceOrderId()
-    {
-        global $wpdb;
-        $tableName   = $wpdb->prefix.self::ORDERS_TABLE;
-        $queryResult = $wpdb->get_row("select wc_order_id from $tableName where id='$this->woocommerceOrderId' and order_id='$this->pmtOrderId'");
-        return $queryResult->wc_order_id;
-    }
-
     /** STEP 7 VA - Validate Amount */
-    /**
-     * @throws \Exception
-     */
-    private function comparePrices()
-    {
-        $pmtAmount = $this->pmtOrder->getShoppingCart()->getTotalAmount();
-        $wcAmount = intval(strval(100 * $this->woocommerceOrder->get_total()));
-        if ($pmtAmount != $wcAmount) {
-            throw new \Exception(self::VA_ERR_MSG);
-        }
-    }
-
     /** STEP 8 PMO - Process Merchant Order */
     /**
      * @throws \Exception
@@ -396,17 +304,22 @@ class WcPaylaterNotify extends WcPaylaterGateway
         if ($paymentResult) {
             $this->woocommerceOrder->add_order_note($this->origin);
             $this->woocommerceOrder->reduce_order_stock();
-            $woocommerce->cart->empty_cart();
             $this->woocommerceOrder->save();
+
+            $woocommerce->cart->empty_cart();
             sleep(3);
         } else {
-            throw new \Exception(self::PMO_ERR_MSG);
+            throw new UnkownException('Order can not be saved');
         }
     }
 
+    /**
+     * Save the merchant order_id with the related identification
+     */
     private function updateBdInfo()
     {
         global $wpdb;
+
         $this->checkDbTable();
         $tableName = $wpdb->prefix.self::ORDERS_TABLE;
 
@@ -430,20 +343,17 @@ class WcPaylaterNotify extends WcPaylaterGateway
      *
      * @throws \Zend_Db_Exception
      */
-    private function insertLog($exceptionMessage)
+    private function insertLog($exception)
     {
         global $wpdb;
-        if ($exceptionMessage instanceof \Exception) {
+
+        if ($exception instanceof \Exception) {
             $this->checkDbLogTable();
-            $logObject          = new \stdClass();
-            $logObject->message = $exceptionMessage->getMessage();
-            $logObject->code    = $exceptionMessage->getCode();
-            $logObject->line    = $exceptionMessage->getLine();
-            $logObject->file    = $exceptionMessage->getFile();
-            $logObject->trace   = $exceptionMessage->getTraceAsString();
+            $logEntry= new LogEntry();
+            $logEntryJson = $logEntry->error($exception)->toJson();
 
             $tableName = $wpdb->prefix.self::LOGS_TABLE;
-            $wpdb->insert($tableName, array('log' => json_encode($logObject)));
+            $wpdb->insert($tableName, array('log' => $logEntryJson));
         }
     }
 
