@@ -285,7 +285,12 @@ class WcPaylaterNotify extends WcPaylaterGateway
         if ($this->pmtOrder instanceof \PagaMasTarde\OrdersApiClient\Model\Order) {
             $payed = in_array($this->pmtOrder->getStatus(), $pmtStatus);
             if (!$payed) {
-                throw new WrongStatusException($this->pmtOrder->getStatus());
+                if ($this->pmtOrder instanceof \PagaMasTarde\OrdersApiClient\Model\Order) {
+                    $status = $this->pmtOrder->getStatus();
+                } else {
+                    $status = '-';
+                }
+                throw new WrongStatusException($status);
             }
         } else {
             throw new NoOrderFoundException();
@@ -309,7 +314,7 @@ class WcPaylaterNotify extends WcPaylaterGateway
             $woocommerce->cart->empty_cart();
             sleep(3);
         } else {
-            throw new UnkownException('Order can not be saved');
+            throw new UnknownException('Order can not be saved');
         }
     }
 
