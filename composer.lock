@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ddfb09d0108dee654e47f1e761374832",
+    "content-hash": "6cea320d351a26fc9c951445bd15dd60",
     "packages": [
         {
             "name": "nategood/httpful",
@@ -94,6 +94,50 @@
             ],
             "description": "Library for converting strings from camel case to snake case and vice versa.",
             "time": "2015-06-04T13:11:29+00:00"
+        },
+        {
+            "name": "pagamastarde/module-utils",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PagaMasTarde/module-utils.git",
+                "reference": "3e5103843eabd08f7697ae3d2459116db5e5fe89"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PagaMasTarde/module-utils/zipball/3e5103843eabd08f7697ae3d2459116db5e5fe89",
+                "reference": "3e5103843eabd08f7697ae3d2459116db5e5fe89",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "facebook/webdriver": "^1.1",
+                "fzaninotto/faker": "^1.7",
+                "nayjest/str-case-converter": "^1.0",
+                "phpunit/phpunit": "^4.8",
+                "phpunit/phpunit-selenium": "^2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PagaMasTarde\\ModuleUtils\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "DigitalOrigin",
+                    "email": "cromero@digitalorigin.com"
+                }
+            ],
+            "description": "Paga+Tarde PHP Library. Module utils",
+            "time": "2018-12-17T18:51:05+00:00"
         },
         {
             "name": "pagamastarde/orders-api-client",
