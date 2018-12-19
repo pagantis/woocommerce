@@ -45,7 +45,7 @@ abstract class PaylaterWoocommerceTest extends TestCase
         'defaultSimulatorOpt' => 6,
         'confirmationMsg'=>'Pedido recibido',
         'checkoutDescription'=> 'Paga hasta en 12 cómodas cuotas con Paga + Tarde',
-        'enter' => 'Pulse aquí para acceder'
+        'enter' => 'Haz clic aquí para acceder'
     );
 
     /**
