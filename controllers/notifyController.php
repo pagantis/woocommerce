@@ -5,8 +5,8 @@ use PagaMasTarde\ModuleUtils\Exception\AlreadyProcessedException;
 use PagaMasTarde\ModuleUtils\Exception\AmountMismatchException;
 use PagaMasTarde\ModuleUtils\Exception\MerchantOrderNotFoundException;
 use PagaMasTarde\ModuleUtils\Exception\NoIdentificationException;
-use PagaMasTarde\ModuleUtils\Exception\NoOrderFoundException;
-use PagaMasTarde\ModuleUtils\Exception\NoQuoteFoundException;
+use PagaMasTarde\ModuleUtils\Exception\OrderNotFoundException;
+use PagaMasTarde\ModuleUtils\Exception\QuoteNotFoundException;
 use PagaMasTarde\ModuleUtils\Exception\UnknownException;
 use PagaMasTarde\ModuleUtils\Exception\WrongStatusException;
 use PagaMasTarde\ModuleUtils\Model\Response\JsonSuccessResponse;
@@ -98,18 +98,18 @@ class WcPaylaterNotify extends WcPaylaterGateway
      */
 
     /**
-     * @throws Exception
+     * @throws QuoteNotFoundException
      */
     private function checkConcurrency()
     {
         $this->woocommerceOrderId = $_GET['order-received'];
         if ($this->woocommerceOrderId == '') {
-            throw new NoQuoteFoundException();
+            throw new QuoteNotFoundException();
         }
     }
 
     /**
-     * @throws Exception
+     * @throws MerchantOrderNotFoundException
      */
     private function getMerchantOrder()
     {
@@ -121,7 +121,7 @@ class WcPaylaterNotify extends WcPaylaterGateway
     }
 
     /**
-     * @throws Exception
+     * @throws NoIdentificationException
      */
     private function getPmtOrderId()
     {
@@ -137,7 +137,7 @@ class WcPaylaterNotify extends WcPaylaterGateway
     }
 
     /**
-     * @throws NoOrderFoundException
+     * @throws OrderNotFoundException
      */
     private function getPmtOrder()
     {
@@ -146,7 +146,7 @@ class WcPaylaterNotify extends WcPaylaterGateway
             $this->orderClient = new Client($this->cfg['public_key'], $this->cfg['secret_key']);
             $this->pmtOrder = $this->orderClient->getOrder($this->pmtOrderId);
         } catch (\Exception $e) {
-            throw new NoOrderFoundException();
+            throw new OrderNotFoundException();
         }
     }
 
@@ -257,8 +257,8 @@ class WcPaylaterNotify extends WcPaylaterGateway
 
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
-            $sql = "CREATE TABLE $tableName ( id int NOT NULL AUTO_INCREMENT, log text NOT NULL, createdAt timestamp DEFAULT CURRENT_TIMESTAMP,  
-                  UNIQUE KEY id (id)) $charset_collate";
+            $sql = "CREATE TABLE $tableName ( id int NOT NULL AUTO_INCREMENT, log text NOT NULL, 
+                    createdAt timestamp DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY id (id)) $charset_collate";
 
             require_once(ABSPATH.'wp-admin/includes/upgrade.php');
             dbDelta($sql);
@@ -293,7 +293,7 @@ class WcPaylaterNotify extends WcPaylaterGateway
                 throw new WrongStatusException($status);
             }
         } else {
-            throw new NoOrderFoundException();
+            throw new OrderNotFoundException();
         }
     }
     /** STEP 6 CMOS - Check Merchant Order Status */

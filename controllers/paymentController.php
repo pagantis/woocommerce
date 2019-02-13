@@ -2,6 +2,8 @@
 
 //namespace empty
 use PagaMasTarde\OrdersApiClient\Model\Order\User\Address;
+use PagaMasTarde\ModuleUtils\Exception\OrderNotFoundException;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -271,7 +273,7 @@ EOD;
                 $url = $pmtOrder->getActionUrls()->getForm();
                 $this->insertRow($order->get_id(), $pmtOrder->getId());
             } else {
-                throw new \Exception('Order not created');
+                throw new OrderNotFoundException();
             }
 
             if ($url=="") {
@@ -308,7 +310,7 @@ EOD;
             include_once('notifyController.php');
             $notify = new WcPaylaterNotify();
             $notify->setOrigin($origin);
-            /** @var \PagaMasTarde\ModuleUtils\Model\JsonResponse $result */
+            /** @var \PagaMasTarde\ModuleUtils\Model\Response\AbstractJsonResponse $result */
             $result = $notify->processInformation();
         } catch (Exception $exception) {
             $result['notification_message'] = $exception->getMessage();
