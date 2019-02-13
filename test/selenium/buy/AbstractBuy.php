@@ -8,7 +8,7 @@ use PagaMasTarde\ModuleUtils\Exception\AlreadyProcessedException;
 use PagaMasTarde\ModuleUtils\Exception\ConcurrencyException;
 use PagaMasTarde\ModuleUtils\Exception\MerchantOrderNotFoundException;
 use PagaMasTarde\ModuleUtils\Exception\NoIdentificationException;
-use PagaMasTarde\ModuleUtils\Exception\NoQuoteFoundException;
+use PagaMasTarde\ModuleUtils\Exception\QuoteNotFoundException;
 use Test\Selenium\PaylaterWoocommerceTest;
 use PagaMasTarde\SeleniumFormUtils\SeleniumHelper;
 use Httpful\Request;
@@ -393,7 +393,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
     }
 
     /**
-     * Check if with a empty parameter called order-received we can get a NoQuoteFoundException
+     * Check if with a empty parameter called order-received we can get a QuoteNotFoundException
      *
      * @throws \Httpful\Exception\ConnectionErrorException
      */
@@ -403,7 +403,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
         $this->assertNotEmpty($notifyUrl, $notifyUrl);
         $response = Request::post($notifyUrl)->expects('json')->send();
         $this->assertNotEmpty($response->body->result, $response->body->result);
-        $this->assertContains(NoQuoteFoundException::ERROR_MESSAGE, $response->body->result, "PR=>".$response->body->result);
+        $this->assertContains(QuoteNotFoundException::ERROR_MESSAGE, $response->body->result, "PR=>".$response->body->result);
     }
 
     /**
