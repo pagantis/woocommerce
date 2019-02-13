@@ -97,16 +97,16 @@
         },
         {
             "name": "pagamastarde/module-utils",
-            "version": "1.0.0",
+            "version": "v1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PagaMasTarde/module-utils.git",
-                "reference": "3e5103843eabd08f7697ae3d2459116db5e5fe89"
+                "reference": "00b214250b818192d6fe9e0f52b68ee5b24c38d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PagaMasTarde/module-utils/zipball/3e5103843eabd08f7697ae3d2459116db5e5fe89",
-                "reference": "3e5103843eabd08f7697ae3d2459116db5e5fe89",
+                "url": "https://api.github.com/repos/PagaMasTarde/module-utils/zipball/00b214250b818192d6fe9e0f52b68ee5b24c38d0",
+                "reference": "00b214250b818192d6fe9e0f52b68ee5b24c38d0",
                 "shasum": ""
             },
             "require": {
@@ -137,7 +137,7 @@
                 }
             ],
             "description": "Paga+Tarde PHP Library. Module utils",
-            "time": "2018-12-17T18:51:05+00:00"
+            "time": "2019-01-23T10:59:08+00:00"
         },
         {
             "name": "pagamastarde/orders-api-client",
