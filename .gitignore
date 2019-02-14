@@ -2,3 +2,4 @@
 /vendor
 paylater*.zip
 composer.phar
+.env
