@@ -143,7 +143,7 @@ class WcPaylaterNotify extends WcPaylaterGateway
     {
         try {
             $this->cfg = get_option('woocommerce_paylater_settings');
-            $this->orderClient = new Client($this->cfg['public_key'], $this->cfg['secret_key']);
+            $this->orderClient = new Client($this->cfg['pmt_public_key'], $this->cfg['pmt_private_key']);
             $this->pmtOrder = $this->orderClient->getOrder($this->pmtOrderId);
         } catch (\Exception $e) {
             throw new OrderNotFoundException();

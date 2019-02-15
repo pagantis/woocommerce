@@ -49,12 +49,25 @@ class WcPaylaterGateway extends WC_Payment_Gateway
         $this->form_fields = include(plugin_dir_path(__FILE__).'../includes/settings-paylater.php');//Panel options
         $this->init_settings();
 
-        $this->settings['ok_url'] = ($this->settings['ok_url']!='')?$this->settings['ok_url']:$this->generateOkUrl();
-        $this->settings['ko_url'] = ($this->settings['ko_url']!='')?$this->settings['ko_url']:$this->generateKoUrl();
+        $this->settings['ok_url'] = (getenv('PMT_URL_OK')!='')?getenv('PMT_URL_OK'):$this->generateOkUrl();
+        $this->settings['ko_url'] = (getenv('PMT_URL_KO')!='')?getenv('PMT_URL_KO'):$this->generateKoUrl();
         foreach ($this->settings as $setting_key => $setting_value) {
             $this->$setting_key = $setting_value;
         }
-        $this->method_description = $this->checkout_title;
+
+        $this->dotEnvError = null;
+        try {
+            $envFile = new \Dotenv\Dotenv(plugin_dir_path(__FILE__) . '../');
+            $envFile->load();
+        } catch (\Exception $exception) {
+            $this->dotEnvError = 'Unable to read file';
+            wc_add_notice(__('Error en el pago - ', 'paylater') . $exception->getMessage(), 'error');
+            $checkout_url = get_permalink(wc_get_page_id('checkout'));
+            wp_redirect($checkout_url);
+            exit;
+        }
+
+        $this->method_description = getenv('PMT_TITLE');
 
         //Hooks
         add_action('woocommerce_update_options_payment_gateways_'.$this->id, array($this,'process_admin_options')); //Save plugin options
@@ -62,6 +75,7 @@ class WcPaylaterGateway extends WC_Payment_Gateway
         add_action('woocommerce_receipt_'.$this->id, array($this, 'paylaterReceiptPage'));          //Pmt form
         add_action('woocommerce_api_wcpaylatergateway', array($this, 'paylaterNotification'));      //Json Notification
         add_filter('woocommerce_payment_complete_order_status', array($this,'paylaterCompleteStatus'), 10, 3);
+        register_activation_hook(__FILE__, array($this,'paylaterActivation'));
     }
 
     /***********
@@ -97,7 +111,7 @@ class WcPaylaterGateway extends WC_Payment_Gateway
         } elseif (!version_compare(phpversion(), '5.3.0', '>=')) {
             $error_string =  __(' no es compatible con su versión de php y/o curl', 'paylater');
             $this->settings['enabled'] = 'no';
-        } elseif ($this->settings['public_key']=="" || $this->settings['secret_key']=="") {
+        } elseif ($this->settings['pmt_public_key']=="" || $this->settings['pmt_private_key']=="") {
             $keys_error =  <<<EOD
 no está configurado correctamente, los campos Public Key y Secret Key son obligatorios para su funcionamiento
 EOD;
@@ -109,15 +123,10 @@ EOD;
         } elseif (!in_array(get_locale(), $this->allowed_languages)) {
             $error_string = __(' solo puede ser usado en Español', 'paylater');
             $this->settings['enabled'] = 'no';
-        } elseif ($this->min_installments<2 ||  $this->min_installments>12 ||
-                  $this->max_installments<2 ||  $this->max_installments>12 ) {
+        } elseif (getenv('PMT_SIMULATOR_MAX_INSTALLMENTS')<2 || getenv('PMT_SIMULATOR_MAX_INSTALLMENTS')>12) {
             $error_string = __(' solo puede ser pagado de 2 a 12 plazos.', 'paylater');
-            $this->settings['min_installments'] = 2;
-            $this->settings['max_installments'] = 12;
-        } elseif ($this->min_amount<0 || $this->max_amount<0) {
+        } elseif (getenv('PMT_DISPLAY_MIN_AMOUNT')<0) {
             $error_string = __(' el importe debe ser mayor a 0.', 'paylater');
-            $this->settings['min_amount'] = 0;
-            $this->settings['max_amount'] = 10000;
         }
 
         if ($error_string!='') {
@@ -264,10 +273,10 @@ EOD;
                 ->setUser($orderUser)
             ;
 
-            if ($this->public_key=='' || $this->secret_key=='') {
+            if ($this->pmt_public_key=='' || $this->pmt_private_key=='') {
                 throw new \Exception('Public and Secret Key not found');
             }
-            $orderClient = new \PagaMasTarde\OrdersApiClient\Client($this->public_key, $this->secret_key);
+            $orderClient = new \PagaMasTarde\OrdersApiClient\Client($this->pmt_public_key, $this->pmt_private_key);
             $pmtOrder = $orderClient->createOrder($orderApiClient);
             if ($pmtOrder instanceof \PagaMasTarde\OrdersApiClient\Model\Order) {
                 $url = $pmtOrder->getActionUrls()->getForm();
@@ -367,8 +376,8 @@ EOD;
      */
     public function is_available()
     {
-        if ($this->enabled==='yes' && $this->public_key!='' && $this->secret_key!='' &&
-            $this->get_order_total()>$this->min_amount && $this->get_order_total()<$this->max_amount) {
+        if ($this->enabled==='yes' && $this->pmt_public_key!='' && $this->pmt_private_key!='' &&
+            $this->get_order_total()>getenv('PMT_DISPLAY_MIN_AMOUNT')) {
             return true;
         }
 
@@ -381,7 +390,7 @@ EOD;
      */
     public function get_title()
     {
-        return $this->extra_title;
+        return getenv('PMT_TITLE');
     }
 
     /**
@@ -417,11 +426,10 @@ EOD;
     {
         $template_fields = array(
             'message' => $this->checkout_title,
-            'public_key' => $this->public_key,
+            'public_key' => $this->pmt_public_key,
             'total' => WC()->session->cart_totals['total'],
-            'enabled' =>  $this->simulator_checkout,
-            'min_installments' => $this->min_installments,
-            'max_installments' => $this->max_installments
+            'enabled' =>  $this,
+            'min_installments' => getenv('PMT_DISPLAY_MIN_AMOUNT')
         );
         wc_get_template('checkout_description.php', $template_fields, '', $this->template_path);
     }
@@ -482,7 +490,7 @@ EOD;
      */
     private function getOkUrl($order)
     {
-        return $this->getKeysUrl($order, $this->ok_url);
+        return $this->getKeysUrl($order, getenv('PMT_URL_OK'));
     }
 
     /**
@@ -493,7 +501,7 @@ EOD;
      */
     private function getKoUrl($order)
     {
-        return $this->getKeysUrl($order, $this->ko_url);
+        return $this->getKeysUrl($order, getenv('PMT_URL_OK'));
     }
 
     /**
