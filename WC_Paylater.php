@@ -9,11 +9,10 @@
 
 //namespace Gateways;
 
+
 if (!defined('ABSPATH')) {
     exit;
 }
-
-
 
 class WcPaylater
 {
@@ -28,6 +27,8 @@ class WcPaylater
      */
     public function __construct()
     {
+        require_once(plugin_dir_path(__FILE__).'/vendor/autoload.php');
+
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
         load_plugin_textdomain('paylater', false, basename(dirname(__FILE__)).'/languages');
@@ -38,6 +39,45 @@ class WcPaylater
         add_action('woocommerce_after_add_to_cart_form', array($this, 'paylaterAddProductSimulator'));
         add_action('wp_enqueue_scripts', 'add_widget_js');
         add_action('rest_api_init', array($this, 'paylaterRegisterEndpoint')); //Endpoint
+        register_activation_hook(__FILE__, array($this,'paylaterActivation'));
+    }
+
+    /**
+     * .Env files
+     */
+    public function paylaterActivation()
+    {
+        $pluginDir = plugin_dir_path(__FILE__);
+        if (!file_exists($pluginDir. '.env')) {
+            copy($pluginDir . '.env.dist', $pluginDir . '.env');
+        }
+
+        if (file_exists($pluginDir . '.env') && file_exists($pluginDir . '.env.dist')) {
+            $environmentHelper = new \PagaMasTarde\ModuleUtils\Helper\EnvironmentHelper();
+            $envFileVariables = $environmentHelper->readEnvFileAsArray($pluginDir . '.env');
+            $distFileVariables = $environmentHelper->readEnvFileAsArray($pluginDir . '.env.dist');
+            $distFile = file_get_contents($pluginDir . '.env.dist');
+
+            $newEnvFileArr = array_merge($distFileVariables, $envFileVariables);
+            $newEnvFile = $environmentHelper->replaceEnvFileValues($distFile, $newEnvFileArr);
+            file_put_contents($pluginDir . '.env', $newEnvFile);
+
+            //Current plugin config: pmt_public_key => New field --- public_key => Old field
+            $settings = get_option('woocommerce_paylater_settings');
+
+            if (!isset($settings['pmt_public_key']) && $settings['public_key']) {
+                $settings['pmt_public_key'] = $settings['public_key'];
+                unset($settings['public_key']);
+            }
+
+            if (!isset($settings['pmt_private_key']) && $settings['secret_key']) {
+                $settings['pmt_private_key'] = $settings['secret_key'];
+                unset($settings['secret_key']);
+            }
+
+            $settings['enabled'] = 'yes';
+            update_option('woocommerce_paylater_settings', $settings);
+        }
     }
 
     /**
@@ -46,15 +86,18 @@ class WcPaylater
     public function paylaterAddProductSimulator()
     {
         global $product;
+        $envFile = new \Dotenv\Dotenv(plugin_dir_path(__FILE__));
+        $envFile->load();
         $cfg = get_option('woocommerce_paylater_settings');
-        if ($cfg['enabled'] !== 'yes' || $cfg['public_key'] == '' || $cfg['secret_key'] == '' ||
-            $cfg['simulator_product'] === '0') {
+        if ($cfg['enabled'] !== 'yes' || $cfg['pmt_public_key'] == '' || $cfg['pmt_private_key'] == '' ||
+            $cfg['simulator'] !== 'yes') {
             return;
         }
 
         $template_fields = array(
             'total'    => is_numeric($product->price) ? $product->price : 0,
-            'settings' => $cfg
+            'public_key' => $cfg['pmt_public_key'],
+            'simulator_type' => getenv('PMT_SIMULATOR_DISPLAY_TYPE')
         );
         wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
     }
@@ -190,7 +233,7 @@ class WcPaylater
  **/
 function add_widget_js()
 {
-    wp_enqueue_script('pmtSdk', 'https://cdn.pagamastarde.com/pmt-js-client-sdk/3/js/client-sdk.min.js', '', '', true);
+    wp_enqueue_script('pmtSdk', 'https://cdn.pagamastarde.com/js/pmt-v2/sdk.js', '', '', true);
 }
 
 new WcPaylater();
