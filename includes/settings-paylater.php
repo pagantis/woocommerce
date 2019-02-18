@@ -11,7 +11,7 @@ return array(
     'enabled' => array(
         'title'       => __('Activate the module', 'paylater'),
         'type'        => 'checkbox',
-        'default'     => 'no'
+        'default'     => 'yes'
     ),
     'pmt_public_key' => array(
         'title'       => __('Public Key', 'paylater'),
