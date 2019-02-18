@@ -112,26 +112,18 @@ class PaylaterWc3InstallTest extends PaylaterWoocommerceTest
         $this->findByLinkText('Finalizar compra')->click();
         $this->findByLinkText('Paga Más Tarde')->click();
 
-        $verify = WebDriverBy::id('woocommerce_paylater_public_key');
+        $verify = WebDriverBy::id('woocommerce_paylater_pmt_public_key');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR5");
 
-        $verify = WebDriverBy::id('woocommerce_paylater_secret_key');
+        $verify = WebDriverBy::id('woocommerce_paylater_pmt_private_key');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR5");
 
-        $this->findById('woocommerce_paylater_public_key')->clear()->sendKeys($this->configuration['publicKey']);
-        $this->findById('woocommerce_paylater_secret_key')->clear()->sendKeys($this->configuration['secretKey']);
-        $this->findById('woocommerce_paylater_extra_title')->clear()->sendKeys($this->configuration['methodName']);
-        $this->findById('woocommerce_paylater_enabled')->click();
-        $this->webDriver->findElement(WebDriverBy::id('woocommerce_paylater_simulator_product'))
-                        ->findElement(WebDriverBy::cssSelector("option[value='".$this->configuration['defaultSimulatorOpt']."']"))
-                        ->click();
-        $this->webDriver->findElement(WebDriverBy::id('woocommerce_paylater_simulator_checkout'))
-                        ->findElement(WebDriverBy::cssSelector("option[value='".$this->configuration['defaultSimulatorOpt']."']"))
-                        ->click();
+        $this->findById('woocommerce_paylater_pmt_public_key')->clear()->sendKeys($this->configuration['publicKey']);
+        $this->findById('woocommerce_paylater_pmt_private_key')->clear()->sendKeys($this->configuration['secretKey']);
         $this->findById('mainform')->submit();
 
         $verify = WebDriverBy::className('updated');
@@ -151,12 +143,7 @@ class PaylaterWc3InstallTest extends PaylaterWoocommerceTest
         $enabledModule = $this->findById('woocommerce_paylater_enabled')->isSelected();
         $this->assertTrue($enabledModule, 'PR6');
 
-        $verify = WebDriverBy::id('woocommerce_paylater_iframe');
-        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
-        $this->waitUntil($condition);
-        $this->assertTrue((bool) $condition, "PR8");
-
-        $verify = WebDriverBy::id('woocommerce_paylater_simulator_product');
+        $verify = WebDriverBy::id('simulator');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR9");

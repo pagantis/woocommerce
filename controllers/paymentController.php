@@ -57,11 +57,11 @@ class WcPaylaterGateway extends WC_Payment_Gateway
 
         $this->dotEnvError = null;
         try {
-            $envFile = new \Dotenv\Dotenv(plugin_dir_path(__FILE__) . '../');
+            $envFile = new \Dotenv\Dotenv(dirname(plugin_dir_path(__FILE__)));
             $envFile->load();
         } catch (\Exception $exception) {
             $this->dotEnvError = 'Unable to read file';
-            wc_add_notice(__('Error en el pago - ', 'paylater') . $exception->getMessage(), 'error');
+            wc_add_notice(__('Unable to read file - ', 'paylater') . $exception->getMessage(), 'error');
             $checkout_url = get_permalink(wc_get_page_id('checkout'));
             wp_redirect($checkout_url);
             exit;
@@ -75,7 +75,6 @@ class WcPaylaterGateway extends WC_Payment_Gateway
         add_action('woocommerce_receipt_'.$this->id, array($this, 'paylaterReceiptPage'));          //Pmt form
         add_action('woocommerce_api_wcpaylatergateway', array($this, 'paylaterNotification'));      //Json Notification
         add_filter('woocommerce_payment_complete_order_status', array($this,'paylaterCompleteStatus'), 10, 3);
-        register_activation_hook(__FILE__, array($this,'paylaterActivation'));
     }
 
     /***********
