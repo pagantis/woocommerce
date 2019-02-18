@@ -1,15 +1,370 @@
 <?php
 
+use PagaMasTarde\OrdersApiClient\Client;
+use PagaMasTarde\ModuleUtils\Exception\AlreadyProcessedException;
+use PagaMasTarde\ModuleUtils\Exception\AmountMismatchException;
+use PagaMasTarde\ModuleUtils\Exception\MerchantOrderNotFoundException;
+use PagaMasTarde\ModuleUtils\Exception\NoIdentificationException;
+use PagaMasTarde\ModuleUtils\Exception\OrderNotFoundException;
+use PagaMasTarde\ModuleUtils\Exception\QuoteNotFoundException;
+use PagaMasTarde\ModuleUtils\Exception\UnknownException;
+use PagaMasTarde\ModuleUtils\Exception\WrongStatusException;
+use PagaMasTarde\ModuleUtils\Model\Response\JsonSuccessResponse;
+use PagaMasTarde\ModuleUtils\Model\Response\JsonExceptionResponse;
+use PagaMasTarde\ModuleUtils\Model\Log\LogEntry;
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
 class WcPaylaterNotify extends WcPaylaterGateway
 {
-    /**
-     * @var $string
-     */
+    /** @var mixed $pmtOrder */
+    protected $pmtOrder;
+
+    /** @var $string $origin */
     public $origin;
+
+    /** @var $string */
+    public $order;
+
+    /** @var mixed $woocommerceOrderId */
+    protected $woocommerceOrderId = '';
+
+    /** @var mixed $cfg */
+    protected $cfg;
+
+    /** @var Client $orderClient */
+    protected $orderClient;
+
+    /** @var  WC_Order $woocommerceOrder */
+    protected $woocommerceOrder;
+
+    /** @var mixed $pmtOrderId */
+    protected $pmtOrderId = '';
+
+    /**
+     * Validation vs PmtClient
+     *
+     * @return array|Array_
+     * @throws Exception
+     */
+    public function processInformation()
+    {
+        require_once(__ROOT__.'/vendor/autoload.php');
+        try {
+            $this->checkConcurrency();
+            $this->getMerchantOrder();
+            $this->getPmtOrderId();
+            $this->getPmtOrder();
+            $this->checkOrderStatus();
+            $this->checkMerchantOrderStatus();
+            $this->validateAmount();
+            $this->processMerchantOrder();
+        } catch (\Exception $exception) {
+            $jsonResponse = new JsonExceptionResponse();
+            $jsonResponse->setMerchantOrderId($this->woocommerceOrderId);
+            $jsonResponse->setPmtOrderId($this->pmtOrderId);
+            $jsonResponse->setException($exception);
+            $response = $jsonResponse->toJson();
+            $this->insertLog($exception);
+        }
+        try {
+            if (!isset($response)) {
+                $this->confirmPmtOrder();
+                $jsonResponse = new JsonSuccessResponse();
+                $jsonResponse->setMerchantOrderId($this->woocommerceOrderId);
+                $jsonResponse->setPmtOrderId($this->pmtOrderId);
+            }
+        } catch (\Exception $exception) {
+            $this->rollbackMerchantOrder();
+            $jsonResponse = new JsonExceptionResponse();
+            $jsonResponse->setMerchantOrderId($this->woocommerceOrderId);
+            $jsonResponse->setPmtOrderId($this->pmtOrderId);
+            $jsonResponse->setException($exception);
+            $jsonResponse->toJson();
+            $this->insertLog($exception);
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $jsonResponse->printResponse();
+        } else {
+            return $jsonResponse;
+        }
+    }
+
+    /**
+     * COMMON FUNCTIONS
+     */
+
+    /**
+     * @throws QuoteNotFoundException
+     */
+    private function checkConcurrency()
+    {
+        $this->woocommerceOrderId = $_GET['order-received'];
+        if ($this->woocommerceOrderId == '') {
+            throw new QuoteNotFoundException();
+        }
+    }
+
+    /**
+     * @throws MerchantOrderNotFoundException
+     */
+    private function getMerchantOrder()
+    {
+        try {
+            $this->woocommerceOrder = new WC_Order($this->woocommerceOrderId);
+        } catch (\Exception $e) {
+            throw new MerchantOrderNotFoundException();
+        }
+    }
+
+    /**
+     * @throws NoIdentificationException
+     */
+    private function getPmtOrderId()
+    {
+        global $wpdb;
+        $this->checkDbTable();
+        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $queryResult = $wpdb->get_row("select order_id from $tableName where id='".$this->woocommerceOrderId."'");
+        $this->pmtOrderId = $queryResult->order_id;
+
+        if ($this->pmtOrderId == '') {
+            throw new NoIdentificationException();
+        }
+    }
+
+    /**
+     * @throws OrderNotFoundException
+     */
+    private function getPmtOrder()
+    {
+        try {
+            $this->cfg = get_option('woocommerce_paylater_settings');
+            $this->orderClient = new Client($this->cfg['pmt_public_key'], $this->cfg['pmt_private_key']);
+            $this->pmtOrder = $this->orderClient->getOrder($this->pmtOrderId);
+        } catch (\Exception $e) {
+            throw new OrderNotFoundException();
+        }
+    }
+
+    /**
+     * @throws AlreadyProcessedException
+     * @throws WrongStatusException
+     */
+    private function checkOrderStatus()
+    {
+        try {
+            $this->checkPmtStatus(array('AUTHORIZED'));
+        } catch (\Exception $e) {
+            if ($this->woocommerceOrderId!='') {
+                throw new AlreadyProcessedException();
+            } else {
+                if ($this->pmtOrder instanceof \PagaMasTarde\OrdersApiClient\Model\Order) {
+                    $status = $this->pmtOrder->getStatus();
+                } else {
+                    $status = '-';
+                }
+                throw new WrongStatusException($status);
+            }
+        }
+    }
+
+    /**
+     * @throws AlreadyProcessedException
+     */
+    private function checkMerchantOrderStatus()
+    {
+        $validStatus   = array('on-hold', 'pending', 'failed');
+        $isValidStatus = apply_filters(
+            'woocommerce_valid_order_statuses_for_payment_complete',
+            $validStatus,
+            $this
+        );
+
+        if (!$this->woocommerceOrder->has_status($isValidStatus)) {
+            throw new AlreadyProcessedException();
+        }
+    }
+
+    /**
+     * @throws AmountMismatchException
+     */
+    private function validateAmount()
+    {
+        $pmtAmount = $this->pmtOrder->getShoppingCart()->getTotalAmount();
+        $wcAmount = intval(strval(100 * $this->woocommerceOrder->get_total()));
+        if ($pmtAmount != $wcAmount) {
+            throw new AmountMismatchException($pmtAmount, $wcAmount);
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function processMerchantOrder()
+    {
+        $this->saveOrder();
+        $this->updateBdInfo();
+    }
+
+    /**
+     * @return false|string
+     * @throws UnknownException
+     */
+    private function confirmPmtOrder()
+    {
+        try {
+            $this->pmtOrder = $this->orderClient->confirmOrder($this->pmtOrderId);
+        } catch (\Exception $e) {
+            throw new UnknownException($e->getMessage());
+        }
+
+        $jsonResponse = new JsonSuccessResponse();
+        return $jsonResponse->toJson();
+    }
+    /**
+     * UTILS FUNCTIONS
+     */
+    /** STEP 1 CC - Check concurrency */
+    /**
+     * Check if orders table exists
+     */
+    private function checkDbTable()
+    {
+        global $wpdb;
+        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+
+        if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
+            $charset_collate = $wpdb->get_charset_collate();
+            $sql             = "CREATE TABLE $tableName (id int, order_id varchar(50), wc_order_id varchar(50), 
+                  UNIQUE KEY id (id)) $charset_collate";
+
+            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
+            dbDelta($sql);
+        }
+    }
+
+    /**
+     * Check if logs table exists
+     */
+    private function checkDbLogTable()
+    {
+        global $wpdb;
+        $tableName = $wpdb->prefix.self::LOGS_TABLE;
+
+        if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
+            $charset_collate = $wpdb->get_charset_collate();
+            $sql = "CREATE TABLE $tableName ( id int NOT NULL AUTO_INCREMENT, log text NOT NULL, 
+                    createdAt timestamp DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY id (id)) $charset_collate";
+
+            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
+            dbDelta($sql);
+        }
+        return;
+    }
+
+    /** STEP 2 GMO - Get Merchant Order */
+    /** STEP 3 GPOI - Get Pmt OrderId */
+    /** STEP 4 GPO - Get Pmt Order */
+    /** STEP 5 COS - Check Order Status */
+    /**
+     * @param $statusArray
+     *
+     * @throws \Exception
+     */
+    private function checkPmtStatus($statusArray)
+    {
+        $pmtStatus = array();
+        foreach ($statusArray as $status) {
+            $pmtStatus[] = constant("\PagaMasTarde\OrdersApiClient\Model\Order::STATUS_$status");
+        }
+
+        if ($this->pmtOrder instanceof \PagaMasTarde\OrdersApiClient\Model\Order) {
+            $payed = in_array($this->pmtOrder->getStatus(), $pmtStatus);
+            if (!$payed) {
+                if ($this->pmtOrder instanceof \PagaMasTarde\OrdersApiClient\Model\Order) {
+                    $status = $this->pmtOrder->getStatus();
+                } else {
+                    $status = '-';
+                }
+                throw new WrongStatusException($status);
+            }
+        } else {
+            throw new OrderNotFoundException();
+        }
+    }
+    /** STEP 6 CMOS - Check Merchant Order Status */
+    /** STEP 7 VA - Validate Amount */
+    /** STEP 8 PMO - Process Merchant Order */
+    /**
+     * @throws \Exception
+     */
+    private function saveOrder()
+    {
+        global $woocommerce;
+        $paymentResult = $this->woocommerceOrder->payment_complete();
+        if ($paymentResult) {
+            $this->woocommerceOrder->add_order_note($this->origin);
+            $this->woocommerceOrder->reduce_order_stock();
+            $this->woocommerceOrder->save();
+
+            $woocommerce->cart->empty_cart();
+            sleep(3);
+        } else {
+            throw new UnknownException('Order can not be saved');
+        }
+    }
+
+    /**
+     * Save the merchant order_id with the related identification
+     */
+    private function updateBdInfo()
+    {
+        global $wpdb;
+
+        $this->checkDbTable();
+        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+
+        $wpdb->update(
+            $tableName,
+            array('wc_order_id'=>$this->woocommerceOrderId),
+            array('id' => $this->woocommerceOrderId),
+            array('%s'),
+            array('%d')
+        );
+    }
+
+    /** STEP 9 CPO - Confirmation Pmt Order */
+    private function rollbackMerchantOrder()
+    {
+        $this->woocommerceOrder->update_status('pending', __('Pending payment', 'woocommerce'));
+    }
+
+    /**
+     * @param $exceptionMessage
+     *
+     * @throws \Zend_Db_Exception
+     */
+    private function insertLog($exception)
+    {
+        global $wpdb;
+
+        if ($exception instanceof \Exception) {
+            $this->checkDbLogTable();
+            $logEntry= new LogEntry();
+            $logEntryJson = $logEntry->error($exception)->toJson();
+
+            $tableName = $wpdb->prefix.self::LOGS_TABLE;
+            $wpdb->insert($tableName, array('log' => $logEntryJson));
+        }
+    }
+
+    /**
+     * GETTERS & SETTERS
+     */
 
     /**
      * @return mixed
@@ -25,116 +380,5 @@ class WcPaylaterNotify extends WcPaylaterGateway
     public function setOrigin($origin)
     {
         $this->origin = $origin;
-    }
-
-    /**
-     * @var $string
-     */
-    public $order;
-
-    /**
-     * @return mixed
-     */
-    public function getOrder()
-    {
-        return $this->order;
-    }
-
-    /**
-     * @param $order
-     *
-     * @throws Exception
-     */
-    public function setOrder($order)
-    {
-        if (get_class($order)=='WC_Order') {
-            $this->order = $order;
-        } else {
-            throw new Exception('La orden no existe en esta tienda');
-        }
-    }
-
-    /**
-     * Validation vs PmtClient
-     *
-     * @return array
-     */
-    public function processInformation()
-    {
-        require_once(__ROOT__.'/vendor/autoload.php');
-        global $woocommerce;
-        $result = array('notification_error'=>true,'notification_message'=>'No se ha podido confirmar el pago');
-        if (!$this->getOrder()->get_id()) {
-            $result['notification_message'] = 'La orden no existe en esta tienda';
-            $result['notification_error'] = false;
-        } else {
-            $order         = new WC_Order($this->getOrder()->get_id());
-            $validStatus   = array('on-hold', 'pending', 'failed');
-            $isValidStatus = apply_filters(
-                'woocommerce_valid_order_statuses_for_payment_complete',
-                $validStatus,
-                $this
-            );
-
-            if (!$order->has_status($isValidStatus)) {
-                $result['notification_message'] = 'El pago ya ha sido procesado';
-                $result['notification_error']   = false;
-            } else {
-                $cfg       = get_option('woocommerce_paylater_settings');
-                $pmtClient = new \PagaMasTarde\PmtApiClient($cfg['secret_key']);
-                $payed     = $pmtClient->charge()->validatePaymentForOrderId($this->getOrder()->get_id());
-                if (!$payed) {
-                    $result['notification_message'] = 'El pago no existe en PagaMasTarde ';
-                    $result['notification_error']   = true;
-                } else {
-                    $payments     = $pmtClient->charge()->getChargesByOrderId($this->getOrder()->get_id());
-                    $latestCharge = array_shift($payments);
-                    $pmtAmount    = $latestCharge->getAmount();
-                    if ($pmtAmount == (intval(100 * $order->get_total()))) {
-                        $paymentResult = $order->payment_complete();
-                        if ($paymentResult) {
-                            $order->add_order_note($this->origin);
-                            $order->reduce_order_stock();
-                            $woocommerce->cart->empty_cart();
-                            $result['notification_error'] = false;
-                            $result['notification_message'] = 'Pago completado';
-                        } else {
-                            $this->setToFailed();
-                            $result['notification_message'] = 'Pago incompleto';
-                        }
-                    } else {
-                        $result['notification_message'] = 'La cantidad del pedido es incorrecta ';
-                        $this->setToFailed();
-                    }
-                }
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * Set order to failed
-     * @return bool
-     */
-    public function setToFailed()
-    {
-        $order = $this->getOrder();
-        if (get_class($order)=='WC_Order') {
-            $order->update_status('failed', __('Error en el pago con Paga+Tarde', 'woocommerce'));
-        }
-        return true;
-    }
-
-    /**
-     * Set order to pending
-     * @return bool
-     */
-    public function setToPending()
-    {
-        $order = $this->getOrder();
-        if (get_class($order)=='WC_Order') {
-            $order->update_status('pending', __('Pending payment', 'woocommerce'));
-        }
-        return true;
     }
 }

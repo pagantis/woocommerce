@@ -4,8 +4,14 @@ namespace Test\Selenium\Buy;
 
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use PagaMasTarde\ModuleUtils\Exception\AlreadyProcessedException;
+use PagaMasTarde\ModuleUtils\Exception\ConcurrencyException;
+use PagaMasTarde\ModuleUtils\Exception\MerchantOrderNotFoundException;
+use PagaMasTarde\ModuleUtils\Exception\NoIdentificationException;
+use PagaMasTarde\ModuleUtils\Exception\QuoteNotFoundException;
 use Test\Selenium\PaylaterWoocommerceTest;
 use PagaMasTarde\SeleniumFormUtils\SeleniumHelper;
+use Httpful\Request;
 
 /**
  * Class AbstractBuy
@@ -46,11 +52,54 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
     const LOGO_FILE = 'logo.png';
 
     /**
+     *  Logout URL
+     */
+    const NOTIFICATION_FOLDER = '/?wc-api=wcpaylatergateway';
+
+    /**
+     *  Notification param1
+     */
+    const NOTIFICATION_PARAMETER1 = 'key';
+
+    /**
+     *  Notification param2
+     */
+    const NOTIFICATION_PARAMETER2 = 'order-received';
+
+    /**
      * Pmt Order Title
      */
     const PMT_TITLE = 'Paga+Tarde';
 
+    /**
+     * Already processed
+     */
+    const NOTFOUND_TITLE = 'Pmt Order Not Found';
+
+    /**
+     * Wrong order
+     */
+    const NOORDER_TITLE = 'Cart already processed';
+
+    /**
+     * @var String $price
+     */
     public $price;
+
+    /**
+     * @var String $orderUrl
+     */
+    public $orderUrl;
+
+    /**
+     * @var String $orderKey
+     */
+    public $orderKey;
+
+    /**
+     * @var String $orderReceived
+     */
+    public $orderReceived;
 
     /**
      * @return mixed
@@ -85,10 +134,19 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      */
     public function makeCheckoutAndPmt()
     {
-        $resultChechout = $this->checkCheckoutPage();
+        $this->checkCheckoutPage();
         $this->goToPmt();
-        $this->checkPmtPage();
-        $this->quit();
+        $this->verifyPaylater();
+    }
+
+    /**
+     * STEP3: Order Validation
+     */
+    public function makeValidation()
+    {
+        $this->verifyOrderInformation();
+        $this->orderUrl = $this->webDriver->getCurrentURL();
+        $this->checkNotificationException();
     }
 
     /**
@@ -180,10 +238,14 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
 
         $this->checkSimulator();
 
+        $descriptionSearch = WebDriverBy::cssSelector("div#payment.woocommerce-checkout-payment > ul.wc_payment_methods > li.payment_method_paylater > div.payment_method_paylater");
+        $descriptionElement = $this->webDriver->findElement($descriptionSearch);
+        $actualString = $descriptionElement->getText();
+        $this->assertContains($this->configuration['checkoutDescription'], $actualString, "PR54");
+
         $priceSearch = WebDriverBy::className('woocommerce-Price-amount');
         $priceElements = $this->webDriver->findElements($priceSearch);
 
-        $this->assertNotNull($priceElements['2']->getText(), json_encode($priceElements));
         $this->setPrice($priceElements['2']->getText());
     }
 
@@ -194,25 +256,36 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      */
     public function goToPmt()
     {
-        try {
-            $this->findByName('checkout')->submit();
-        } catch (\Exception $e) {
-            $this->findById('place_order')->click();
-        }
+        $this->findByName('checkout')->submit();
     }
 
     /**
      * @throws \Facebook\WebDriver\Exception\NoSuchElementException
      * @throws \Facebook\WebDriver\Exception\TimeOutException
      */
-    public function checkPmtPage()
+    /*public function checkPmtPage()
     {
-        $condition = WebDriverExpectedCondition::titleContains(self::PMT_TITLE);
-        $this->webDriver->wait()->until($condition, $this->webDriver->getCurrentURL());
-        $this->assertTrue((bool)$condition, "PR32");
+        $paymentFormElement = WebDriverBy::className('FieldsPreview-desc');
+        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($paymentFormElement);
+        $this->waitUntil($condition);
+        $this->assertTrue((bool) $condition, "PR32");
 
-        SeleniumHelper::finishForm($this->webDriver);
-    }
+        $this->assertSame(
+            $this->configuration['firstname'] . ' ' . $this->configuration['lastname'],
+            $this->findByClass('FieldsPreview-desc')->getText(),
+            "PR34"
+        );
+
+        $priceSearch = WebDriverBy::className('LoanSummaryList-desc');
+        $priceElements = $this->webDriver->findElements($priceSearch);
+        $totalPrice = $this->setPrice($priceElements['0']->getText());
+        $this->assertEquals($this->getPrice(), $totalPrice, "PR35");
+
+        $this->webDriver->executeScript("var button = document.getElementsByName('back_to_store_button');button[0].click();");
+        $condition = WebDriverExpectedCondition::titleContains(self::CHECKOUT_TITLE);
+        $this->webDriver->wait()->until($condition);
+        $this->assertTrue((bool) $condition, "PR36");
+    }*/
 
     /**
      * Check simulator product and/or checkout
@@ -252,5 +325,111 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
 
         $this->findById('billing_phone')->clear()->sendKeys($this->configuration['phone']);
         $this->findById('billing_email')->clear()->sendKeys($this->configuration['email']);
+    }
+
+    /**
+     * Verify Paylater
+     *
+     * @throws \Exception
+     */
+    public function verifyPaylater()
+    {
+        $condition = WebDriverExpectedCondition::titleContains(self::PMT_TITLE);
+        $this->webDriver->wait(300)->until($condition, $this->webDriver->getCurrentURL());
+        $this->assertTrue((bool)$condition, "PR32");
+
+        SeleniumHelper::finishForm($this->webDriver);
+    }
+
+    /**
+     * Verify Order Information
+     */
+    public function verifyOrderInformation()
+    {
+        $messageElementSearch = WebDriverBy::className('entry-title');
+        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($messageElementSearch);
+        $this->waitUntil($condition);
+        $actualString = $this->webDriver->findElement($messageElementSearch)->getText();
+        $this->assertNotEmpty($actualString, "PR45");
+        $this->assertNotEmpty($this->configuration['confirmationMsg'], "PR45");
+        $compareString = (strstr($actualString, $this->configuration['confirmationMsg'])) === false ? false : true;
+        $this->assertTrue($compareString, $actualString." PR45");
+
+        $menuSearch = WebDriverBy::cssSelector("li.woocommerce-order-overview__total > strong > span.woocommerce-Price-amount");
+        $menuElement = $this->webDriver->findElement($menuSearch);
+        $actualString = $menuElement->getText();
+        $compareString = (strstr($actualString, $this->getPrice())) === false ? false : true;
+        $this->assertNotEmpty($compareString, "PR46");
+        $this->assertNotEmpty($this->getPrice(), "PR46");
+        $this->assertTrue($compareString, $actualString . $this->getPrice() ." PR46");
+
+        $validatorSearch = WebDriverBy::className('woocommerce-order-overview__payment-method');
+        $actualString = $this->webDriver->findElement($validatorSearch)->getText();
+        $compareString = (strstr($actualString, $this->configuration['methodName'])) === false ? false : true;
+        $this->assertTrue($compareString, $actualString, "PR49");
+    }
+
+    /**
+     * Check the notifications
+     *
+     * @throws \Httpful\Exception\ConnectionErrorException
+     */
+    public function checkNotificationException()
+    {
+        //Get the confirmation page url
+        $orderUrl = $this->orderUrl;
+        $this->assertNotEmpty($orderUrl, $orderUrl);
+        $orderArray = explode('&', $orderUrl);
+
+        $orderReceived = explode("=", $orderArray['1']);
+        $this->orderReceived = $orderReceived[1];
+
+        $orderKey = explode("=", $orderArray['2']);
+        $this->orderKey = $orderKey[1];
+
+        $this->checkConcurrency();
+        $this->checkPmtOrderId();
+        $this->checkAlreadyProcessed();
+    }
+
+    /**
+     * Check if with a empty parameter called order-received we can get a QuoteNotFoundException
+     *
+     * @throws \Httpful\Exception\ConnectionErrorException
+     */
+    protected function checkConcurrency()
+    {
+        $notifyUrl = self::WC3URL.self::NOTIFICATION_FOLDER.'&'.self::NOTIFICATION_PARAMETER1.'='.$this->orderKey.'&'.self::NOTIFICATION_PARAMETER2.'=';
+        $this->assertNotEmpty($notifyUrl, $notifyUrl);
+        $response = Request::post($notifyUrl)->expects('json')->send();
+        $this->assertNotEmpty($response->body->result, $response->body->result);
+        $this->assertContains(QuoteNotFoundException::ERROR_MESSAGE, $response->body->result, "PR=>".$response->body->result);
+    }
+
+    /**
+     * Check if with a parameter called order-received set to a invalid identification, we can get a NoIdentificationException
+     *
+     * @throws \Httpful\Exception\ConnectionErrorException
+     */
+    protected function checkPmtOrderId()
+    {
+        $notifyUrl = self::WC3URL.self::NOTIFICATION_FOLDER.'&'.self::NOTIFICATION_PARAMETER1.'='.$this->orderKey.'&'.self::NOTIFICATION_PARAMETER2.'=0';
+        $this->assertNotEmpty($notifyUrl, $notifyUrl);
+        $response = Request::post($notifyUrl)->expects('json')->send();
+        $this->assertNotEmpty($response->body->result);
+        $this->assertContains(NoIdentificationException::ERROR_MESSAGE, $response->body->result, "PR=>".$response->body->result);
+    }
+
+    /**
+     * Check if re-launching the notification we can get a AlreadyProcessedException
+     *
+     * @throws \Httpful\Exception\ConnectionErrorException
+     */
+    protected function checkAlreadyProcessed()
+    {
+        $notifyUrl = self::WC3URL.self::NOTIFICATION_FOLDER.'&'.self::NOTIFICATION_PARAMETER1.'='.$this->orderKey.'&'.self::NOTIFICATION_PARAMETER2.'='.$this->orderReceived;
+        $response = Request::post($notifyUrl)->expects('json')->send();
+        $this->assertNotEmpty($response->body->result);
+        $this->assertContains(AlreadyProcessedException::ERROR_MESSAGE, $response->body->result, "PR51=>".$response->body->result);
     }
 }

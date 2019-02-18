@@ -40,6 +40,13 @@ Do you have questions or issues with PagaMasTarde financing payment gateway? mai
 
 == Changelog ==
 
+=======
+= 7.0.0 =
+- Adapt to orders
+- Set publicKey in slow pages
+- Product simulator fix
+- Redirect according status
+
 = 6.2.4 =
 - SeleniumHelper
 - Docker extended domain

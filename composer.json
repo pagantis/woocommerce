@@ -24,8 +24,9 @@
         }
     ],
     "require": {
-      "pagamastarde/shopper-library": "^1.0",
-      "pagamastarde/pmt-api-client": "^1.0"
+        "pagamastarde/orders-api-client": "^1.0",
+        "pagamastarde/module-utils": "dev-INT-503",
+        "vlucas/phpdotenv": "^2.5"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.7",
@@ -34,7 +35,7 @@
         "pagamastarde/selenium-form-utils": "^1.0"
     },
     "autoload-dev": {
-        "psr-4": { "Test\\Selenium\\Buy\\": "test/selenium/buy/", "Test\\Selenium\\": "test/selenium/" }
+      "psr-4": { "Test\\Selenium\\Buy\\": "test/selenium/buy/", "Test\\Selenium\\": "test/selenium/" }
     },
     "minimum-stability": "stable"
 }

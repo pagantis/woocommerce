@@ -1,41 +1,40 @@
-# Woocommerce Module <img src="https://pagamastarde.com/img/icons/logo.svg" width="100" align="right">
+# Module installation <img src="https://pagamastarde.com/img/icons/logo.svg" width="100" align="right">
 
 [![Build Status](https://travis-ci.org/PagaMasTarde/WooCommerce.svg?branch=master)](https://travis-ci.org/PagaMasTarde/WooCommerce)
 [![Latest Stable Version](https://poser.pugx.org/pagamastarde/woocommerce/v/stable)](https://packagist.org/packages/pagamastarde/woocommerce)
 [![composer.lock](https://poser.pugx.org/pagamastarde/woocommerce/composerlock)](https://packagist.org/packages/pagamastarde/woocommerce)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/PagaMasTarde/woocommerce/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/PagaMasTarde/woocommerce/?branch=master)
 
-## Instrucciones de Instalación
-1. Crea tu cuenta en pagamastarde.com si aún no la tienes [desde aquí](https://bo.pagamastarde.com/users/sign_up)
-2. Descarga el módulo de [aquí](https://github.com/pagamastarde/woocommerce/releases/latest)
-3. Instala el módulo en tu woocommerce
-4. Configuralo con la información de tu cuenta que encontrarás en [el panel de gestión de Paga+Tarde](https://bo.pagamastarde.com/shop). Ten en cuenta que para hacer cobros reales deberás activar tu cuenta de Paga+Tarde.
+## :hand: Requirements
+Wordpress and Woocommerce plugin enabled.
 
-## Modo real y modo de pruebas
+## :floppy_disk: Installation
+To install the plugin of Paga+Tarde in your Woocommerce shop
 
-Tanto el módulo como Paga+Tarde tienen funcionamiento en real y en modo de pruebas independientes. Debes introducir las credenciales correspondientes del entorno que desees usar.
+#### Common steps
+1. Navigate to plugins dashboard
+2. Click on "Add new"
 
-### Soporte
+#### Installation using marketplace
+3. Search for 'PagaMasTarde'
+4. Click 'Install Now'
+5. Click 'Activate'
 
-Si tienes alguna duda o pregunta no tienes más que escribirnos un email a [welcome@pagamastarde.com]
+#### Installation using zip file
+3. Download the zip file from [here](https://github.com/pagamastarde/woocommerce/releases/latest)
+4. Click 'Upload plugin'
+5. Select the downloaded file and click 'Open'.
+6. Click on 'Install'
+7. Activate the plugin on the plugins dashboard
 
-## Development Instructions:
+For more information about how to install the plugin, see our [installation section](/Documentation/installation.md).
 
-To develop or improve this module you need to have installed in your environment
-    * Composer
-    
-To make the module operative you need to download the dependencies, 
+## :gear: Configuration
+Configure the plugin in Woocommerce admin panel using the information found in your [Paga+Tarde profile](https://bo.pagamastarde.com/shop). 
 
-    composer install
-    
-Once both dependencies are ready you can generate the specific module files using
+For more information about how to config the module, see our [configuration section](/Documentation/configuration.md).
 
-    grunt default
-    
-Grunt will compress the CSS and the JS and generate a zip file with the necessary files to push
-to the market.
+## :arrow_forward: Use
+To use in a real environment you should enable your Paga+Tarde account.
 
-### Testing and Improvements
-
-* Doing some phpUnit testing on the module.
-* Improving the code structure to make it more human.
+For more information about how to use the module, see our [use section](/Documentation/use.md).

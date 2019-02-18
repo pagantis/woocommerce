@@ -26,6 +26,7 @@ module.exports = function(grunt) {
                     {src: ['vendor/**'], dest: 'paylater/', filter: 'isFile'},
                     {src: 'WC_Paylater.php', dest: 'paylater/'},
                     {src: 'readme.txt', dest: 'paylater/'},
+                    {src: '.env.dist', dest: 'paylater/'},
                 ]
             }
         }
