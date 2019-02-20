@@ -10,7 +10,7 @@ docker-compose exec woocommerce-test curl -s https://getcomposer.org/installer |
 docker-compose exec woocommerce-test ./composer.phar install
 
 # Time to boot and install woocommerce
-sleep 30
+sleep 50
 set -e
 
 # Run test
