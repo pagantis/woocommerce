@@ -249,6 +249,55 @@ class WcPaylater
     }
 
     /**
+     * Update extra config
+     */
+    public function updateExtraConfig($data)
+    {
+        global $wpdb;
+        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $response = array('message'=>'Wrong request method');
+
+        $filters   = ($data->get_params());
+        $response  = array();
+        $secretKey = $filters['secret'];
+        $cfg  = get_option('woocommerce_paylater_settings');
+        $privateKey = isset($cfg['pmt_private_key']) ? $cfg['pmt_private_key'] : null;
+        if ($privateKey != $secretKey) {
+            $response = array('message'=>'Wrong input');
+        } elseif ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (count($_POST)) {
+                foreach ($_POST as $config => $value) {
+                    if (isset($this->defaultConfigs[$config])) {
+                        $result = $wpdb->update(
+                            $tableName,
+                            array('value' => $value),
+                            array('config' => $config),
+                            array('%s'),
+                            array('%s')
+                        );
+
+                        if ($result) {
+                            $response['message'].= "Updated $config with $value --";
+                            putenv($config . '=' . $value);
+                        }
+                    } else {
+                        $response['message'].= "Wrong $config with $value --";
+                    }
+                }
+            } else {
+                $response = array('message'=>'No data found');
+            }
+        }
+
+        $response = json_encode($response);
+        header("HTTP/1.1 200", true, 200);
+        header('Content-Type: application/json', true);
+        header('Content-Length: '.strlen($response));
+        echo($response);
+        exit();
+    }
+
+    /**
      * ENDPOINT - Read logs -> Hook: rest_api_init
      * @return mixed
      */
@@ -262,6 +311,18 @@ class WcPaylater
             'callback' => array(
                 $this,
                 'readLogs')
+            ),
+            true
+        );
+
+        register_rest_route(
+            'paylater/v1',
+            '/configController/(?P<secret>\w+)',
+            array(
+                'methods'  => 'POST',
+                'callback' => array(
+                    $this,
+                    'updateExtraConfig')
             ),
             true
         );
