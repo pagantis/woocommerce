@@ -257,19 +257,19 @@ class WcPaylater
     {
         global $wpdb;
         $tableName = $wpdb->prefix.self::CONFIG_TABLE;
-        $response = array('message'=>'Wrong request method');
+        $response = array('status'=>null);
 
         $filters   = ($data->get_params());
-        $response  = array();
         $secretKey = $filters['secret'];
         $cfg  = get_option('woocommerce_paylater_settings');
         $privateKey = isset($cfg['pmt_private_key']) ? $cfg['pmt_private_key'] : null;
         if ($privateKey != $secretKey) {
-            $response = array('message'=>'Wrong input');
+            $response['status'] = 401;
+            $response['result'] = 'Unauthorized';
         } elseif ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (count($_POST)) {
                 foreach ($_POST as $config => $value) {
-                    if (isset($this->defaultConfigs[$config])) {
+                    if (isset($this->defaultConfigs[$config]) && $response['status']==null) {
                         $result = $wpdb->update(
                             $tableName,
                             array('value' => $value),
@@ -277,24 +277,31 @@ class WcPaylater
                             array('%s'),
                             array('%s')
                         );
-
-                        if ($result) {
-                            $response['message'].= "Updated $config with $value --";
-                        }
                     } else {
-                        $response['message'].= "Wrong $config with $value --";
+                        $response['status'] = 400;
+                        $response['result'] = 'Bad request';
                     }
                 }
             } else {
-                $response = array('message'=>'No data found');
+                $response['status'] = 422;
+                $response['result'] = 'Empty data';
             }
         }
 
-        $response = json_encode($response);
-        header("HTTP/1.1 200", true, 200);
+        if ($response['status']==null) {
+            $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+            $dbResult = $wpdb->get_results("select config, value from $tableName", ARRAY_A);
+            foreach ($dbResult as $value) {
+                $formattedResult[$value['config']] = $value['value'];
+            }
+            $response['result'] = $formattedResult;
+        }
+
+        $result = json_encode($response['result']);
+        header("HTTP/1.1 ".$response['status'], true, $response['status']);
         header('Content-Type: application/json', true);
-        header('Content-Length: '.strlen($response));
-        echo($response);
+        header('Content-Length: '.strlen($result));
+        echo($result);
         exit();
     }
 
@@ -320,7 +327,7 @@ class WcPaylater
             'paylater/v1',
             '/configController/(?P<secret>\w+)',
             array(
-                'methods'  => 'POST',
+                'methods'  => 'GET, POST',
                 'callback' => array(
                     $this,
                     'updateExtraConfig')
