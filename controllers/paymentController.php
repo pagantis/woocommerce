@@ -55,20 +55,6 @@ class WcPaylaterGateway extends WC_Payment_Gateway
             $this->$setting_key = $setting_value;
         }
 
-        $this->dotEnvError = null;
-        try {
-            $envFile = new \Dotenv\Dotenv(dirname(plugin_dir_path(__FILE__)));
-            $envFile->load();
-        } catch (\Exception $exception) {
-            $this->dotEnvError = 'Unable to read file';
-            wc_add_notice(__('Unable to read file - ', 'paylater') . $exception->getMessage(), 'error');
-            $checkout_url = get_permalink(wc_get_page_id('checkout'));
-            wp_redirect($checkout_url);
-            exit;
-        }
-
-        $this->method_description = getenv('PMT_TITLE');
-
         //Hooks
         add_action('woocommerce_update_options_payment_gateways_'.$this->id, array($this,'process_admin_options')); //Save plugin options
         add_action('admin_notices', array($this, 'paylaterCheckFields'));                          //Check config fields
@@ -423,12 +409,13 @@ EOD;
      */
     public function payment_fields()
     {
+
         $template_fields = array(
-            'message' => $this->checkout_title,
             'public_key' => $this->pmt_public_key,
             'total' => WC()->session->cart_totals['total'],
-            'enabled' =>  $this,
-            'min_installments' => getenv('PMT_DISPLAY_MIN_AMOUNT')
+            'enabled' =>  $this->settings['enabled'],
+            'min_installments' => getenv('PMT_DISPLAY_MIN_AMOUNT'),
+            'message' => getenv('PMT_TITLE_EXTRA')
         );
         wc_get_template('checkout_description.php', $template_fields, '', $this->template_path);
     }
@@ -489,7 +476,7 @@ EOD;
      */
     private function getOkUrl($order)
     {
-        return $this->getKeysUrl($order, getenv('PMT_URL_OK'));
+        return $this->getKeysUrl($order, $this->ok_url);
     }
 
     /**
@@ -500,7 +487,7 @@ EOD;
      */
     private function getKoUrl($order)
     {
-        return $this->getKeysUrl($order, getenv('PMT_URL_OK'));
+        return $this->getKeysUrl($order, $this->ko_url);
     }
 
     /**

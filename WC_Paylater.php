@@ -21,6 +21,24 @@ class WcPaylater
     const SUPPORT_EML = 'mailto:soporte@pagamastarde.com?Subject=woocommerce_plugin';
     /** Concurrency tablename */
     const LOGS_TABLE = 'pmt_logs';
+    /** Config tablename */
+    const CONFIG_TABLE = 'pmt_config';
+
+    public $defaultConfigs = array('PMT_TITLE'=>'Instant Financing',
+                            'PMT_SIMULATOR_DISPLAY_TYPE'=>'pmtSDK.simulator.types.SIMPLE',
+                            'PMT_SIMULATOR_DISPLAY_SKIN'=>'pmtSDK.simulator.skins.BLUE',
+                            'PMT_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
+                            'PMT_SIMULATOR_START_INSTALLMENTS'=>3,
+                            'PMT_SIMULATOR_MAX_INSTALLMENTS'=>12,
+                            'PMT_SIMULATOR_CSS_POSITION_SELECTOR'=>'default',
+                            'PMT_SIMULATOR_DISPLAY_CSS_POSITION'=>'pmtSDK.simulator.positions.INNER',
+                            'PMT_SIMULATOR_CSS_PRICE_SELECTOR'=>'default',
+                            'PMT_SIMULATOR_CSS_QUANTITY_SELECTOR'=>'default',
+                            'PMT_FORM_DISPLAY_TYPE'=>0,
+                            'PMT_DISPLAY_MIN_AMOUNT'=>1,
+                            'PMT_URL_OK'=>'',
+                            'PMT_URL_KO'=>''
+    );
 
     /**
      * WC_Paylater constructor.
@@ -43,41 +61,70 @@ class WcPaylater
     }
 
     /**
-     * .Env files
+     * Sql table
      */
     public function paylaterActivation()
     {
-        $pluginDir = plugin_dir_path(__FILE__);
-        if (!file_exists($pluginDir. '.env')) {
-            copy($pluginDir . '.env.dist', $pluginDir . '.env');
+        global $wpdb;
+        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+
+        //Check if table exists
+        $tableExists = $wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName;
+        if ($tableExists) {
+            $charset_collate = $wpdb->get_charset_collate();
+            $sql = "CREATE TABLE IF NOT EXISTS $tableName (
+                                id int NOT NULL AUTO_INCREMENT, 
+                                config varchar(60) NOT NULL, 
+                                value varchar(100) NOT NULL, 
+                                UNIQUE KEY id(id)) $charset_collate";
+
+            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
+            $return = dbDelta($sql);
         }
 
-        if (file_exists($pluginDir . '.env') && file_exists($pluginDir . '.env.dist')) {
-            $environmentHelper = new \PagaMasTarde\ModuleUtils\Helper\EnvironmentHelper();
-            $envFileVariables = $environmentHelper->readEnvFileAsArray($pluginDir . '.env');
-            $distFileVariables = $environmentHelper->readEnvFileAsArray($pluginDir . '.env.dist');
-            $distFile = file_get_contents($pluginDir . '.env.dist');
 
-            $newEnvFileArr = array_merge($distFileVariables, $envFileVariables);
-            $newEnvFile = $environmentHelper->replaceEnvFileValues($distFile, $newEnvFileArr);
-            file_put_contents($pluginDir . '.env', $newEnvFile);
+        $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
 
-            //Current plugin config: pmt_public_key => New field --- public_key => Old field
-            $settings = get_option('woocommerce_paylater_settings');
-
-            if (!isset($settings['pmt_public_key']) && $settings['public_key']) {
-                $settings['pmt_public_key'] = $settings['public_key'];
-                unset($settings['public_key']);
-            }
-
-            if (!isset($settings['pmt_private_key']) && $settings['secret_key']) {
-                $settings['pmt_private_key'] = $settings['secret_key'];
-                unset($settings['secret_key']);
-            }
-
-            $settings['enabled'] = 'yes';
-            update_option('woocommerce_paylater_settings', $settings);
+        // Convert a multimple dimension array for SQL insert statements into a simple key/value
+        $simpleDbConfigs = array();
+        foreach ($dbConfigs as $config) {
+            $simpleDbConfigs[$config['config']] = $config['value'];
         }
+        $newConfigs = array_diff_key($this->defaultConfigs, $simpleDbConfigs);
+        if (!empty($newConfigs)) {
+            foreach ($newConfigs as $key => $value) {
+                $wpdb->insert(
+                    $tableName,
+                    array(
+                        'config' => $key,
+                        'value'  => $value
+                    ),
+                    array(
+                        '%s',
+                        '%s'
+                    )
+                );
+            }
+        }
+
+        foreach (array_merge($this->defaultConfigs, $simpleDbConfigs) as $key => $value) {
+            putenv($key . '=' . $value);
+        }
+
+        //Current plugin config: pmt_public_key => New field --- public_key => Old field
+        $settings = get_option('woocommerce_paylater_settings');
+
+        if (!isset($settings['pmt_public_key']) && $settings['public_key']) {
+            $settings['pmt_public_key'] = $settings['public_key'];
+            unset($settings['public_key']);
+        }
+
+        if (!isset($settings['pmt_private_key']) && $settings['secret_key']) {
+            $settings['pmt_private_key'] = $settings['secret_key'];
+            unset($settings['secret_key']);
+        }
+
+        update_option('woocommerce_paylater_settings', $settings);
     }
 
     /**
@@ -86,8 +133,7 @@ class WcPaylater
     public function paylaterAddProductSimulator()
     {
         global $product;
-        $envFile = new \Dotenv\Dotenv(plugin_dir_path(__FILE__));
-        $envFile->load();
+
         $cfg = get_option('woocommerce_paylater_settings');
         if ($cfg['enabled'] !== 'yes' || $cfg['pmt_public_key'] == '' || $cfg['pmt_private_key'] == '' ||
             $cfg['simulator'] !== 'yes') {
@@ -97,7 +143,8 @@ class WcPaylater
         $template_fields = array(
             'total'    => is_numeric($product->price) ? $product->price : 0,
             'public_key' => $cfg['pmt_public_key'],
-            'simulator_type' => getenv('PMT_SIMULATOR_DISPLAY_TYPE')
+            'simulator_type' => getenv('PMT_SIMULATOR_DISPLAY_TYPE'),
+            'pmtCSSSelector' => getenv('PMT_SIMULATOR_CSS_POSITION_SELECTOR')
         );
         wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
     }
