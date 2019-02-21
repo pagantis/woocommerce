@@ -122,6 +122,13 @@ class PaylaterWc3InstallTest extends PaylaterWoocommerceTest
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR5");
 
+        $verify = WebDriverBy::id('woocommerce_paylater_enabled');
+        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
+        $this->waitUntil($condition);
+        $this->assertTrue((bool) $condition, "PR7");
+
+        $enabledModule = $this->findById('woocommerce_paylater_enabled')->click();
+
         $this->findById('woocommerce_paylater_pmt_public_key')->clear()->sendKeys($this->configuration['publicKey']);
         $this->findById('woocommerce_paylater_pmt_private_key')->clear()->sendKeys($this->configuration['secretKey']);
         $this->findById('mainform')->submit();
@@ -140,58 +147,9 @@ class PaylaterWc3InstallTest extends PaylaterWoocommerceTest
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR7");
 
-        $enabledModule = $this->findById('woocommerce_paylater_enabled')->isSelected();
-        $this->assertTrue($enabledModule, 'PR6');
-
-        $verify = WebDriverBy::id('simulator');
+        $verify = WebDriverBy::id('woocommerce_paylater_simulator');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR9");
-
-        $verify = WebDriverBy::id('woocommerce_paylater_simulator_checkout');
-        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
-        $this->waitUntil($condition);
-        $this->assertTrue((bool) $condition, "PR10");
-
-        $verify = WebDriverBy::id('woocommerce_paylater_min_installments');
-        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
-        $this->waitUntil($condition);
-        $this->assertTrue((bool) $condition, "PR11");
-        $simulatorElement = $this->findById('woocommerce_paylater_min_installments');
-        $minInstallments = $simulatorElement->getAttribute('value');
-        $this->assertEquals($minInstallments, $this->configuration['defaultMinIns'], "PR11");
-
-        $verify = WebDriverBy::id('woocommerce_paylater_min_installments');
-        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
-        $this->waitUntil($condition);
-        $this->assertTrue((bool) $condition, "PR11");
-        $simulatorElement = $this->findById('woocommerce_paylater_max_installments');
-        $maxInstallments = $simulatorElement->getAttribute('value');
-        $this->assertEquals($maxInstallments, $this->configuration['defaultMaxIns'], "PR11");
-
-        $verify = WebDriverBy::id('woocommerce_paylater_min_amount');
-        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
-        $this->waitUntil($condition);
-        $this->assertTrue((bool) $condition, "PR12");
-
-        $verify = WebDriverBy::id('woocommerce_paylater_extra_title');
-        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
-        $this->waitUntil($condition);
-        $this->assertTrue((bool) $condition, "PR14");
-
-        $verify = WebDriverBy::id('woocommerce_paylater_ok_url');
-        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
-        $this->waitUntil($condition);
-        $this->assertTrue((bool) $condition, "PR15");
-
-        $verify = WebDriverBy::id('woocommerce_paylater_ko_url');
-        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
-        $this->waitUntil($condition);
-        $this->assertTrue((bool) $condition, "PR15");
-
-        $verify = WebDriverBy::id('paylater_logo');
-        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
-        $this->waitUntil($condition);
-        $this->assertTrue((bool) $condition, "PR17");
     }
 }

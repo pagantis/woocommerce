@@ -38,6 +38,9 @@ class BuyRegisteredWc3Test extends AbstractBuy
 
         $this->findById('username')->clear()->sendKeys($this->configuration['email']);
         $this->findById('password')->clear()->sendKeys($this->configuration['password']);
+        $loginButton = WebDriverBy::name('login');
+        $condition = WebDriverExpectedCondition::elementToBeClickable($loginButton);
+        $this->waitUntil($condition);
         $this->findByName('login')->click();
 
         $loginElements = $this->webDriver->findElements(WebDriverBy::linkText('Haz clic aquí para acceder'));

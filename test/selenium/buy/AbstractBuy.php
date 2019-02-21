@@ -2,6 +2,7 @@
 
 namespace Test\Selenium\Buy;
 
+use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use PagaMasTarde\ModuleUtils\Exception\AlreadyProcessedException;
@@ -123,8 +124,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
     public function prepareProductAndCheckout()
     {
         $this->goToProductPage();
-        $this->configureProduct(self::PRODUCT_QTY);
-        $this->checkProductPage();
+        $this->checkSimulator();
         $this->goToCart();
         $this->goToCheckout();
     }
@@ -161,36 +161,6 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
         $condition = WebDriverExpectedCondition::titleContains(self::PRODUCT_NAME);
         $this->webDriver->wait()->until($condition);
         $this->assertTrue((bool) $condition);
-    }
-
-    /**
-     * Config product quantity
-     *
-     * @param $qty
-     */
-    public function configureProduct($qty)
-    {
-        $qtyElements = $this->webDriver->findElements(WebDriverBy::className('qty'));
-        foreach ($qtyElements as $qtyElement) {
-            $qtyElement->clear()->sendKeys($qty);
-        }
-    }
-
-    /**
-     * Configure product
-     */
-    public function checkProductPage()
-    {
-        $this->checkSimulator();
-
-        $simulatorElement = $this->findByClass('PmtSimulator');
-        $currentSimulatorPrice = $simulatorElement->getAttribute('data-pmt-amount');
-        $this->configureProduct(self::PRODUCT_QTY_AFTER);
-        sleep(3);
-        $simulatorElement = $this->findByClass('PmtSimulator');
-        $newPrice = $simulatorElement->getAttribute('data-pmt-amount');
-        $newSimulatorPrice = $currentSimulatorPrice * self::PRODUCT_QTY_AFTER;
-        $this->assertEquals($newPrice, $newSimulatorPrice, "PR22,PR23");
     }
 
     /**
@@ -236,7 +206,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
         //$compareString = (strstr($actualString, self::LOGO_FILE)) === false ? false : true;
         //$this->assertTrue($compareString, $actualString, "PR27 // ".$actualString);
 
-        $this->checkSimulator();
+        //$this->checkSimulator();
 
         $descriptionSearch = WebDriverBy::cssSelector("div#payment.woocommerce-checkout-payment > ul.wc_payment_methods > li.payment_method_paylater > div.payment_method_paylater");
         $descriptionElement = $this->webDriver->findElement($descriptionSearch);
@@ -260,49 +230,14 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
     }
 
     /**
-     * @throws \Facebook\WebDriver\Exception\NoSuchElementException
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
-     */
-    /*public function checkPmtPage()
-    {
-        $paymentFormElement = WebDriverBy::className('FieldsPreview-desc');
-        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($paymentFormElement);
-        $this->waitUntil($condition);
-        $this->assertTrue((bool) $condition, "PR32");
-
-        $this->assertSame(
-            $this->configuration['firstname'] . ' ' . $this->configuration['lastname'],
-            $this->findByClass('FieldsPreview-desc')->getText(),
-            "PR34"
-        );
-
-        $priceSearch = WebDriverBy::className('LoanSummaryList-desc');
-        $priceElements = $this->webDriver->findElements($priceSearch);
-        $totalPrice = $this->setPrice($priceElements['0']->getText());
-        $this->assertEquals($this->getPrice(), $totalPrice, "PR35");
-
-        $this->webDriver->executeScript("var button = document.getElementsByName('back_to_store_button');button[0].click();");
-        $condition = WebDriverExpectedCondition::titleContains(self::CHECKOUT_TITLE);
-        $this->webDriver->wait()->until($condition);
-        $this->assertTrue((bool) $condition, "PR36");
-    }*/
-
-    /**
-     * Check simulator product and/or checkout
+     * Check simulator product
      */
     private function checkSimulator()
     {
         $simulatorElementSearch = WebDriverBy::className('PmtSimulator');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($simulatorElementSearch);
         $this->waitUntil($condition);
-        $this->assertTrue((bool) $condition, "PR19//PR28");
-
-        $simulatorElement = $this->webDriver->findElement(WebDriverBy::className('PmtSimulator'));
-        $minInstallments = $simulatorElement->getAttribute('data-pmt-num-quota');
-        $this->assertEquals($minInstallments, $this->configuration['defaultMinIns'], "PR20//PR29");
-
-        $maxInstallments = $simulatorElement->getAttribute('data-pmt-max-ins');
-        $this->assertEquals($maxInstallments, $this->configuration['defaultMaxIns'], "PR20//PR29");
+        $this->assertTrue((bool) $condition, "PR19");
     }
 
     /**
@@ -403,7 +338,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
         $this->assertNotEmpty($notifyUrl, $notifyUrl);
         $response = Request::post($notifyUrl)->expects('json')->send();
         $this->assertNotEmpty($response->body->result, $response->body->result);
-        $this->assertContains(QuoteNotFoundException::ERROR_MESSAGE, $response->body->result, "PR=>".$response->body->result);
+        $this->assertContains(QuoteNotFoundException::ERROR_MESSAGE, $response->body->result, "PR58=>".$response->body->result);
     }
 
     /**
@@ -417,7 +352,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
         $this->assertNotEmpty($notifyUrl, $notifyUrl);
         $response = Request::post($notifyUrl)->expects('json')->send();
         $this->assertNotEmpty($response->body->result);
-        $this->assertContains(NoIdentificationException::ERROR_MESSAGE, $response->body->result, "PR=>".$response->body->result);
+        $this->assertContains(NoIdentificationException::ERROR_MESSAGE, $response->body->result, "PR59=>".$response->body->result);
     }
 
     /**
