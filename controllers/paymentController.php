@@ -276,7 +276,7 @@ EOD;
 
             if ($url=="") {
                 throw new Exception(_("No ha sido posible obtener una respuesta de PagaMasTarde"));
-            } elseif ($this->iframe !== 'true') {
+            } elseif (getenv('PMT_FORM_DISPLAY_TYPE')=='0') {
                 wp_redirect($url);
                 exit;
             } else {
