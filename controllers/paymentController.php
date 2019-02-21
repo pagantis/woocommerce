@@ -108,7 +108,11 @@ EOD;
         } elseif (!in_array(get_locale(), $this->allowed_languages)) {
             $error_string = __(' solo puede ser usado en Español', 'paylater');
             $this->settings['enabled'] = 'no';
-        } elseif (getenv('PMT_SIMULATOR_MAX_INSTALLMENTS')<2 || getenv('PMT_SIMULATOR_MAX_INSTALLMENTS')>12) {
+        } elseif (getenv('PMT_SIMULATOR_MAX_INSTALLMENTS')<'2'
+                  || getenv('PMT_SIMULATOR_MAX_INSTALLMENTS')>'12') {
+            $error_string = __(' solo puede ser pagado de 2 a 12 plazos.', 'paylater');
+        } elseif (getenv('PMT_SIMULATOR_START_INSTALLMENTS')<'2'
+                  || getenv('PMT_SIMULATOR_START_INSTALLMENTS')>'12') {
             $error_string = __(' solo puede ser pagado de 2 a 12 plazos.', 'paylater');
         } elseif (getenv('PMT_DISPLAY_MIN_AMOUNT')<0) {
             $error_string = __(' el importe debe ser mayor a 0.', 'paylater');
