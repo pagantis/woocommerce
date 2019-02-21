@@ -37,7 +37,9 @@ class WcPaylater
                             'PMT_FORM_DISPLAY_TYPE'=>0,
                             'PMT_DISPLAY_MIN_AMOUNT'=>1,
                             'PMT_URL_OK'=>'',
-                            'PMT_URL_KO'=>''
+                            'PMT_URL_KO'=>'',
+                            'PMT_TITLE_EXTRA' => 'Paga hasta en 12 cómodas cuotas con Paga+Tarde. Solicitud totalmente 
+                            online y sin papeleos,¡y la respuesta es inmediata!'
     );
 
     /**
@@ -49,6 +51,8 @@ class WcPaylater
 
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
+        $this->paylaterActivation();
+
         load_plugin_textdomain('paylater', false, basename(dirname(__FILE__)).'/languages');
         add_filter('woocommerce_payment_gateways', array($this, 'addPaylaterGateway'));
         add_filter('woocommerce_available_payment_gateways', array($this, 'paylaterFilterGateways'), 9999);
@@ -57,7 +61,6 @@ class WcPaylater
         add_action('woocommerce_after_add_to_cart_form', array($this, 'paylaterAddProductSimulator'));
         add_action('wp_enqueue_scripts', 'add_widget_js');
         add_action('rest_api_init', array($this, 'paylaterRegisterEndpoint')); //Endpoint
-        register_activation_hook(__FILE__, array($this,'paylaterActivation'));
     }
 
     /**
@@ -79,9 +82,8 @@ class WcPaylater
                                 UNIQUE KEY id(id)) $charset_collate";
 
             require_once(ABSPATH.'wp-admin/includes/upgrade.php');
-            $return = dbDelta($sql);
+            dbDelta($sql);
         }
-
 
         $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
 
@@ -93,17 +95,7 @@ class WcPaylater
         $newConfigs = array_diff_key($this->defaultConfigs, $simpleDbConfigs);
         if (!empty($newConfigs)) {
             foreach ($newConfigs as $key => $value) {
-                $wpdb->insert(
-                    $tableName,
-                    array(
-                        'config' => $key,
-                        'value'  => $value
-                    ),
-                    array(
-                        '%s',
-                        '%s'
-                    )
-                );
+                $wpdb->insert($tableName, array('config' => $key, 'value'  => $value), array('%s', '%s'));
             }
         }
 
@@ -144,7 +136,8 @@ class WcPaylater
             'total'    => is_numeric($product->price) ? $product->price : 0,
             'public_key' => $cfg['pmt_public_key'],
             'simulator_type' => getenv('PMT_SIMULATOR_DISPLAY_TYPE'),
-            'pmtCSSSelector' => getenv('PMT_SIMULATOR_CSS_POSITION_SELECTOR')
+            'pmtCSSSelector' => getenv('PMT_SIMULATOR_CSS_POSITION_SELECTOR'),
+            'totalAmount' => is_numeric($product->price) ? $product->price : 0
         );
         wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
     }
@@ -224,7 +217,7 @@ class WcPaylater
     }
 
     /**
-     *
+     * Read logs
      */
     public function readLogs($data)
     {
