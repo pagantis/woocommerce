@@ -21,4 +21,4 @@ In Paga+tarde admin panel, we can set the following options:
 | Activate plugin   | - Clicked => Module enabled<br/> - Not clicked => Módule disabled (Default)
 | Public Key(*) |  String you can get from your [Paga+Tarde profile](https://bo.pagamastarde.com/shop).
 | Secret Key(*) |  String you can get from your [Paga+Tarde profile](https://bo.pagamastarde.com/shop). 
-| Product Simulator    |  Choose if we want to use installments simulator inside product page, in positive case, you can chose the simulator type.
+| Product Simulator    |  Choose if we want to use installments simulator inside product page.

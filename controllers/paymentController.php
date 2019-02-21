@@ -413,7 +413,6 @@ EOD;
      */
     public function payment_fields()
     {
-
         $template_fields = array(
             'public_key' => $this->pmt_public_key,
             'total' => WC()->session->cart_totals['total'],
