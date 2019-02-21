@@ -278,7 +278,6 @@ class WcPaylater
 
                         if ($result) {
                             $response['message'].= "Updated $config with $value --";
-                            putenv($config . '=' . $value);
                         }
                     } else {
                         $response['message'].= "Wrong $config with $value --";
