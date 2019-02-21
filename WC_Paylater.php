@@ -136,7 +136,9 @@ class WcPaylater
             'total'    => is_numeric($product->price) ? $product->price : 0,
             'public_key' => $cfg['pmt_public_key'],
             'simulator_type' => getenv('PMT_SIMULATOR_DISPLAY_TYPE'),
-            'pmtCSSSelector' => getenv('PMT_SIMULATOR_CSS_POSITION_SELECTOR'),
+            'positionSelector' => getenv('PMT_SIMULATOR_CSS_POSITION_SELECTOR'),
+            'quantitySelector' => getenv('PMT_SIMULATOR_CSS_QUANTITY_SELECTOR'),
+            'priceSelector' => getenv('PMT_SIMULATOR_CSS_PRICE_SELECTOR'),
             'totalAmount' => is_numeric($product->price) ? $product->price : 0
         );
         wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
