@@ -14,6 +14,7 @@
                 publicKey: '<?php echo $public_key; ?>',
                 selector: positionSelector,
                 type: <?php echo $simulator_type; ?>,
+                totalAmount:<?php echo $totalAmount; ?>
             });
             clearInterval(simulatorId);
         }
