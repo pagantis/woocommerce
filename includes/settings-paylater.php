@@ -24,7 +24,7 @@ return array(
         'description' => __('MANDATORY. You can get in your pagamastarde profile', 'paylater')
     ),
     'simulator' => array(
-        'title'       => __('Simulator', 'paylater'),
+        'title'       => __('Product simulator', 'paylater'),
         'type'        => 'checkbox',
         'default'     => 'yes'
     )
