@@ -3,7 +3,7 @@
  * Plugin Name: Pagamastarde
  * Plugin URI: http://www.pagamastarde.com/
  * Description: Financiar con Pagamastarde
- * Version: 7.0.0
+ * Version: 7.2.0
  * Author: Pagamastarde
  */
 
@@ -270,7 +270,7 @@ class WcPaylater
             if (count($_POST)) {
                 foreach ($_POST as $config => $value) {
                     if (isset($this->defaultConfigs[$config]) && $response['status']==null) {
-                        $result = $wpdb->update(
+                        $wpdb->update(
                             $tableName,
                             array('value' => $value),
                             array('config' => $config),
