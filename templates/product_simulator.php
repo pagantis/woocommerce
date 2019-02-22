@@ -18,9 +18,6 @@
             quantitySelector = 'div.quantity>input';
         }
 
-        console.log(positionSelector);
-        console.log(priceSelector);
-        console.log(quantitySelector);
         if (typeof pmtSDK != 'undefined') {
             pmtSDK.simulator.init({
                 publicKey: '<?php echo $public_key; ?>',
