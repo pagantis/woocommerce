@@ -2,4 +2,5 @@
 /vendor
 paylater*.zip
 composer.phar
-.env
+/svn
+!/svn/README.md
