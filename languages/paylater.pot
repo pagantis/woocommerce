@@ -1,4 +1,3 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Pagamastarde WooCommerce V2\n"
@@ -14,12 +13,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/"
 
-#. Description of the plugin
-msgid "Financiar con Pagamastarde"
+msgid "Finance with Pagamastarde"
 msgstr ""
 
 #. URI of the plugin
-msgid "http://www.Pagamastarde.com/"
+msgid "http://www.pagamastarde.com/"
 msgstr ""
 
 #. Author of the plugin
@@ -30,159 +28,185 @@ msgstr ""
 msgid "Pagamastarde WooCommerce V2"
 msgstr ""
 
-msgid "Ajustes"
+msgid " it is not compatible with your version of php and / or curl"
 msgstr ""
 
-msgid "Documentación"
+msgid "Public Key"
 msgstr ""
 
-msgid "Documentación de la api"
+msgid "Secret Key"
 msgstr ""
 
-msgid "Soporte"
+msgid "Checkout description"
 msgstr ""
 
-msgid ""
-" no está configurado correctamente, los campos Public Key y Secret Key son "
-"obligatorios para su funcionamiento."
+msgid "Title to show with the checkout simulator"
 msgstr ""
 
-msgid "solo puede ser usado en Euros."
+msgid "Instant financing"
 msgstr ""
 
-msgid "solo puede ser usado en Español."
+msgid "Pay up to 12 comfortable installments with Paga + Tarde. Application totally online and without paperwork, And the answer is immediate!"
 msgstr ""
 
-msgid " solo puede ser pagado de 2 a 12 plazos."
+msgid "Number of default installments"
 msgstr ""
 
-msgid " no puede tener un importe mínimo menor a 0."
+msgid "Number of installments that the simulator will show by default. Must be between 2-12"
 msgstr ""
 
-msgid "Error en el pago "
+msgid "Display mode"
 msgstr ""
 
-msgid "Login al panel de "
+msgid "Redirect"
 msgstr ""
 
-msgid "Activar"
+msgid "Iframe"
 msgstr ""
 
-msgid "Activar el modulo"
+msgid "No"
 msgstr ""
 
-msgid "Título"
+msgid "Url Ok"
 msgstr ""
 
-msgid "Título a mostrar junto al metodo de pago"
+msgid "Url Ko"
 msgstr ""
 
-msgid "Importe mínimo"
+msgid "Pay Later"
 msgstr ""
 
-msgid "Cantidad mínima para habilitar el módulo."
+msgid "Settings"
 msgstr ""
 
-msgid "Importe máximo"
+msgid "Documentation"
 msgstr ""
 
-msgid "Cantidad maxima para habilitar el módulo"
+msgid "API documentation"
 msgstr ""
 
-msgid "Mínimo número de pagos"
+msgid "Support"
 msgstr ""
 
-msgid ""
-"Número máximo de pagos para mostrar en el simulador. Debe estar entre 2-12"
+msgid " only can be used in Euros"
 msgstr ""
 
-msgid "Máximo número de pagos"
+msgid " only can be used in Spanish"
 msgstr ""
 
-msgid "Descuento"
+msgid " only can be payed from 2 to 12 installments"
 msgstr ""
 
-msgid "Asumir comisiones"
+msgid " can not have a minimum amount less than 0"
 msgstr ""
 
-msgid "Abrir el formulario en un pop-up."
+msgid "Payment error "
 msgstr ""
 
-msgid "Simulador en el producto"
+msgid "Login to panel of "
 msgstr ""
 
-msgid "Incluir un simulador de cuotas en la pagina de producto"
+msgid "Activate"
+msgstr ""
+
+msgid "Activate the module"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Title to show near to payment method"
+msgstr ""
+
+msgid "Minimum amount"
+msgstr ""
+
+msgid "Minimum amount to activate the plugin"
+msgstr ""
+
+msgid "Maximum amount"
+msgstr ""
+
+msgid "Maximum amount to activate the plugin"
+msgstr ""
+
+msgid "Minimum numbers of installments"
+msgstr ""
+
+msgid "Maximum number of installments to show in simulator. Must be between 2-12"
+msgstr ""
+
+msgid "Maximum numbers of installments"
+msgstr ""
+
+msgid "Discount"
+msgstr ""
+
+msgid "Get fees"
+msgstr ""
+
+msgid "Open form in a pop-up"
+msgstr ""
+
+msgid "Product simulator"
+msgstr ""
+
+msgid "Include simulator in product page"
 msgstr ""
 
 msgid "Simple"
 msgstr ""
 
-msgid "Completo"
+msgid "Full"
 msgstr ""
 
-msgid "Seleccionable"
+msgid "Selectable"
 msgstr ""
 
-msgid "Texto descriptivo"
+msgid "Descriptive text"
 msgstr ""
 
-msgid "Selector de precio"
+msgid "Price selector"
 msgstr ""
 
-msgid "Selector de html para obtener el precio del producto."
+msgid "Quantity selector"
 msgstr ""
 
-msgid "Selector de cantidad"
+msgid "Checkout simulator"
 msgstr ""
 
-msgid ""
-"Selector de html para obtener el número de productos a comprar. \n"
-"        Dejar en blanco para omitir su uso"
+msgid "Include simulator in checkout page"
 msgstr ""
 
-msgid "Simulador al checkout"
+msgid "Confirmation Url"
 msgstr ""
 
-msgid "Incluir un simulador de cuotas al checkout"
+msgid "Fail url"
 msgstr ""
 
-msgid "URL Confirmación"
+msgid "MANDATORY. You can get in your pagamastarde profile"
 msgstr ""
 
-msgid "URL Fallo"
+msgid "is not configured correctly, the fields Public Key and Secret Key are mandatory for use this plugin"
 msgstr ""
 
-msgid ""
-"Pagina donde será redirigido el usuario tras un proceso de pago correcto, "
-"ejemplo:/ok_url.\n"
-"        Dejar en blanco para omitir su uso"
+msgid "Html selector to obtain the number of products to buy on the product page. The quantity of products will be multiplied by the price of the product to obtain the final price, this price will be the one that will be used in the product simulator if it is active. Leave blank to omit its use. By default: "
 msgstr ""
 
-msgid ""
-"Pagina donde será redirigido el usuario tras un proceso de pago erroneo, "
-"ejemplo:/fail_url.\n"
-"        Dejar en blanco para omitir su uso"
+msgid "Page where the user will be redirected after a correct payment process. {{order-received}} will be replaced by the value of the order_id"
 msgstr ""
 
-msgid ""
-"Selector de html para obtener el precio del producto. Dejar en blanco para "
-"omitir su uso"
+msgid "Page where the user will be redirected after a failure payment process. {{order-received}} will be replaced by the value of the order_id"
 msgstr ""
 
-msgid "OBLIGATORIO. Puede obtenerla en su perfil de usuario de pagamastarde"
+msgid "Html selector to get the price on the product page. It will be the amount used in the product simulator if it is active. By default: "
 msgstr ""
 
-msgid ""
-"es una plataforma de financiación online. Escoge Paga+Tarde como tu método "
-"de pago en WooCommerce para permitir el pago a plazos"
+msgid "is a payment method online. Choose Paga+Tarde as your payment method in Woocommerce to allow the partial payments."
 msgstr ""
 
-msgid ""
-"Número mínimo de pagos para mostrar en el simulador. Debe estar entre 2-12"
+msgid "Minimum number of installments to show in simulator. Must be between 2-12"
 msgstr ""
 
-msgid ""
-"es una plataforma de financiación online. Escoge Paga+Tarde como tu método "
-"de pago en WooCommerce para permitir el pago \n"
-"a plazos"
+msgid "is a payment gateway to get partial payment. Choose Paga + Tarde like your payment method in Woocommerce to allow the partial payment."
 msgstr ""

@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a60b222007405c81f56a0833b45df6dd",
+    "content-hash": "99270cf45c6a8edd640f8da9c3e0fab4",
     "packages": [
         {
             "name": "nategood/httpful",
@@ -96,31 +96,34 @@
             "time": "2015-06-04T13:11:29+00:00"
         },
         {
-            "name": "pagamastarde/pmt-api-client",
-            "version": "v1.2.4",
+            "name": "pagamastarde/module-utils",
+            "version": "v1.1.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/PagaMasTarde/pmtApiClient.git",
-                "reference": "fc16c13f5f232221716e48991594b7448362d1ab"
+                "url": "https://github.com/PagaMasTarde/module-utils.git",
+                "reference": "00b214250b818192d6fe9e0f52b68ee5b24c38d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PagaMasTarde/pmtApiClient/zipball/fc16c13f5f232221716e48991594b7448362d1ab",
-                "reference": "fc16c13f5f232221716e48991594b7448362d1ab",
+                "url": "https://api.github.com/repos/PagaMasTarde/module-utils/zipball/00b214250b818192d6fe9e0f52b68ee5b24c38d0",
+                "reference": "00b214250b818192d6fe9e0f52b68ee5b24c38d0",
                 "shasum": ""
             },
             "require": {
-                "nategood/httpful": "*",
-                "nayjest/str-case-converter": "^1.0",
+                "ext-json": "*",
                 "php": ">=5.3"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.8"
+                "facebook/webdriver": "^1.1",
+                "fzaninotto/faker": "^1.7",
+                "nayjest/str-case-converter": "^1.0",
+                "phpunit/phpunit": "^4.8",
+                "phpunit/phpunit-selenium": "^2.0"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "PagaMasTarde": "src/"
+                "psr-4": {
+                    "PagaMasTarde\\ModuleUtils\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -133,38 +136,41 @@
                     "email": "cromero@digitalorigin.com"
                 }
             ],
-            "description": "PagaMasTarde Api Client in PHP. Use the api with simple methods and using POO.",
-            "time": "2018-02-15T10:24:48+00:00"
+            "description": "Paga+Tarde PHP Library. Module utils",
+            "time": "2019-01-23T10:59:08+00:00"
         },
         {
-            "name": "pagamastarde/shopper-library",
-            "version": "v1.2.0",
+            "name": "pagamastarde/orders-api-client",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/PagaMasTarde/shopperLibrary.git",
-                "reference": "437b00c19a070f3a6df6a7ac61a1d3699b79d482"
+                "url": "https://github.com/PagaMasTarde/ordersApiClient.git",
+                "reference": "6e6d7312653beeae57bd809f47de2d6d84fddb4d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PagaMasTarde/shopperLibrary/zipball/437b00c19a070f3a6df6a7ac61a1d3699b79d482",
-                "reference": "437b00c19a070f3a6df6a7ac61a1d3699b79d482",
+                "url": "https://api.github.com/repos/PagaMasTarde/ordersApiClient/zipball/6e6d7312653beeae57bd809f47de2d6d84fddb4d",
+                "reference": "6e6d7312653beeae57bd809f47de2d6d84fddb4d",
                 "shasum": ""
             },
             "require": {
+                "nategood/httpful": "^0.2",
+                "nayjest/str-case-converter": "^1.0",
                 "php": ">=5.3"
             },
             "require-dev": {
+                "fzaninotto/faker": "^1.7",
                 "phpunit/phpunit": "^4.8"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "ShopperLibrary\\": "src/"
+                    "PagaMasTarde\\OrdersApiClient\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "MIT"
+                "proprietary"
             ],
             "authors": [
                 {
@@ -172,8 +178,8 @@
                     "email": "cromero@digitalorigin.com"
                 }
             ],
-            "description": "Library with the models of the shop modules and shopper client",
-            "time": "2018-06-18T07:42:29+00:00"
+            "description": "PagaMasTarde Orders Api Client in PHP. Use the api with simple methods and using OOP.",
+            "time": "2019-01-21T08:54:34+00:00"
         }
     ],
     "packages-dev": [
@@ -1570,7 +1576,7 @@
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.9.0",
+            "version": "v1.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
@@ -1628,16 +1634,16 @@
         },
         {
             "name": "symfony/process",
-            "version": "v4.1.6",
+            "version": "v4.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "ee33c0322a8fee0855afcc11fff81e6b1011b529"
+                "reference": "6c05edb11fbeff9e2b324b4270ecb17911a8b7ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/ee33c0322a8fee0855afcc11fff81e6b1011b529",
-                "reference": "ee33c0322a8fee0855afcc11fff81e6b1011b529",
+                "url": "https://api.github.com/repos/symfony/process/zipball/6c05edb11fbeff9e2b324b4270ecb17911a8b7ad",
+                "reference": "6c05edb11fbeff9e2b324b4270ecb17911a8b7ad",
                 "shasum": ""
             },
             "require": {
@@ -1646,7 +1652,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.1-dev"
+                    "dev-master": "4.2-dev"
                 }
             },
             "autoload": {
@@ -1673,20 +1679,20 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "https://symfony.com",
-            "time": "2018-10-02T12:40:59+00:00"
+            "time": "2019-01-24T22:05:03+00:00"
         },
         {
             "name": "symfony/yaml",
-            "version": "v4.1.6",
+            "version": "v4.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "367e689b2fdc19965be435337b50bc8adf2746c9"
+                "reference": "d461670ee145092b7e2a56c1da7118f19cadadb0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/367e689b2fdc19965be435337b50bc8adf2746c9",
-                "reference": "367e689b2fdc19965be435337b50bc8adf2746c9",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/d461670ee145092b7e2a56c1da7118f19cadadb0",
+                "reference": "d461670ee145092b7e2a56c1da7118f19cadadb0",
                 "shasum": ""
             },
             "require": {
@@ -1705,7 +1711,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.1-dev"
+                    "dev-master": "4.2-dev"
                 }
             },
             "autoload": {
@@ -1732,24 +1738,76 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2018-10-02T16:36:10+00:00"
+            "time": "2019-01-16T20:35:37+00:00"
         },
         {
-            "name": "webmozart/assert",
-            "version": "1.3.0",
+            "name": "vlucas/phpdotenv",
+            "version": "v2.6.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/webmozart/assert.git",
-                "reference": "0df1908962e7a3071564e857d86874dad1ef204a"
+                "url": "https://github.com/vlucas/phpdotenv.git",
+                "reference": "2a7dcf7e3e02dc5e701004e51a6f304b713107d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozart/assert/zipball/0df1908962e7a3071564e857d86874dad1ef204a",
-                "reference": "0df1908962e7a3071564e857d86874dad1ef204a",
+                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/2a7dcf7e3e02dc5e701004e51a6f304b713107d5",
+                "reference": "2a7dcf7e3e02dc5e701004e51a6f304b713107d5",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.3.3 || ^7.0"
+                "php": ">=5.3.9",
+                "symfony/polyfill-ctype": "^1.9"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.35 || ^5.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.6-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Dotenv\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Vance Lucas",
+                    "email": "vance@vancelucas.com",
+                    "homepage": "http://www.vancelucas.com"
+                }
+            ],
+            "description": "Loads environment variables from `.env` to `getenv()`, `$_ENV` and `$_SERVER` automagically.",
+            "keywords": [
+                "dotenv",
+                "env",
+                "environment"
+            ],
+            "time": "2019-01-29T11:11:52+00:00"
+        },
+        {
+            "name": "webmozart/assert",
+            "version": "1.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webmozart/assert.git",
+                "reference": "83e253c8e0be5b0257b881e1827274667c5c17a9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webmozart/assert/zipball/83e253c8e0be5b0257b881e1827274667c5c17a9",
+                "reference": "83e253c8e0be5b0257b881e1827274667c5c17a9",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3.3 || ^7.0",
+                "symfony/polyfill-ctype": "^1.8"
             },
             "require-dev": {
                 "phpunit/phpunit": "^4.6",
@@ -1782,7 +1840,7 @@
                 "check",
                 "validate"
             ],
-            "time": "2018-01-29T19:49:41+00:00"
+            "time": "2018-12-25T11:19:39+00:00"
         }
     ],
     "aliases": [],

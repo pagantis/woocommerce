@@ -40,6 +40,14 @@ Do you have questions or issues with PagaMasTarde financing payment gateway? mai
 
 == Changelog ==
 
+=======
+= 7.2.0 =
+- Adapt to orders
+- Product simulator using js
+- Iframe using Paylater modal launch
+- Extra configuration parameters
+- Exceptions using module-utils library
+
 = 6.2.4 =
 - SeleniumHelper
 - Docker extended domain

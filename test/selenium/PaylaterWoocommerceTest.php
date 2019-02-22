@@ -39,10 +39,13 @@ abstract class PaylaterWoocommerceTest extends TestCase
         'dni'           => '09422447Z',
         'extra'         => 'Free Finance',
         'address'       => 'Av.Diagonal 579',
-        'methodName'    => 'Financiación instantánea',
+        'methodName'    => 'Instant Financing',
         'defaultMinIns' => 3,
         'defaultMaxIns' => 12,
-        'defaultSimulatorOpt' => 6
+        'defaultSimulatorOpt' => 6,
+        'confirmationMsg'=>'Pedido recibido',
+        'checkoutDescription'=> 'Paga hasta en 12 cómodas cuotas con Paga+Tarde',
+        'enter' => 'Haz clic aquí para acceder'
     );
 
     /**

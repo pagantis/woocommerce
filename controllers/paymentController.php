@@ -1,6 +1,8 @@
 <?php
 
 //namespace empty
+use PagaMasTarde\OrdersApiClient\Model\Order\User\Address;
+use PagaMasTarde\ModuleUtils\Exception\OrderNotFoundException;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -15,6 +17,14 @@ class WcPaylaterGateway extends WC_Payment_Gateway
     const METHOD_ABREV          = "Paga+Tarde";
     const PAGA_MAS_TARDE        = 'pagamastarde';
     const PAYLATER_SHOPPER_URL  = 'https://shopper.pagamastarde.com/woocommerce/';
+
+    /** Orders tablename */
+    const ORDERS_TABLE = 'cart_process';
+
+    /** Concurrency tablename */
+    const LOGS_TABLE = 'pmt_logs';
+
+    const NOT_CONFIRMED = 'No se ha podido confirmar el pago';
 
     /**
      * WcPaylaterGateway constructor.
@@ -39,12 +49,11 @@ class WcPaylaterGateway extends WC_Payment_Gateway
         $this->form_fields = include(plugin_dir_path(__FILE__).'../includes/settings-paylater.php');//Panel options
         $this->init_settings();
 
-        $this->settings['ok_url'] = ($this->settings['ok_url']!='')?$this->settings['ok_url']:$this->generateOkUrl();
-        $this->settings['ko_url'] = ($this->settings['ko_url']!='')?$this->settings['ko_url']:$this->generateKoUrl();
+        $this->settings['ok_url'] = (getenv('PMT_URL_OK')!='')?getenv('PMT_URL_OK'):$this->generateOkUrl();
+        $this->settings['ko_url'] = (getenv('PMT_URL_KO')!='')?getenv('PMT_URL_KO'):$this->generateKoUrl();
         foreach ($this->settings as $setting_key => $setting_value) {
             $this->$setting_key = $setting_value;
         }
-        $this->method_description = $this->checkout_title;
 
         //Hooks
         add_action('woocommerce_update_options_payment_gateways_'.$this->id, array($this,'process_admin_options')); //Save plugin options
@@ -87,7 +96,7 @@ class WcPaylaterGateway extends WC_Payment_Gateway
         } elseif (!version_compare(phpversion(), '5.3.0', '>=')) {
             $error_string =  __(' no es compatible con su versión de php y/o curl', 'paylater');
             $this->settings['enabled'] = 'no';
-        } elseif ($this->settings['public_key']=="" || $this->settings['secret_key']=="") {
+        } elseif ($this->settings['pmt_public_key']=="" || $this->settings['pmt_private_key']=="") {
             $keys_error =  <<<EOD
 no está configurado correctamente, los campos Public Key y Secret Key son obligatorios para su funcionamiento
 EOD;
@@ -99,15 +108,14 @@ EOD;
         } elseif (!in_array(get_locale(), $this->allowed_languages)) {
             $error_string = __(' solo puede ser usado en Español', 'paylater');
             $this->settings['enabled'] = 'no';
-        } elseif ($this->min_installments<2 ||  $this->min_installments>12 ||
-                  $this->max_installments<2 ||  $this->max_installments>12 ) {
+        } elseif (getenv('PMT_SIMULATOR_MAX_INSTALLMENTS')<'2'
+                  || getenv('PMT_SIMULATOR_MAX_INSTALLMENTS')>'12') {
             $error_string = __(' solo puede ser pagado de 2 a 12 plazos.', 'paylater');
-            $this->settings['min_installments'] = 2;
-            $this->settings['max_installments'] = 12;
-        } elseif ($this->min_amount<0 || $this->max_amount<0) {
+        } elseif (getenv('PMT_SIMULATOR_START_INSTALLMENTS')<'2'
+                  || getenv('PMT_SIMULATOR_START_INSTALLMENTS')>'12') {
+            $error_string = __(' solo puede ser pagado de 2 a 12 plazos.', 'paylater');
+        } elseif (getenv('PMT_DISPLAY_MIN_AMOUNT')<0) {
             $error_string = __(' el importe debe ser mayor a 0.', 'paylater');
-            $this->settings['min_amount'] = 0;
-            $this->settings['max_amount'] = 10000;
         }
 
         if ($error_string!='') {
@@ -122,6 +130,8 @@ EOD;
     /**
      * CHECKOUT - Generate the pmt form. "Return" iframe or redirect. - Hook: woocommerce_receipt_paylater
      * @param $order_id
+     *
+     * @throws Exception
      */
     public function paylaterReceiptPage($order_id)
     {
@@ -134,114 +144,139 @@ EOD;
                 throw new Exception(_("Order not found"));
             }
 
-            $cart = $woocommerce->cart->get_cart();
-            foreach ($cart as $item => $values) {
-                $cart[$item]['product_name'] = $values['data']->get_name();
+            $shippingAddress = $order->get_address('shipping');
+            $billingAddress = $order->get_address('billing');
+            if ($shippingAddress['address_1'] == '') {
+                $shippingAddress = $billingAddress;
             }
 
-            $currency = $order->get_currency();
+            $userAddress = new Address();
+            $userAddress
+                ->setZipCode($shippingAddress['postcode'])
+                ->setFullName($shippingAddress['fist_name']." ".$shippingAddress['last_name'])
+                ->setCountryCode('ES')
+                ->setCity($shippingAddress['city'])
+                ->setAddress($shippingAddress['address_1']." ".$shippingAddress['address_2'])
+            ;
+            $orderShippingAddress = new Address();
+            $orderShippingAddress
+                ->setZipCode($shippingAddress['postcode'])
+                ->setFullName($shippingAddress['fist_name']." ".$shippingAddress['last_name'])
+                ->setCountryCode('ES')
+                ->setCity($shippingAddress['city'])
+                ->setAddress($shippingAddress['address_1']." ".$shippingAddress['address_2'])
+                ->setFixPhone($shippingAddress['phone'])
+                ->setMobilePhone($shippingAddress['phone'])
+            ;
+            $orderBillingAddress =  new Address();
+            $orderBillingAddress
+                ->setZipCode($billingAddress['postcode'])
+                ->setFullName($billingAddress['fist_name']." ".$billingAddress['last_name'])
+                ->setCountryCode('ES')
+                ->setCity($billingAddress['city'])
+                ->setAddress($billingAddress['address_1']." ".$billingAddress['address_2'])
+                ->setFixPhone($billingAddress['phone'])
+                ->setMobilePhone($billingAddress['phone'])
+            ;
+            $orderUser = new \PagaMasTarde\OrdersApiClient\Model\Order\User();
+            $orderUser
+                ->setAddress($userAddress)
+                ->setFullName($billingAddress['fist_name']." ".$billingAddress['last_name'])
+                ->setBillingAddress($orderBillingAddress)
+                ->setEmail($billingAddress['email'])
+                ->setFixPhone($billingAddress['phone'])
+                ->setMobilePhone($billingAddress['phone'])
+                ->setShippingAddress($orderShippingAddress)
+            ;
+
+            $previousOrders = $this->getOrders($order->get_user(), $billingAddress['email']);
+            foreach ($previousOrders as $previousOrder) {
+                $orderHistory = new \PagaMasTarde\OrdersApiClient\Model\Order\User\OrderHistory();
+                $orderElement = wc_get_order($previousOrder);
+                $orderCreated = $orderElement->get_date_created();
+                $orderHistory
+                    ->setAmount(intval(100 * $orderElement->get_total()))
+                    ->setDate(new \DateTime($orderCreated->date('Y-m-d H:i:s')))
+                ;
+                $orderUser->addOrderHistory($orderHistory);
+            }
+
+            $details = new \PagaMasTarde\OrdersApiClient\Model\Order\ShoppingCart\Details();
+            $shippingCost = $order->shipping_total;
+            $details->setShippingCost(intval(strval(100 * $shippingCost)));
+            $items = $woocommerce->cart->get_cart();
+            foreach ($items as $key => $item) {
+                $product = new \PagaMasTarde\OrdersApiClient\Model\Order\ShoppingCart\Details\Product();
+                $product
+                    ->setAmount(intval(100 * $item['line_total']))
+                    ->setQuantity($item['quantity'])
+                    ->setDescription($item['data']->get_description());
+                $details->addProduct($product);
+            }
+
+            $orderShoppingCart = new \PagaMasTarde\OrdersApiClient\Model\Order\ShoppingCart();
+            $orderShoppingCart
+                ->setDetails($details)
+                ->setOrderReference($order->get_id())
+                ->setPromotedAmount(0)
+                ->setTotalAmount(intval(strval(100 * $order->total)))
+            ;
+            $orderConfigurationUrls = new \PagaMasTarde\OrdersApiClient\Model\Order\Configuration\Urls();
             $cancelUrl = $this->getKoUrl($order);
-            $include_simulator = ($this->simulator_checkout !== '0') ? '1' : '0';
             $callback_arg = array(
                 'wc-api'=>'wcpaylatergateway',
                 'key'=>$order->get_order_key(),
                 'order-received'=>$order->get_id());
             $callback_url = add_query_arg($callback_arg, home_url('/'));
+            $orderConfigurationUrls
+                ->setCancel($cancelUrl)
+                ->setKo($callback_url)
+                ->setAuthorizedNotificationCallback($callback_url)
+                ->setRejectedNotificationCallback($callback_url)
+                ->setOk($callback_url)
+            ;
+            $orderChannel = new \PagaMasTarde\OrdersApiClient\Model\Order\Configuration\Channel();
+            $orderChannel
+                ->setAssistedSale(false)
+                ->setType(\PagaMasTarde\OrdersApiClient\Model\Order\Configuration\Channel::ONLINE)
+            ;
+            $orderConfiguration = new \PagaMasTarde\OrdersApiClient\Model\Order\Configuration();
+            $orderConfiguration
+                ->setChannel($orderChannel)
+                ->setUrls($orderConfigurationUrls)
+            ;
+            $metadataOrder = new \PagaMasTarde\OrdersApiClient\Model\Order\Metadata();
+            $metadata = array(
+                'woocommerce' => WC()->version,
+                'pmt'         => $this->plugin_info['Version'],
+                'php'         => phpversion()
+            );
+            foreach ($metadata as $key => $metadatum) {
+                $metadataOrder->addMetadata($key, $metadatum);
+            }
+            $orderApiClient = new \PagaMasTarde\OrdersApiClient\Model\Order();
+            $orderApiClient
+                ->setConfiguration($orderConfiguration)
+                ->setMetadata($metadataOrder)
+                ->setShoppingCart($orderShoppingCart)
+                ->setUser($orderUser)
+            ;
 
-            $current_user = $order->get_user();
-            $sign_up = '';
-            $total_orders = 0;
-            $total_amt = 0;
-            $refund_amt = 0;
-            $total_refunds = 0;
-            $partial_refunds = 0;
-            if ($current_user->user_login) {
-                $is_guest = "false";
-                $sign_up = substr($current_user->user_registered, 0, 10);
-                $customer_orders = get_posts(array(
-                    'numberposts' => - 1,
-                    'meta_key'    => '_customer_user',
-                    'meta_value'  => $current_user->ID,
-                    'post_type'   => array( 'shop_order' ),
-                    'post_status' => array( 'wc-completed', 'wc-processing', 'wc-refunded' ),
-                ));
+            if ($this->pmt_public_key=='' || $this->pmt_private_key=='') {
+                throw new \Exception('Public and Secret Key not found');
+            }
+            $orderClient = new \PagaMasTarde\OrdersApiClient\Client($this->pmt_public_key, $this->pmt_private_key);
+            $pmtOrder = $orderClient->createOrder($orderApiClient);
+            if ($pmtOrder instanceof \PagaMasTarde\OrdersApiClient\Model\Order) {
+                $url = $pmtOrder->getActionUrls()->getForm();
+                $this->insertRow($order->get_id(), $pmtOrder->getId());
             } else {
-                $is_guest = "true";
-                $customer_orders = get_posts(array(
-                    'numberposts' => - 1,
-                    'meta_key'    => '_billing_email',
-                    'meta_value'  => $order->billing_email,
-                    'post_type'   => array( 'shop_order' ),
-                    'post_status' => array( 'wc-completed', 'wc-processing', 'wc-refunded'),
-                ));
-                foreach ($customer_orders as $customer_order) {
-                    if (trim($sign_up)=='' ||
-                        strtotime(substr($customer_order->post_date, 0, 10)) <= strtotime($sign_up)) {
-                        $sign_up = substr($customer_order->post_date, 0, 10);
-                    }
-                }
-            }
-            foreach ($customer_orders as $customer_order) {
-                $tmp_order = wc_get_order($customer_order);
-                $total_amt += $tmp_order->get_total();
-                $total_orders++;
-                $tmp_order = wc_get_order($customer_order);
-                $refund_amt += $tmp_order->get_total_refunded();
-                if ($tmp_order->get_total_refunded() != null) {
-                    if ($tmp_order->get_total_refunded() >= $order->get_total()) {
-                        $total_refunds++;
-                    } else {
-                        $partial_refunds += count($tmp_order->get_refunds());
-                    }
-                }
+                throw new OrderNotFoundException();
             }
 
-            $customer = new stdClass();
-            $customer->member_since           = $sign_up;
-            $customer->num_orders             = $total_orders;
-            $customer->amount_orders          = $total_amt;
-            $customer->amount_refunded        = $refund_amt;
-            $customer->num_full_refunds       = $total_refunds;
-            $customer->num_partial_refunds    = $partial_refunds;
-
-            $woocommerceObjectModule = new \ShopperLibrary\ObjectModule\WoocommerceObjectModule(WcPaylaterGateway::PAYLATER_SHOPPER_URL);
-            $woocommerceObjectModule
-                ->setPublicKey($this->public_key)
-                ->setPrivateKey($this->secret_key)
-                ->setCurrency($currency)
-                ->setDiscount(false)
-                ->setOkUrl($callback_url)
-                ->setNokUrl($callback_url)
-                ->setIFrame($this->iframe)
-                ->setCallbackUrl($callback_url)
-                ->setCancelledUrl($cancelUrl)
-                ->setIncludeSimulator($include_simulator)
-                ->setCart($cart)
-                ->setOrder($order)
-                ->setCustomer($customer)
-                ->setWoShippingAddress($order)
-                ->setWoBillingAddress($order)
-                ->setMetadata(
-                    array(
-                        'woocommerce' => WC()->version,
-                        'pmt'         => $this->plugin_info['Version'],
-                        'php'         => phpversion()
-                    )
-                );
-
-            $shopperClient = new \ShopperLibrary\ShopperClient(WcPaylaterGateway::PAYLATER_SHOPPER_URL);
-            $shopperClient->setObjectModule($woocommerceObjectModule);
-            $response = $shopperClient->getPaymentForm();
-            $url = "";
-            if ($response) {
-                $paymentForm = json_decode($response);
-                if (is_object($paymentForm) && is_object($paymentForm->data)) {
-                    $url = $paymentForm->data->url;
-                }
-            }
             if ($url=="") {
                 throw new Exception(_("No ha sido posible obtener una respuesta de PagaMasTarde"));
-            } elseif ($this->iframe !== 'true') {
+            } elseif (getenv('PMT_FORM_DISPLAY_TYPE')=='0') {
                 wp_redirect($url);
                 exit;
             } else {
@@ -254,8 +289,8 @@ EOD;
                 );
                 wc_get_template('iframe.php', $template_fields, '', $this->template_path);
             }
-        } catch (Exception $e) {
-            wc_add_notice(__('Error en el pago - ', 'paylater') . $e->getMessage(), 'error');
+        } catch (\Exception $exception) {
+            wc_add_notice(__('Error en el pago - ', 'paylater') . $exception->getMessage(), 'error');
             $checkout_url = get_permalink(wc_get_page_id('checkout'));
             wp_redirect($checkout_url);
             exit;
@@ -268,49 +303,33 @@ EOD;
     public function paylaterNotification()
     {
         try {
-            $order_id = $_GET['order-received'];
             $origin = ($_SERVER['REQUEST_METHOD'] == 'POST') ? 'Notify' : 'Order';
 
             include_once('notifyController.php');
             $notify = new WcPaylaterNotify();
-            $order = new WC_Order($order_id);
-            $notify->setOrder($order);
             $notify->setOrigin($origin);
+            /** @var \PagaMasTarde\ModuleUtils\Model\Response\AbstractJsonResponse $result */
             $result = $notify->processInformation();
         } catch (Exception $exception) {
             $result['notification_message'] = $exception->getMessage();
             $result['notification_error'] = true;
         }
 
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $response = json_encode(array(
-                'timestamp' => time(),
-                'order_id' => $order_id,
-                'result' => (!$result['notification_error']) ? 'success' : 'failed',
-                'result_description' => $result['notification_message']
-            ));
-
-            if ($result['notification_error']) {
-                header('HTTP/1.1 400 Bad Request', true, 400);
-            } else {
-                header('HTTP/1.1 200 Ok', true, 200);
-            }
-            header('Content-Type: application/json', true);
-            header('Content-Length: ' . strlen($response));
-            echo ($response);
-            exit();
+        $paymentOrder = new WC_Order($result->getMerchantOrderId());
+        if ($paymentOrder instanceof WC_Order) {
+            $orderStatus = strtolower($paymentOrder->get_status());
         } else {
-            $orderStatus = strtolower($order->get_status());
-            $acceptedStatus = array('processing', 'completed');
-            if (in_array($orderStatus, $acceptedStatus)) {
-                $returnUrl = $this->getOkUrl($order);
-            } else {
-                $returnUrl = $this->getKoUrl($order);
-            }
-
-            wp_redirect($returnUrl);
-            exit;
+            $orderStatus = 'cancelled';
         }
+        $acceptedStatus = array('processing', 'completed');
+        if (in_array($orderStatus, $acceptedStatus)) {
+            $returnUrl = $this->getOkUrl($paymentOrder);
+        } else {
+            $returnUrl = $this->getKoUrl($paymentOrder);
+        }
+
+        wp_redirect($returnUrl);
+        exit;
     }
 
     /**
@@ -323,8 +342,12 @@ EOD;
      */
     public function paylaterCompleteStatus($status, $order_id, $order)
     {
-        if ($order->get_payment_method() == WcPaylaterGateway::METHOD_ID && $order->get_status() == 'failed') {
-            $status = 'processing';
+        if ($order->get_payment_method() == WcPaylaterGateway::METHOD_ID) {
+            if ($order->get_status() == 'failed') {
+                $status = 'processing';
+            } elseif ($order->get_status() == 'pending' && $status=='completed') {
+                $status = 'processing';
+            }
         }
 
         return $status;
@@ -342,8 +365,8 @@ EOD;
      */
     public function is_available()
     {
-        if ($this->enabled==='yes' && $this->public_key!='' && $this->secret_key!='' &&
-            $this->get_order_total()>$this->min_amount && $this->get_order_total()<$this->max_amount) {
+        if ($this->enabled==='yes' && $this->pmt_public_key!='' && $this->pmt_private_key!='' &&
+            $this->get_order_total()>getenv('PMT_DISPLAY_MIN_AMOUNT')) {
             return true;
         }
 
@@ -356,7 +379,7 @@ EOD;
      */
     public function get_title()
     {
-        return $this->extra_title;
+        return getenv('PMT_TITLE');
     }
 
     /**
@@ -369,10 +392,16 @@ EOD;
         try {
             $order = new WC_Order($order_id);
 
+            $redirectUrl = $order->get_checkout_payment_url(true); //paylaterReceiptPage function
+            if (strpos($redirectUrl, 'order-pay=')===false) {
+                $redirectUrl = "&order-pay=".$order->getId();
+            }
+
             return array(
                 'result'   => 'success',
-                'redirect' => $order->get_checkout_payment_url(true) //paylaterReceiptPage function
+                'redirect' => $redirectUrl
             );
+
         } catch (Exception $e) {
             wc_add_notice(__('Error en el pago ', 'paylater') . $e->getMessage(), 'error');
             return array();
@@ -385,12 +414,11 @@ EOD;
     public function payment_fields()
     {
         $template_fields = array(
-            'message' => $this->checkout_title,
-            'public_key' => $this->public_key,
+            'public_key' => $this->pmt_public_key,
             'total' => WC()->session->cart_totals['total'],
-            'enabled' =>  $this->simulator_checkout,
-            'min_installments' => $this->min_installments,
-            'max_installments' => $this->max_installments
+            'enabled' =>  $this->settings['enabled'],
+            'min_installments' => getenv('PMT_DISPLAY_MIN_AMOUNT'),
+            'message' => getenv('PMT_TITLE_EXTRA')
         );
         wc_get_template('checkout_description.php', $template_fields, '', $this->template_path);
     }
@@ -546,5 +574,101 @@ EOD;
         $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
         $path     = $parsed_url['path'];
         return $scheme . $host . $port . $path . $query . $fragment;
+    }
+
+    /**
+     * Get the orders of a customer
+     * @param $current_user
+     * @param $billingEmail
+     *
+     * @return mixed
+     */
+    private function getOrders($current_user, $billingEmail)
+    {
+        $sign_up = '';
+        $total_orders = 0;
+        $total_amt = 0;
+        $refund_amt = 0;
+        $total_refunds = 0;
+        $partial_refunds = 0;
+        if ($current_user->user_login) {
+            $is_guest = "false";
+            $sign_up = substr($current_user->user_registered, 0, 10);
+            $customer_orders = get_posts(array(
+                'numberposts' => - 1,
+                'meta_key'    => '_customer_user',
+                'meta_value'  => $current_user->ID,
+                'post_type'   => array( 'shop_order' ),
+                'post_status' => array( 'wc-completed', 'wc-processing', 'wc-refunded' ),
+            ));
+        } else {
+            $is_guest = "true";
+            $customer_orders = get_posts(array(
+                'numberposts' => - 1,
+                'meta_key'    => '_billing_email',
+                'meta_value'  => $billingEmail,
+                'post_type'   => array( 'shop_order' ),
+                'post_status' => array( 'wc-completed', 'wc-processing', 'wc-refunded'),
+            ));
+            foreach ($customer_orders as $customer_order) {
+                if (trim($sign_up)=='' ||
+                    strtotime(substr($customer_order->post_date, 0, 10)) <= strtotime($sign_up)) {
+                    $sign_up = substr($customer_order->post_date, 0, 10);
+                }
+            }
+        }
+
+        return $customer_orders;
+    }
+
+
+    /**
+     * @param $orderId
+     * @param $pmtOrderId
+     *
+     * @throws Exception
+     */
+    private function insertRow($orderId, $pmtOrderId)
+    {
+        global $wpdb;
+        $this->checkDbTable();
+        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+
+        //Check if id exists
+        $resultsSelect = $wpdb->get_results("select * from $tableName where id='$orderId'");
+        $countResults = count($resultsSelect);
+        if ($countResults == 0) {
+            $wpdb->insert(
+                $tableName,
+                array('id' => $orderId, 'order_id' => $pmtOrderId),
+                array('%d', '%s')
+            );
+        } else {
+            $wpdb->update(
+                $tableName,
+                array('order_id' => $pmtOrderId),
+                array('id' => $orderId),
+                array('%s'),
+                array('%d')
+            );
+        }
+    }
+
+    /**
+     * Check if orders table exists
+     */
+    private function checkDbTable()
+    {
+        global $wpdb;
+        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+
+        if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
+            $charset_collate = $wpdb->get_charset_collate();
+            $sql             = "CREATE TABLE $tableName ( id int, order_id varchar(50), wc_order_id varchar(50),  
+                  UNIQUE KEY id (id)) $charset_collate";
+
+            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
+            dbDelta($sql);
+        }
     }
 }

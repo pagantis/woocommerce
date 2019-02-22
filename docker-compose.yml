@@ -68,3 +68,4 @@ services:
     extra_hosts:
       - "woocommerce-test.docker:${DOCKERHOST}"
       - "woocommerce-dev.docker:${DOCKERHOST}"
+
