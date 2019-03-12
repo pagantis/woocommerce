@@ -109,7 +109,7 @@ class PaylaterWc3InstallTest extends PaylaterWoocommerceTest
     {
         $this->findByLinkText('WooCommerce')->click();
         $this->findByLinkText('Ajustes')->click();
-        $this->findByLinkText('Finalizar compra')->click();
+        $this->findByLinkText('Pagos')->click();
         $this->findByLinkText('Paga Más Tarde')->click();
 
         $verify = WebDriverBy::id('woocommerce_paylater_pmt_public_key');
@@ -129,9 +129,12 @@ class PaylaterWc3InstallTest extends PaylaterWoocommerceTest
 
         $enabledModule = $this->findById('woocommerce_paylater_enabled')->click();
 
-        $this->findById('woocommerce_paylater_pmt_public_key')->clear()->sendKeys($this->configuration['publicKey']);
-        $this->findById('woocommerce_paylater_pmt_private_key')->clear()->sendKeys($this->configuration['secretKey']);
-        $this->findById('mainform')->submit();
+        $this->findById('woocommerce_paylater_pmt_public_key')->sendKeys($this->configuration['publicKey']);
+        $this->findById('woocommerce_paylater_pmt_private_key')->sendKeys($this->configuration['secretKey']);
+        $cssSelector = "form#mainform > p.submit > button.button-primary.woocommerce-save-button";
+        $menuSearch = WebDriverBy::cssSelector($cssSelector);
+        $menuElement = $this->webDriver->findElement($menuSearch);
+        $menuElement->click();
 
         $verify = WebDriverBy::className('updated');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
