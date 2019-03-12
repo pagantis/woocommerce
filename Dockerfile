@@ -1,7 +1,7 @@
 FROM php:7.1-apache
 
-ENV WORDPRESS_VERSION=4.9.6
-ENV WOOCOMMERCE_VERSION=3.3.5
+ENV WORDPRESS_VERSION=5.1
+ENV WOOCOMMERCE_VERSION=3.5.6
 
 RUN cd /tmp \
     && curl https://es.wordpress.org/wordpress-$WORDPRESS_VERSION-es_ES.tar.gz  -o $WORDPRESS_VERSION-es_ES.tar.gz \
