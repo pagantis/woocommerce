@@ -9,9 +9,9 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
  * Class BuyUnregisteredWc3Test
  * @package Test\Selenium\Buy
  *
- * @group woocommerce3-buy-unregistered
+ * @group woocommerce3-buy
  */
-class BuyUnregisteredWc3Test extends AbstractBuy
+class BuyWc3Test extends AbstractBuy
 {
     /**
      * Test to buy
@@ -20,27 +20,8 @@ class BuyUnregisteredWc3Test extends AbstractBuy
     {
         $this->prepareProductAndCheckout();
         $this->prepareCheckout();
-        //$this->register();
         $this->makeCheckoutAndPmt();
         $this->makeValidation();
         $this->quit();
-    }
-
-    /**
-     * Register customer
-     */
-    public function register()
-    {
-        $checkboxSelector = WebDriverBy::id('createaccount');
-        $condition = WebDriverExpectedCondition::elementToBeClickable($checkboxSelector);
-        $this->waitUntil($condition);
-
-        $this->webDriver->executeScript("document.getElementById('createaccount').click()");
-
-        $validatorSearch = WebDriverBy::id('account_password');
-        $condition = WebDriverExpectedCondition::visibilityOfElementLocated($validatorSearch);
-        $this->waitUntil($condition);
-
-        $this->findById('account_password')->clear()->sendKeys($this->configuration['password']);
     }
 }

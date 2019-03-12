@@ -203,12 +203,10 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
         $compareString = (strstr($actualString, $this->configuration['methodName'])) === false ? false : true;
         $this->assertTrue($compareString, $actualString, "PR25,PR26");
 
-        //$compareString = (strstr($actualString, self::LOGO_FILE)) === false ? false : true;
-        //$this->assertTrue($compareString, $actualString, "PR27 // ".$actualString);
-
         //$this->checkSimulator();
 
-        $descriptionSearch = WebDriverBy::cssSelector("div#payment.woocommerce-checkout-payment > ul.wc_payment_methods > li.payment_method_paylater > div.payment_method_paylater");
+        $cssSelector = "div#payment.woocommerce-checkout-payment > ul.wc_payment_methods > li.payment_method_paylater > div.payment_method_paylater";
+        $descriptionSearch = WebDriverBy::cssSelector($cssSelector);
         $descriptionElement = $this->webDriver->findElement($descriptionSearch);
         $actualString = $descriptionElement->getText();
         $this->assertContains($this->configuration['checkoutDescription'], $actualString, "PR54");
