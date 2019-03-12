@@ -42,6 +42,10 @@ Do you have questions or issues with PagaMasTarde financing payment gateway? mai
 == Changelog ==
 
 =======
+= 7.2.1 =
+- Adapt to Worpress 5.1
+- Adapt to Woocommerce 3.5.6
+
 = 7.2.0 =
 - Adapt to orders
 - Product simulator using js
