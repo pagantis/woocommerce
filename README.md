@@ -1,6 +1,7 @@
 # Module installation <img src="https://pagamastarde.com/img/icons/logo.svg" width="100" align="right">
 
-[![Build Status](https://travis-ci.org/PagaMasTarde/WooCommerce.svg?branch=master)](https://travis-ci.org/PagaMasTarde/WooCommerce)
+CircleCI: [![CircleCI](https://circleci.com/gh/PagaMasTarde/WooCommerce/tree/master.svg?style=svg)](https://circleci.com/gh/PagaMasTarde/WooCommerce/tree/master)
+
 [![Latest Stable Version](https://poser.pugx.org/pagamastarde/woocommerce/v/stable)](https://packagist.org/packages/pagamastarde/woocommerce)
 [![composer.lock](https://poser.pugx.org/pagamastarde/woocommerce/composerlock)](https://packagist.org/packages/pagamastarde/woocommerce)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/PagaMasTarde/woocommerce/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/PagaMasTarde/woocommerce/?branch=master)
