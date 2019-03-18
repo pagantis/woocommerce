@@ -1,7 +1,8 @@
 version: "3.5"
 
 services:
-  woocommerce:
+  woocommerce-dev:
+    container_name: woocommerce-dev
     build:
       dockerfile: Dockerfile
       context: ./
@@ -26,6 +27,7 @@ services:
       - "woocommerce-dev.docker:127.0.0.1"
 
   woocommerce-test:
+    container_name: woocommerce-test
     build:
       dockerfile: Dockerfile
       context: ./
