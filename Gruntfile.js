@@ -3,7 +3,7 @@ module.exports = function(grunt) {
         shell: {
             rename: {
                 command:
-                    'cp paylater.zip paylater-$(git rev-parse --abbrev-ref HEAD).zip \n'
+                    'cp pagantis.zip pagantis-$(git rev-parse --abbrev-ref HEAD).zip \n'
             },
             composerProd: {
                 command: 'rm -rf vendor && composer install --no-dev'
@@ -15,17 +15,17 @@ module.exports = function(grunt) {
         compress: {
             main: {
                 options: {
-                    archive: 'paylater.zip'
+                    archive: 'pagantis.zip'
                 },
                 files: [
-                    {src: ['assets/**'], dest: 'paylater/', filter: 'isFile'},
-                    {src: ['controllers/**'], dest: 'paylater/', filter: 'isFile'},
-                    {src: ['includes/**'], dest: 'paylater/', filter: 'isFile'},
-                    {src: ['languages/**'], dest: 'paylater/', filter: 'isFile'},
-                    {src: ['templates/**'], dest: 'paylater/', filter: 'isFile'},
-                    {src: ['vendor/**'], dest: 'paylater/', filter: 'isFile'},
-                    {src: 'WC_Paylater.php', dest: 'paylater/'},
-                    {src: 'readme.txt', dest: 'paylater/'}
+                    {src: ['assets/**'], dest: 'pagantis/', filter: 'isFile'},
+                    {src: ['controllers/**'], dest: 'pagantis/', filter: 'isFile'},
+                    {src: ['includes/**'], dest: 'pagantis/', filter: 'isFile'},
+                    {src: ['languages/**'], dest: 'pagantis/', filter: 'isFile'},
+                    {src: ['templates/**'], dest: 'pagantis/', filter: 'isFile'},
+                    {src: ['vendor/**'], dest: 'pagantis/', filter: 'isFile'},
+                    {src: 'WC_Pagantis.php', dest: 'pagantis/'},
+                    {src: 'readme.txt', dest: 'pagantis/'}
                 ]
             }
         }

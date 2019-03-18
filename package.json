@@ -1,7 +1,7 @@
 {
-  "name": "paylater",
+  "name": "pagantis",
   "version": "5.0.0",
-  "description": "Paga+Tarde integration in woocommerce",
+  "description": "Pagantis integration in woocommerce",
   "main": "Gruntfile.js",
   "dependencies": {},
   "devDependencies": {
@@ -15,12 +15,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pagamastarde/pagamastarde-woocommerce.git"
+    "url": "git+https://github.com/pagantis/woocommerce.git"
   },
-  "author": "DigitalOrigin",
+  "author": "Pagantis",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/pagamastarde/pagamastarde-woocommerce/issues"
+    "url": "https://github.com/pagantis/woocommerce/issues"
   },
-  "homepage": "https://github.com/pagamastarde/pagamastarde-woocommerce#readme"
+  "homepage": "https://github.com/pagantis/woocommerce#readme"
 }

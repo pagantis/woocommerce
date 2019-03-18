@@ -4,9 +4,9 @@ This file explains how to upload a new module version to Woocommerce market.
 
 ## Upload
 
-1- Located in your local Woocommerce root folder, clone Paga+Tarde svn repository:
+1- Located in your local Woocommerce root folder, clone Pagantis svn repository:
 ```
-svn checkout http://plugins.svn.wordpress.org/pagamastarde svn/
+svn checkout http://plugins.svn.wordpress.org/pagantis svn/
 ```
 
 2- Move the current code to the current tag version
@@ -29,7 +29,7 @@ cp -pr languages/ svn/trunk/languages/
 cp -pr templates/ svn/trunk/templates/
 cp -pr vendor/ svn/trunk/vendor/
 cp readme.txt svn/trunk/readme.txt
-cp WC_Paylater.php svn/trunk/WC_paylater.php
+cp WC_pagantis.php svn/trunk/WC_pagantis.php
 ``` 
 
 4- Add the files to svn track

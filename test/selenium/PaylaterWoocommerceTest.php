@@ -11,10 +11,10 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class PaylaterWoocommerceTest
+ * Class PagantisWoocommerceTest
  * @package Test\Selenium
  */
-abstract class PaylaterWoocommerceTest extends TestCase
+abstract class PagantisWoocommerceTest extends TestCase
 {
     const WC3URL = 'http://woocommerce-test.docker:8091';
 
@@ -31,7 +31,7 @@ abstract class PaylaterWoocommerceTest extends TestCase
         'birthdate'     => '05/05/2005',
         'firstname'     => 'Jøhn',
         'lastname'      => 'Dōè',
-        'email'         => 'john_wc@digitalorigin.com',
+        'email'         => 'john_wc@Pagantis.com',
         'company'       => 'Digital Origin SL',
         'zip'           => '08023',
         'city'          => 'Barcelona',
@@ -39,12 +39,12 @@ abstract class PaylaterWoocommerceTest extends TestCase
         'dni'           => '09422447Z',
         'extra'         => 'Free Finance',
         'address'       => 'Av.Diagonal 579',
-        'methodName'    => 'Instant Financing',
+        'methodName'    => 'Pagantis',
         'defaultMinIns' => 3,
         'defaultMaxIns' => 12,
         'defaultSimulatorOpt' => 6,
         'confirmationMsg'=>'Pedido recibido',
-        'checkoutDescription'=> 'Paga hasta en 12 cómodas cuotas con Paga+Tarde',
+        'checkoutDescription'=> 'Paga hasta en 12 cómodas cuotas con Pagantis',
         'enter' => 'Haz clic aquí para acceder'
     );
 
@@ -54,11 +54,25 @@ abstract class PaylaterWoocommerceTest extends TestCase
     protected $webDriver;
 
     /**
+     * PagantisWoocommerceTest constructor.
+     *
+     * @param null   $name
+     * @param array  $data
+     * @param string $dataName
+     */
+    public function __construct($name = null, array $data = array(), $dataName = '')
+    {
+        $this->configuration['email'] = "john.doe+".microtime(true)."@pagantis.com";
+
+        return parent::__construct($name, $data, $dataName);
+    }
+
+    /**
      * Configure selenium
      */
     protected function setUp()
     {
-        $this->webDriver = PmtWebDriver::create(
+        $this->webDriver = PagantisWebDriver::create(
             'http://localhost:4444/wd/hub',
             DesiredCapabilities::chrome(),
             240000,

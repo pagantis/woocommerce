@@ -1,10 +1,10 @@
 <?php
 /**
- * Plugin Name: Pagamastarde
- * Plugin URI: http://www.pagamastarde.com/
- * Description: Financiar con Pagamastarde
- * Version: 7.2.1
- * Author: Pagamastarde
+ * Plugin Name: Pagantis
+ * Plugin URI: http://www.pagantis.com/
+ * Description: Financiar con Pagantis
+ * Version: 7.2.2
+ * Author: Pagantis
  */
 
 //namespace Gateways;
@@ -14,36 +14,36 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class WcPaylater
+class WcPagantis
 {
-    const GIT_HUB_URL = 'https://github.com/PagaMasTarde/woocommerce';
-    const PMT_DOC_URL = 'https://docs.pagamastarde.com';
-    const SUPPORT_EML = 'mailto:soporte@pagamastarde.com?Subject=woocommerce_plugin';
+    const GIT_HUB_URL = 'https://github.com/pagantis/woocommerce';
+    const PMT_DOC_URL = 'https://developer.pagamastarde.com';
+    const SUPPORT_EML = 'mailto:integration@pagantis.com?Subject=woocommerce_plugin';
     /** Concurrency tablename */
-    const LOGS_TABLE = 'pmt_logs';
+    const LOGS_TABLE = 'pagantis_logs';
     /** Config tablename */
-    const CONFIG_TABLE = 'pmt_config';
+    const CONFIG_TABLE = 'pagantis_config';
 
-    public $defaultConfigs = array('PMT_TITLE'=>'Instant Financing',
-                            'PMT_SIMULATOR_DISPLAY_TYPE'=>'pmtSDK.simulator.types.SIMPLE',
-                            'PMT_SIMULATOR_DISPLAY_SKIN'=>'pmtSDK.simulator.skins.BLUE',
-                            'PMT_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
-                            'PMT_SIMULATOR_START_INSTALLMENTS'=>3,
-                            'PMT_SIMULATOR_MAX_INSTALLMENTS'=>12,
-                            'PMT_SIMULATOR_CSS_POSITION_SELECTOR'=>'default',
-                            'PMT_SIMULATOR_DISPLAY_CSS_POSITION'=>'pmtSDK.simulator.positions.INNER',
-                            'PMT_SIMULATOR_CSS_PRICE_SELECTOR'=>'default',
-                            'PMT_SIMULATOR_CSS_QUANTITY_SELECTOR'=>'default',
-                            'PMT_FORM_DISPLAY_TYPE'=>0,
-                            'PMT_DISPLAY_MIN_AMOUNT'=>1,
-                            'PMT_URL_OK'=>'',
-                            'PMT_URL_KO'=>'',
-                            'PMT_TITLE_EXTRA' => 'Paga hasta en 12 cómodas cuotas con Paga+Tarde. Solicitud totalmente 
+    public $defaultConfigs = array('PAGANTIS_TITLE'=>'Instant Financing',
+                            'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'pmtSDK.simulator.types.SIMPLE',
+                            'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'pmtSDK.simulator.skins.BLUE',
+                            'PAGANTIS_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
+                            'PAGANTIS_SIMULATOR_START_INSTALLMENTS'=>3,
+                            'PAGANTIS_SIMULATOR_MAX_INSTALLMENTS'=>12,
+                            'PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'=>'default',
+                            'PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'=>'pmtSDK.simulator.positions.INNER',
+                            'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'=>'default',
+                            'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'=>'default',
+                            'PAGANTIS_FORM_DISPLAY_TYPE'=>0,
+                            'PAGANTIS_DISPLAY_MIN_AMOUNT'=>1,
+                            'PAGANTIS_URL_OK'=>'',
+                            'PAGANTIS_URL_KO'=>'',
+                            'PAGANTIS_TITLE_EXTRA' => 'Paga hasta en 12 cómodas cuotas con Pagantis. Solicitud totalmente 
                             online y sin papeleos,¡y la respuesta es inmediata!'
     );
 
     /**
-     * WC_Paylater constructor.
+     * WC_Pagantis constructor.
      */
     public function __construct()
     {
@@ -51,22 +51,22 @@ class WcPaylater
 
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
-        $this->paylaterActivation();
+        $this->pagantisActivation();
 
-        load_plugin_textdomain('paylater', false, basename(dirname(__FILE__)).'/languages');
-        add_filter('woocommerce_payment_gateways', array($this, 'addPaylaterGateway'));
-        add_filter('woocommerce_available_payment_gateways', array($this, 'paylaterFilterGateways'), 9999);
-        add_filter('plugin_row_meta', array($this, 'paylaterRowMeta'), 10, 2);
-        add_filter('plugin_action_links_'.plugin_basename(__FILE__), array($this, 'paylaterActionLinks'));
-        add_action('woocommerce_after_add_to_cart_form', array($this, 'paylaterAddProductSimulator'));
+        load_plugin_textdomain('pagantis', false, basename(dirname(__FILE__)).'/languages');
+        add_filter('woocommerce_payment_gateways', array($this, 'addPagantisGateway'));
+        add_filter('woocommerce_available_payment_gateways', array($this, 'pagantisFilterGateways'), 9999);
+        add_filter('plugin_row_meta', array($this, 'pagantisRowMeta'), 10, 2);
+        add_filter('plugin_action_links_'.plugin_basename(__FILE__), array($this, 'pagantisActionLinks'));
+        add_action('woocommerce_after_add_to_cart_form', array($this, 'pagantisAddProductSimulator'));
         add_action('wp_enqueue_scripts', 'add_widget_js');
-        add_action('rest_api_init', array($this, 'paylaterRegisterEndpoint')); //Endpoint
+        add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
     }
 
     /**
      * Sql table
      */
-    public function paylaterActivation()
+    public function pagantisActivation()
     {
         global $wpdb;
         $tableName = $wpdb->prefix.self::CONFIG_TABLE;
@@ -103,77 +103,77 @@ class WcPaylater
             putenv($key . '=' . $value);
         }
 
-        //Current plugin config: pmt_public_key => New field --- public_key => Old field
-        $settings = get_option('woocommerce_paylater_settings');
+        //Current plugin config: pagantis_public_key => New field --- public_key => Old field
+        $settings = get_option('woocommerce_pagantis_settings');
 
-        if (!isset($settings['pmt_public_key']) && $settings['public_key']) {
-            $settings['pmt_public_key'] = $settings['public_key'];
+        if (!isset($settings['pagantis_public_key']) && $settings['public_key']) {
+            $settings['pagantis_public_key'] = $settings['public_key'];
             unset($settings['public_key']);
         }
 
-        if (!isset($settings['pmt_private_key']) && $settings['secret_key']) {
-            $settings['pmt_private_key'] = $settings['secret_key'];
+        if (!isset($settings['pagantis_private_key']) && $settings['secret_key']) {
+            $settings['pagantis_private_key'] = $settings['secret_key'];
             unset($settings['secret_key']);
         }
 
-        update_option('woocommerce_paylater_settings', $settings);
+        update_option('woocommerce_pagantis_settings', $settings);
     }
 
     /**
      * Product simulator
      */
-    public function paylaterAddProductSimulator()
+    public function pagantisAddProductSimulator()
     {
         global $product;
 
-        $cfg = get_option('woocommerce_paylater_settings');
-        if ($cfg['enabled'] !== 'yes' || $cfg['pmt_public_key'] == '' || $cfg['pmt_private_key'] == '' ||
+        $cfg = get_option('woocommerce_pagantis_settings');
+        if ($cfg['enabled'] !== 'yes' || $cfg['pagantis_public_key'] == '' || $cfg['pagantis_private_key'] == '' ||
             $cfg['simulator'] !== 'yes') {
             return;
         }
 
         $template_fields = array(
             'total'    => is_numeric($product->price) ? $product->price : 0,
-            'public_key' => $cfg['pmt_public_key'],
-            'simulator_type' => getenv('PMT_SIMULATOR_DISPLAY_TYPE'),
-            'positionSelector' => getenv('PMT_SIMULATOR_CSS_POSITION_SELECTOR'),
-            'quantitySelector' => getenv('PMT_SIMULATOR_CSS_QUANTITY_SELECTOR'),
-            'priceSelector' => getenv('PMT_SIMULATOR_CSS_PRICE_SELECTOR'),
+            'public_key' => $cfg['pagantis_public_key'],
+            'simulator_type' => getenv('PAGANTIS_SIMULATOR_DISPLAY_TYPE'),
+            'positionSelector' => getenv('PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'),
+            'quantitySelector' => getenv('PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'),
+            'priceSelector' => getenv('PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'),
             'totalAmount' => is_numeric($product->price) ? $product->price : 0
         );
         wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
     }
 
     /**
-     * Add Paylater to payments list.
+     * Add Pagantis to payments list.
      *
      * @param $methods
      *
      * @return array
      */
-    public function addPaylaterGateway($methods)
+    public function addPagantisGateway($methods)
     {
         if (! class_exists('WC_Payment_Gateway')) {
             return $methods;
         }
 
         include_once('controllers/paymentController.php');
-        $methods[] = 'WcPaylaterGateway';
+        $methods[] = 'WcPagantisGateway';
 
         return $methods;
     }
 
     /**
-     * Initialize WC_Paylater class
+     * Initialize WC_Pagantis class
      *
      * @param $methods
      *
      * @return mixed
      */
-    public function paylaterFilterGateways($methods)
+    public function pagantisFilterGateways($methods)
     {
         global $woocommerce;
-        $paylater = new WcPaylaterGateway();
+        $pagantis = new WcPagantisGateway();
 
         return $methods;
     }
@@ -185,11 +185,11 @@ class WcPaylater
      *
      * @return mixed
      */
-    public function paylaterActionLinks($links)
+    public function pagantisActionLinks($links)
     {
-        $params_array = array('page' => 'wc-settings', 'tab' => 'checkout', 'section' => 'paylater');
+        $params_array = array('page' => 'wc-settings', 'tab' => 'checkout', 'section' => 'pagantis');
         $setting_url  = esc_url(add_query_arg($params_array, admin_url('admin.php?')));
-        $setting_link = '<a href="'.$setting_url.'">'.__('Settings', 'paylater').'</a>';
+        $setting_link = '<a href="'.$setting_url.'">'.__('Settings', 'pagantis').'</a>';
 
         array_unshift($links, $setting_link);
 
@@ -204,13 +204,13 @@ class WcPaylater
      *
      * @return array
      */
-    public function paylaterRowMeta($links, $file)
+    public function pagantisRowMeta($links, $file)
     {
         if ($file == plugin_basename(__FILE__)) {
-            $links[] = '<a href="'.WcPaylater::GIT_HUB_URL.'" target="_blank">'.__('Documentation', 'paylater').'</a>';
-            $links[] = '<a href="'.WcPaylater::PMT_DOC_URL.'" target="_blank">'.
-            __('API documentation', 'paylater').'</a>';
-            $links[] = '<a href="'.WcPaylater::SUPPORT_EML.'">'.__('Support', 'paylater').'</a>';
+            $links[] = '<a href="'.WcPagantis::GIT_HUB_URL.'" target="_blank">'.__('Documentation', 'pagantis').'</a>';
+            $links[] = '<a href="'.WcPagantis::PAGANTIS_DOC_URL.'" target="_blank">'.
+            __('API documentation', 'pagantis').'</a>';
+            $links[] = '<a href="'.WcPagantis::SUPPORT_EML.'">'.__('Support', 'pagantis').'</a>';
 
             return $links;
         }
@@ -229,7 +229,7 @@ class WcPaylater
         $secretKey = $filters['secret'];
         $from = $filters['from'];
         $to   = $filters['to'];
-        $cfg  = get_option('woocommerce_paylater_settings');
+        $cfg  = get_option('woocommerce_pagantis_settings');
         $privateKey = isset($cfg['secret_key']) ? $cfg['secret_key'] : null;
         $tableName = $wpdb->prefix.self::LOGS_TABLE;
         $query = "select * from $tableName where createdAt>$from and createdAt<$to order by createdAt desc";
@@ -261,8 +261,8 @@ class WcPaylater
 
         $filters   = ($data->get_params());
         $secretKey = $filters['secret'];
-        $cfg  = get_option('woocommerce_paylater_settings');
-        $privateKey = isset($cfg['pmt_private_key']) ? $cfg['pmt_private_key'] : null;
+        $cfg  = get_option('woocommerce_pagantis_settings');
+        $privateKey = isset($cfg['pagantis_private_key']) ? $cfg['pagantis_private_key'] : null;
         if ($privateKey != $secretKey) {
             $response['status'] = 401;
             $response['result'] = 'Unauthorized';
@@ -309,10 +309,10 @@ class WcPaylater
      * ENDPOINT - Read logs -> Hook: rest_api_init
      * @return mixed
      */
-    public function paylaterRegisterEndpoint()
+    public function pagantisRegisterEndpoint()
     {
         register_rest_route(
-            'paylater/v1',
+            'pagantis/v1',
             '/logs/(?P<secret>\w+)/(?P<from>\d+)/(?P<to>\d+)',
             array(
             'methods'  => 'GET',
@@ -324,7 +324,7 @@ class WcPaylater
         );
 
         register_rest_route(
-            'paylater/v1',
+            'pagantis/v1',
             '/configController/(?P<secret>\w+)',
             array(
                 'methods'  => 'GET, POST',
@@ -345,4 +345,4 @@ function add_widget_js()
     wp_enqueue_script('pmtSdk', 'https://cdn.pagamastarde.com/js/pmt-v2/sdk.js', '', '', true);
 }
 
-new WcPaylater();
+new WcPagantis();

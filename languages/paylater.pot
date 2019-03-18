@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Pagamastarde WooCommerce V2\n"
+"Project-Id-Version: Pagantis WooCommerce V2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-06-06 08:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -13,19 +13,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/"
 
-msgid "Finance with Pagamastarde"
+msgid "Finance with Pagantis"
 msgstr ""
 
 #. URI of the plugin
-msgid "http://www.pagamastarde.com/"
+msgid "http://www.pagantis.com/"
 msgstr ""
 
 #. Author of the plugin
-msgid "Pagamastarde"
+msgid "Pagantis"
 msgstr ""
 
 #. Name of the plugin
-msgid "Pagamastarde WooCommerce V2"
+msgid "Pagantis WooCommerce V2"
 msgstr ""
 
 msgid " it is not compatible with your version of php and / or curl"
@@ -73,7 +73,7 @@ msgstr ""
 msgid "Url Ko"
 msgstr ""
 
-msgid "Pay Later"
+msgid "Pagantis"
 msgstr ""
 
 msgid "Settings"
@@ -184,7 +184,7 @@ msgstr ""
 msgid "Fail url"
 msgstr ""
 
-msgid "MANDATORY. You can get in your pagamastarde profile"
+msgid "MANDATORY. You can get in your pagantis profile"
 msgstr ""
 
 msgid "is not configured correctly, the fields Public Key and Secret Key are mandatory for use this plugin"
@@ -202,7 +202,7 @@ msgstr ""
 msgid "Html selector to get the price on the product page. It will be the amount used in the product simulator if it is active. By default: "
 msgstr ""
 
-msgid "is a payment method online. Choose Paga+Tarde as your payment method in Woocommerce to allow the partial payments."
+msgid "is a payment method online. Choose Pagantis as your payment method in Woocommerce to allow the partial payments."
 msgstr ""
 
 msgid "Minimum number of installments to show in simulator. Must be between 2-12"

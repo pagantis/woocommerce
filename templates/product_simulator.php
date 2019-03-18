@@ -5,7 +5,7 @@
     {
         var positionSelector = '<? echo $positionSelector;?>';
         if (positionSelector === 'default') {
-            positionSelector = '.PmtSimulator';
+            positionSelector = '.PagantisSimulator';
         }
 
         var priceSelector = '<? echo $priceSelector;?>';
@@ -34,4 +34,4 @@
         loadSimulator();
     }, 2000);
 </script>
-<div class="PmtSimulator"></div>
+<div class="PagantisSimulator"></div>

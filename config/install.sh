@@ -37,7 +37,7 @@ if [ ! -f app/etc/local.xml ]; then
     wp --allow-root plugin install wordpress-importer --activate
     wp --allow-root plugin install https://github.com/woocommerce/woocommerce/archive/$WOOCOMMERCE_VERSION.zip --activate
     wp --allow-root import wp-content/plugins/woocommerce/sample-data/sample_products.xml --authors=create
-    wp --allow-root plugin activate paylater
+    wp --allow-root plugin activate pagantis
 
 
     echo "SETTING WOOCOMMERCE OPTIONS"

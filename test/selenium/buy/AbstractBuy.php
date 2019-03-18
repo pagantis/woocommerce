@@ -5,13 +5,13 @@ namespace Test\Selenium\Buy;
 use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use PagaMasTarde\ModuleUtils\Exception\AlreadyProcessedException;
-use PagaMasTarde\ModuleUtils\Exception\ConcurrencyException;
-use PagaMasTarde\ModuleUtils\Exception\MerchantOrderNotFoundException;
-use PagaMasTarde\ModuleUtils\Exception\NoIdentificationException;
-use PagaMasTarde\ModuleUtils\Exception\QuoteNotFoundException;
-use Test\Selenium\PaylaterWoocommerceTest;
-use PagaMasTarde\SeleniumFormUtils\SeleniumHelper;
+use Pagantis\ModuleUtils\Exception\AlreadyProcessedException;
+use Pagantis\ModuleUtils\Exception\ConcurrencyException;
+use Pagantis\ModuleUtils\Exception\MerchantOrderNotFoundException;
+use Pagantis\ModuleUtils\Exception\NoIdentificationException;
+use Pagantis\ModuleUtils\Exception\QuoteNotFoundException;
+use Test\Selenium\PagantisWoocommerceTest;
+use Pagantis\SeleniumFormUtils\SeleniumHelper;
 use Httpful\Request;
 
 /**
@@ -19,7 +19,7 @@ use Httpful\Request;
  * @package Test\Selenium\Buy
  *
  */
-abstract class AbstractBuy extends PaylaterWoocommerceTest
+abstract class AbstractBuy extends PagantisWoocommerceTest
 {
     /**
      * Product name
@@ -55,7 +55,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
     /**
      *  Logout URL
      */
-    const NOTIFICATION_FOLDER = '/?wc-api=wcpaylatergateway';
+    const NOTIFICATION_FOLDER = '/?wc-api=wcpagantisgateway';
 
     /**
      *  Notification param1
@@ -68,14 +68,14 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
     const NOTIFICATION_PARAMETER2 = 'order-received';
 
     /**
-     * Pmt Order Title
+     * Pagantis Order Title
      */
-    const PMT_TITLE = 'Paga+Tarde';
+    const PAGANTIS_TITLE = 'Pagantis';
 
     /**
      * Already processed
      */
-    const NOTFOUND_TITLE = 'Pmt Order Not Found';
+    const NOTFOUND_TITLE = 'Pagantis Order Not Found';
 
     /**
      * Wrong order
@@ -101,6 +101,11 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      * @var String $orderReceived
      */
     public $orderReceived;
+
+    /**
+     * @var String $notifyUrl
+     */
+    public $notifyUrl;
 
     /**
      * @return mixed
@@ -130,13 +135,13 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
     }
 
     /**
-     * STEP2: Prepare checkout and check pmt form
+     * STEP2: Prepare checkout and check pagantis form
      */
-    public function makeCheckoutAndPmt()
+    public function makeCheckoutAndPagantis()
     {
         $this->checkCheckoutPage();
-        $this->goToPmt();
-        $this->verifyPaylater();
+        $this->goToPagantis();
+        $this->verifyPagantis();
     }
 
     /**
@@ -198,14 +203,14 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      */
     public function checkCheckoutPage()
     {
-        $validatorSearch = WebDriverBy::className('payment_method_paylater');
+        $validatorSearch = WebDriverBy::className('payment_method_pagantis');
         $actualString = $this->webDriver->findElement($validatorSearch)->getText();
         $compareString = (strstr($actualString, $this->configuration['methodName'])) === false ? false : true;
         $this->assertTrue($compareString, $actualString, "PR25,PR26");
 
         //$this->checkSimulator();
 
-        $cssSelector = "div#payment.woocommerce-checkout-payment > ul.wc_payment_methods > li.payment_method_paylater > div.payment_method_paylater";
+        $cssSelector = "div#payment.woocommerce-checkout-payment > ul.wc_payment_methods > li.payment_method_pagantis > div.payment_method_pagantis";
         $descriptionSearch = WebDriverBy::cssSelector($cssSelector);
         $descriptionElement = $this->webDriver->findElement($descriptionSearch);
         $actualString = $descriptionElement->getText();
@@ -222,7 +227,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      * @throws \Facebook\WebDriver\Exception\NoSuchElementException
      * @throws \Facebook\WebDriver\Exception\TimeOutException
      */
-    public function goToPmt()
+    public function goToPagantis()
     {
         $this->findByName('checkout')->submit();
     }
@@ -232,7 +237,7 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      */
     private function checkSimulator()
     {
-        $simulatorElementSearch = WebDriverBy::className('PmtSimulator');
+        $simulatorElementSearch = WebDriverBy::className('PagantisSimulator');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($simulatorElementSearch);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR19");
@@ -261,15 +266,15 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
     }
 
     /**
-     * Verify Paylater
+     * Verify Pagantis
      *
      * @throws \Exception
      */
-    public function verifyPaylater()
+    public function verifyPagantis()
     {
-        $condition = WebDriverExpectedCondition::titleContains(self::PMT_TITLE);
+        /*$condition = WebDriverExpectedCondition::titleContains(self::PAGANTIS_TITLE);
         $this->webDriver->wait(300)->until($condition, $this->webDriver->getCurrentURL());
-        $this->assertTrue((bool)$condition, "PR32");
+        $this->assertTrue((bool)$condition, "PR32");*/
 
         SeleniumHelper::finishForm($this->webDriver);
     }
@@ -320,8 +325,20 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
         $orderKey = explode("=", $orderArray['2']);
         $this->orderKey = $orderKey[1];
 
+        $this->notifyUrl =  sprintf(
+            "%s%s%s%s%s%s%s%s%s",
+            self::WC3URL,
+            self::NOTIFICATION_FOLDER,
+            '&',
+            self::NOTIFICATION_PARAMETER1,
+            '=',
+            $this->orderKey,
+            '&',
+            self::NOTIFICATION_PARAMETER2,
+            '='
+        );
         $this->checkConcurrency();
-        $this->checkPmtOrderId();
+        $this->checkPagantisOrderId();
         $this->checkAlreadyProcessed();
     }
 
@@ -332,9 +349,8 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      */
     protected function checkConcurrency()
     {
-        $notifyUrl = self::WC3URL.self::NOTIFICATION_FOLDER.'&'.self::NOTIFICATION_PARAMETER1.'='.$this->orderKey.'&'.self::NOTIFICATION_PARAMETER2.'=';
-        $this->assertNotEmpty($notifyUrl, $notifyUrl);
-        $response = Request::post($notifyUrl)->expects('json')->send();
+        $this->assertNotEmpty($this->notifyUrl, $this->notifyUrl);
+        $response = Request::post($this->notifyUrl)->expects('json')->send();
         $this->assertNotEmpty($response->body->result, $response->body->result);
         $this->assertContains(QuoteNotFoundException::ERROR_MESSAGE, $response->body->result, "PR58=>".$response->body->result);
     }
@@ -344,9 +360,9 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      *
      * @throws \Httpful\Exception\ConnectionErrorException
      */
-    protected function checkPmtOrderId()
+    protected function checkPagantisOrderId()
     {
-        $notifyUrl = self::WC3URL.self::NOTIFICATION_FOLDER.'&'.self::NOTIFICATION_PARAMETER1.'='.$this->orderKey.'&'.self::NOTIFICATION_PARAMETER2.'=0';
+        $notifyUrl = $this->notifyUrl.'=0';
         $this->assertNotEmpty($notifyUrl, $notifyUrl);
         $response = Request::post($notifyUrl)->expects('json')->send();
         $this->assertNotEmpty($response->body->result);
@@ -360,7 +376,8 @@ abstract class AbstractBuy extends PaylaterWoocommerceTest
      */
     protected function checkAlreadyProcessed()
     {
-        $notifyUrl = self::WC3URL.self::NOTIFICATION_FOLDER.'&'.self::NOTIFICATION_PARAMETER1.'='.$this->orderKey.'&'.self::NOTIFICATION_PARAMETER2.'='.$this->orderReceived;
+        $notifyUrl = $this->notifyUrl.$this->orderReceived;
+        $this->assertNotEmpty($notifyUrl, $notifyUrl);
         $response = Request::post($notifyUrl)->expects('json')->send();
         $this->assertNotEmpty($response->body->result);
         $this->assertContains(AlreadyProcessedException::ERROR_MESSAGE, $response->body->result, "PR51=>".$response->body->result);

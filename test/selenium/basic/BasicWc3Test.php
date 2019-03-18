@@ -3,7 +3,7 @@
 namespace Test\Selenium\Basic;
 
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Test\Selenium\PaylaterWoocommerceTest;
+use Test\Selenium\PagantisWoocommerceTest;
 
 /**
  * Class BasicWc3Test
@@ -11,7 +11,7 @@ use Test\Selenium\PaylaterWoocommerceTest;
  *
  * @group woocommerce3-basic
  */
-class BasicWc3Test extends PaylaterWoocommerceTest
+class BasicWc3Test extends PagantisWoocommerceTest
 {
     /**
      * Const title

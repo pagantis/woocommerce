@@ -9,7 +9,7 @@
                     closeOnEscPress: false,
                     backDropDark: false,
                     largeSize: true,
-                    closeConfirmationMessage: "{l s='Sure you want to leave?' mod='paylater'}"
+                    closeConfirmationMessage: "{l s='Sure you want to leave?' mod='pagantis'}"
                 }
             );
         });

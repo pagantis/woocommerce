@@ -2,7 +2,7 @@
 
 ## :wrench: Admin panel
 
-To install the plugin of Paga+Tarde in your Woocommerce shop, we need to open the Woocommerce admin panel and follow the next steps:
+To install the plugin of Pagantis in your Woocommerce shop, we need to open the Woocommerce admin panel and follow the next steps:
 
 #### Common steps
 1. Plugins => Add new
