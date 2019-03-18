@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 class WcPagantis
 {
     const GIT_HUB_URL = 'https://github.com/pagantis/woocommerce';
-    const PMT_DOC_URL = 'https://developer.pagamastarde.com';
+    const PAGANTIS_DOC_URL = 'https://developer.pagamastarde.com';
     const SUPPORT_EML = 'mailto:integration@pagantis.com?Subject=woocommerce_plugin';
     /** Concurrency tablename */
     const LOGS_TABLE = 'pagantis_logs';

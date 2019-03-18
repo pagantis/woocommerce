@@ -35,7 +35,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
         $this->allowed_currencies = array("EUR");
-        $this->allowed_languages  = array("es_ES");
         $this->mainFileLocation = dirname(plugin_dir_path(__FILE__)) . '/WC_Pagantis.php';
         $this->plugin_info = get_file_data($this->mainFileLocation, array('Version' => 'Version'), false);
 
@@ -99,10 +98,7 @@ EOD;
         } elseif (!in_array(get_woocommerce_currency(), $this->allowed_currencies)) {
             $error_string =  __(' solo puede ser usado en Euros', 'pagantis');
             $this->settings['enabled'] = 'no';
-        } elseif (!in_array(get_locale(), $this->allowed_languages)) {
-            $error_string = __(' solo puede ser usado en Español', 'pagantis');
-            $this->settings['enabled'] = 'no';
-        } elseif (getenv('PAGANTIS_SIMULATOR_MAX_INSTALLMENTS')<'2'
+        }elseif (getenv('PAGANTIS_SIMULATOR_MAX_INSTALLMENTS')<'2'
                   || getenv('PAGANTIS_SIMULATOR_MAX_INSTALLMENTS')>'12') {
             $error_string = __(' solo puede ser pagado de 2 a 12 plazos.', 'pagantis');
         } elseif (getenv('PAGANTIS_SIMULATOR_START_INSTALLMENTS')<'2'
