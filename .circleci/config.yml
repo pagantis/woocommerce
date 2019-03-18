@@ -34,7 +34,7 @@ jobs:
             sudo chmod +x /usr/local/bin/docker-compose
             docker-compose up -d woocommerce-test
             docker-compose up -d selenium
-            sleep 5
+            sleep 10
       - run:
           name: Docker CP paylater.zip
           command: |
