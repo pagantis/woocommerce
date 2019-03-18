@@ -38,7 +38,7 @@ jobs:
       - run:
           name: Docker CP paylater.zip
           command: |
-            docker cp ./paylater.zip magento19test:/paylater
+            docker cp ./paylater.zip woocommerce-test:/paylater
       - run:
           name: woocommerce3-basic
           command: |
