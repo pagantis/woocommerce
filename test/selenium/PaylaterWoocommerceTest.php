@@ -68,7 +68,7 @@ abstract class PaylaterWoocommerceTest extends TestCase
         $this->configuration['firstname'] = $faker->firstName;
         $this->configuration['lastname'] = $faker->lastName . ' ' . $faker->lastName;
         $this->configuration['company'] = $faker->company;
-        $this->configuration['zip'] = '28'.$faker->randomNumber(3);
+        $this->configuration['zip'] = '28'.$faker->randomNumber(3, true);
         $this->configuration['street'] = $faker->streetAddress;
         $this->configuration['phone'] = '6' . $faker->randomNumber(8);
         $this->configuration['email'] = date('ymd') . '@pagamastarde.com';
