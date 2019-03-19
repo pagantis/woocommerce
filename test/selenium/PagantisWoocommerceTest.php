@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  * Class PaylaterWoocommerceTest
  * @package Test\Selenium
  */
-abstract class PaylaterWoocommerceTest extends TestCase
+abstract class PagantisWoocommerceTest extends TestCase
 {
     const WC3URL = 'http://woocommerce-test.docker:8091';
 
