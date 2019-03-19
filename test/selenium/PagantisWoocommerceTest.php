@@ -40,12 +40,12 @@ abstract class PagantisWoocommerceTest extends TestCase
         'dni'           => '09422447Z',
         'extra'         => 'Free Finance',
         'address'       => 'Av.Diagonal 579',
-        'methodName'    => 'Instant Financing',
+        'methodName'    => 'Pagantis',
         'defaultMinIns' => 3,
         'defaultMaxIns' => 12,
         'defaultSimulatorOpt' => 6,
         'confirmationMsg'=>'Pedido recibido',
-        'checkoutDescription'=> 'Paga hasta en 12 cómodas cuotas con Paga+Tarde',
+        'checkoutDescription'=> 'Pay up to 12 comfortable installments with Pagantis',
         'enter' => 'Haz clic aquí para acceder'
     );
 
