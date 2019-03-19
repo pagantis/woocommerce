@@ -36,9 +36,9 @@ jobs:
             docker-compose up -d selenium
             sleep 15
       - run:
-          name: Docker CP paylater.zip
+          name: Docker CP pagantis.zip
           command: |
-            docker cp ./paylater.zip woocommerce-test:/paylater
+            docker cp ./pagantis.zip woocommerce-test:/paylater
       - run:
           name: woocommerce3-basic
           command: |
