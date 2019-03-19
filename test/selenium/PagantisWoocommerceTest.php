@@ -98,7 +98,7 @@ abstract class PagantisWoocommerceTest extends TestCase
      */
     protected function setUp()
     {
-        $this->webDriver = PmtWebDriver::create(
+        $this->webDriver = PagantisWebDriver::create(
             'http://localhost:4444/wd/hub',
             DesiredCapabilities::chrome(),
             90000,
