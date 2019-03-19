@@ -2,212 +2,86 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pagantis WooCommerce V2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-06 08:48+0000\n"
-"PO-Revision-Date: 2018-10-11 08:45+0000\n"
+"POT-Creation-Date: 2019-03-19 10:41+0000\n"
+"PO-Revision-Date: 2019-03-19 10:43+0000\n"
 "Last-Translator: admin <demo@woocommerceshop.com>\n"
-"Language-Team: French\n"
+"Language-Team: French (France)\n"
 "Language: fr_FR\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Loco https://localise.biz/"
-#. Description of the plugin
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.2.1; wp-5.1"
 
-msgid "Finance with Pagantis"
-msgstr "Financez avec Pagantis"
+#: WC_Pagantis.php:206
+msgid "Settings"
+msgstr "Paramètres"
 
-#. URI of the plugin
-msgid "http://www.pagantis.com/"
-msgstr "http://www.pagantis.com/"
+#: WC_Pagantis.php:224 controllers/paymentController.php:88
+msgid "Documentation"
+msgstr "La documentation"
+
+#: WC_Pagantis.php:226
+msgid "API documentation"
+msgstr "Documentation API"
+
+#: WC_Pagantis.php:227
+msgid "Support"
+msgstr "Soutien"
+
+#: includes/settings-pagantis.php:12
+msgid "Activate the module"
+msgstr "Activer le module"
+
+#: includes/settings-pagantis.php:17
+msgid "Public Key"
+msgstr "Clé publique"
+
+#: includes/settings-pagantis.php:19 includes/settings-pagantis.php:24
+msgid "MANDATORY. You can get in your pagantis profile"
+msgstr "OBLIGATOIRE. Vous pouvez entrer dans votre profil paymastar"
+
+#: includes/settings-pagantis.php:22
+msgid "Secret Key"
+msgstr "Clé secrète"
+
+#: includes/settings-pagantis.php:27
+msgid "Product simulator"
+msgstr "Simulateur de produit"
+
+#: controllers/paymentController.php:87
+msgid "Login to panel of "
+msgstr "Connexion au panel de"
+
+#: controllers/paymentController.php:104
+msgid " is not compatible with your php and/or curl version"
+msgstr ""
+
+#: controllers/paymentController.php:113
+msgid " only can be used in Euros"
+msgstr " seulement peut être utilisé en euros"
+
+#: controllers/paymentController.php:117 controllers/paymentController.php:120
+msgid " only can be payed from 2 to 12 installments"
+msgstr " seulement peut être payé de 2 à 12 versements"
+
+#: controllers/paymentController.php:122
+msgid " can not have a minimum amount less than 0"
+msgstr " ne peut pas avoir un montant minimum inférieur à 0"
+
+#: controllers/paymentController.php:294 controllers/paymentController.php:407
+msgid "Payment error "
+msgstr "Erreur de paiement"
 
 #. Author of the plugin
 msgid "Pagantis"
 msgstr "Pagantis"
 
-#. Name of the plugin
-msgid "Pagantis WooCommerce V2"
-msgstr "Pagantis WooCommerce V2"
+#. Description of the plugin
+msgid "Financiar con Pagantis"
+msgstr ""
 
-msgid " it is not compatible with your version of php and / or curl"
-msgstr " il n'est pas compatible avec votre version de php et / ou curl"
-
-msgid "Public Key"
-msgstr "Clé publique"
-
-msgid "Secret Key"
-msgstr "Clé secrète"
-
-msgid "Checkout description"
-msgstr "Description de la caisse"
-
-msgid "Title to show with the checkout simulator"
-msgstr "Titre à afficher avec le simulateur de caisse"
-
-msgid "Instant financing"
-msgstr "Financement instantané"
-
-msgid "Pay up to 12 comfortable installments with Paga + Tarde. Application totally online and without paperwork, And the answer is immediate!"
-msgstr "Payer jusqu'à 12 versements confortables avec Paga + Tarde. Application totalement en ligne et sans formalités administratives, et la réponse est immédiate!"
-
-msgid "Number of default installments"
-msgstr "Nombre de versements par défaut"
-
-msgid "Number of installments that the simulator will show by default. Must be between 2-12"
-msgstr "Nombre de versements que le simulateur affichera par défaut. Doit être entre 2-12"
-
-msgid "Display mode"
-msgstr "Mode d'affichage"
-
-msgid "Redirect"
-msgstr "Redirection"
-
-msgid "Iframe"
-msgstr "Iframe"
-
-msgid "No"
-msgstr "Non"
-
-msgid "Url Ok"
-msgstr "Url Ok"
-
-msgid "Url Ko"
-msgstr "Url Ko"
-
-msgid "Pagantis"
-msgstr "Payer plus tard"
-
-msgid "Settings"
-msgstr "Paramètres"
-
-msgid "Documentation"
-msgstr "La documentation"
-
-msgid "API documentation"
-msgstr "Documentation API"
-
-msgid "Support"
-msgstr "Soutien"
-
-msgid " only can be used in Euros"
-msgstr " seulement peut être utilisé en euros"
-
-msgid " only can be used in Spanish"
-msgstr " seulement peut être utilisé en espagnol"
-
-msgid " only can be payed from 2 to 12 installments"
-msgstr " seulement peut être payé de 2 à 12 versements"
-
-msgid " can not have a minimum amount less than 0"
-msgstr " ne peut pas avoir un montant minimum inférieur à 0"
-
-msgid "Payment error "
-msgstr "Erreur de paiement"
-
-msgid "Login to panel of "
-msgstr "Connexion au panel de"
-
-msgid "Activate"
-msgstr "Activer"
-
-msgid "Activate the module"
-msgstr "Activer le module"
-
-msgid "Title"
-msgstr "Titre"
-
-msgid "Title to show near to payment method"
-msgstr "Titre à afficher proche du mode de paiement"
-
-msgid "Minimum amount"
-msgstr "Montant minimum"
-
-msgid "Minimum amount to activate the plugin"
-msgstr "Montant minimum pour activer le plugin"
-
-msgid "Maximum amount"
-msgstr "Montant maximum"
-
-msgid "Maximum amount to activate the plugin"
-msgstr "Quantité maximale pour activer le plugin"
-
-msgid "Minimum numbers of installments"
-msgstr "Nombre minimum de versements"
-
-msgid "Maximum number of installments to show in simulator. Must be between 2-12"
-msgstr "Nombre maximal de versements à afficher dans le simulateur. Doit être entre 2-12"
-
-msgid "Maximum numbers of installments"
-msgstr "Nombre maximum de versements"
-
-msgid "Discount"
-msgstr "Remise"
-
-msgid "Get fees"
-msgstr "Obtenir des frais"
-
-msgid "Open form in a pop-up"
-msgstr "Ouvrir le formulaire dans un pop-up"
-
-msgid "Product simulator"
-msgstr "Simulateur de produit"
-
-msgid "Include simulator in product page"
-msgstr "Inclure le simulateur dans la page du produit"
-
-msgid "Simple"
-msgstr "Simple"
-
-msgid "Full"
-msgstr "Plein"
-
-msgid "Selectable"
-msgstr "Sélectionnable"
-
-msgid "Descriptive text"
-msgstr "Texte descriptif"
-
-msgid "Price selector"
-msgstr "Sélecteur de prix"
-
-msgid "Quantity selector"
-msgstr "Sélecteur de quantité"
-
-msgid "Checkout simulator"
-msgstr "Simulateur de caisse"
-
-msgid "Include simulator in checkout page"
-msgstr "Inclure le simulateur dans la page de paiement"
-
-msgid "Confirmation Url"
-msgstr "URL de confirmation"
-
-msgid "Fail url"
-msgstr "Echec de l'URL"
-
-msgid "MANDATORY. You can get in your pagantis profile"
-msgstr "OBLIGATOIRE. Vous pouvez entrer dans votre profil paymastar"
-
-msgid "is not configured correctly, the fields Public Key and Secret Key are mandatory for use this plugin"
-msgstr "n'est pas configuré correctement, les champs Clé publique et Clé secrète sont obligatoires pour utiliser ce plugin"
-
-msgid "Html selector to obtain the number of products to buy on the product page. The quantity of products will be multiplied by the price of the product to obtain the final price, this price will be the one that will be used in the product simulator if it is active. Leave blank to omit its use. By default: "
-msgstr "Sélecteur HTML pour obtenir le nombre de produits à acheter sur la page produit. La quantité de produits sera multipliée par le prix du produit pour obtenir le prix final, ce prix sera celui qui sera utilisé dans le simulateur de produit s'il est actif. Laissez en blanc pour omettre son utilisation. Par défaut:"
-
-msgid "Page where the user will be redirected after a correct payment process. {{order-received}} will be replaced by the value of the order_id"
-msgstr "Page sur laquelle l'utilisateur sera redirigé après un processus de paiement correct. {{order-receive}} sera remplacé par la valeur de order_id"
-
-msgid "Page where the user will be redirected after a failure payment process. {{order-received}} will be replaced by the value of the order_id"
-msgstr "Page sur laquelle l'utilisateur sera redirigé après un processus de paiement ayant échoué. {{order-receive}} sera remplacé par la valeur de order_id"
-
-msgid "Html selector to get the price on the product page. It will be the amount used in the product simulator if it is active. By default: "
-msgstr "Sélecteur HTML pour obtenir le prix sur la page du produit. Ce sera la quantité utilisée dans le simulateur de produit s'il est actif. Par défaut:"
-
-msgid "is a payment method online. Choose Pagantis as your payment method in Woocommerce to allow the partial payments."
-msgstr "est un moyen de paiement en ligne. Choisissez Paga + Tarde votre méthode de paiement dans Woocommerce pour permettre les paiements partiels."
-
-msgid "Minimum number of installments to show in simulator. Must be between 2-12"
-msgstr "Nombre minimum de versements à afficher dans le simulateur. Doit être entre 2-12"
-
-msgid "is a payment gateway to get partial payment. Choose Paga + Tarde like your payment method in Woocommerce to allow the partial payment."
-msgstr "est une passerelle de paiement pour obtenir un paiement partiel. Choisissez Paga + Tarde votre méthode de paiement dans Woocommerce pour permettre le paiement partiel."
+#. URI of the plugin
+msgid "http://www.pagantis.com/"
+msgstr "http://www.pagantis.com/"

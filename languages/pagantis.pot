@@ -1,8 +1,9 @@
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Pagantis WooCommerce V2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-06 08:48+0000\n"
+"POT-Creation-Date: 2019-03-19 10:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -13,200 +14,74 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/"
 
-msgid "Finance with Pagantis"
+#: WC_Pagantis.php:206
+msgid "Settings"
 msgstr ""
 
-#. URI of the plugin
-msgid "http://www.pagantis.com/"
+#: WC_Pagantis.php:224 controllers/paymentController.php:88
+msgid "Documentation"
+msgstr ""
+
+#: WC_Pagantis.php:226
+msgid "API documentation"
+msgstr ""
+
+#: WC_Pagantis.php:227
+msgid "Support"
+msgstr ""
+
+#: includes/settings-pagantis.php:12
+msgid "Activate the module"
+msgstr ""
+
+#: includes/settings-pagantis.php:17
+msgid "Public Key"
+msgstr ""
+
+#: includes/settings-pagantis.php:19 includes/settings-pagantis.php:24
+msgid "MANDATORY. You can get in your pagantis profile"
+msgstr ""
+
+#: includes/settings-pagantis.php:22
+msgid "Secret Key"
+msgstr ""
+
+#: includes/settings-pagantis.php:27
+msgid "Product simulator"
+msgstr ""
+
+#: controllers/paymentController.php:87
+msgid "Login to panel of "
+msgstr ""
+
+#: controllers/paymentController.php:104
+msgid " is not compatible with your php and/or curl version"
+msgstr ""
+
+#: controllers/paymentController.php:113
+msgid " only can be used in Euros"
+msgstr ""
+
+#: controllers/paymentController.php:117 controllers/paymentController.php:120
+msgid " only can be payed from 2 to 12 installments"
+msgstr ""
+
+#: controllers/paymentController.php:122
+msgid " can not have a minimum amount less than 0"
+msgstr ""
+
+#: controllers/paymentController.php:294 controllers/paymentController.php:407
+msgid "Payment error "
 msgstr ""
 
 #. Author of the plugin
 msgid "Pagantis"
 msgstr ""
 
-#. Name of the plugin
-msgid "Pagantis WooCommerce V2"
+#. Description of the plugin
+msgid "Financiar con Pagantis"
 msgstr ""
 
-msgid " it is not compatible with your version of php and / or curl"
-msgstr ""
-
-msgid "Public Key"
-msgstr ""
-
-msgid "Secret Key"
-msgstr ""
-
-msgid "Checkout description"
-msgstr ""
-
-msgid "Title to show with the checkout simulator"
-msgstr ""
-
-msgid "Instant financing"
-msgstr ""
-
-msgid "Pay up to 12 comfortable installments with Paga + Tarde. Application totally online and without paperwork, And the answer is immediate!"
-msgstr ""
-
-msgid "Number of default installments"
-msgstr ""
-
-msgid "Number of installments that the simulator will show by default. Must be between 2-12"
-msgstr ""
-
-msgid "Display mode"
-msgstr ""
-
-msgid "Redirect"
-msgstr ""
-
-msgid "Iframe"
-msgstr ""
-
-msgid "No"
-msgstr ""
-
-msgid "Url Ok"
-msgstr ""
-
-msgid "Url Ko"
-msgstr ""
-
-msgid "Pagantis"
-msgstr ""
-
-msgid "Settings"
-msgstr ""
-
-msgid "Documentation"
-msgstr ""
-
-msgid "API documentation"
-msgstr ""
-
-msgid "Support"
-msgstr ""
-
-msgid " only can be used in Euros"
-msgstr ""
-
-msgid " only can be used in Spanish"
-msgstr ""
-
-msgid " only can be payed from 2 to 12 installments"
-msgstr ""
-
-msgid " can not have a minimum amount less than 0"
-msgstr ""
-
-msgid "Payment error "
-msgstr ""
-
-msgid "Login to panel of "
-msgstr ""
-
-msgid "Activate"
-msgstr ""
-
-msgid "Activate the module"
-msgstr ""
-
-msgid "Title"
-msgstr ""
-
-msgid "Title to show near to payment method"
-msgstr ""
-
-msgid "Minimum amount"
-msgstr ""
-
-msgid "Minimum amount to activate the plugin"
-msgstr ""
-
-msgid "Maximum amount"
-msgstr ""
-
-msgid "Maximum amount to activate the plugin"
-msgstr ""
-
-msgid "Minimum numbers of installments"
-msgstr ""
-
-msgid "Maximum number of installments to show in simulator. Must be between 2-12"
-msgstr ""
-
-msgid "Maximum numbers of installments"
-msgstr ""
-
-msgid "Discount"
-msgstr ""
-
-msgid "Get fees"
-msgstr ""
-
-msgid "Open form in a pop-up"
-msgstr ""
-
-msgid "Product simulator"
-msgstr ""
-
-msgid "Include simulator in product page"
-msgstr ""
-
-msgid "Simple"
-msgstr ""
-
-msgid "Full"
-msgstr ""
-
-msgid "Selectable"
-msgstr ""
-
-msgid "Descriptive text"
-msgstr ""
-
-msgid "Price selector"
-msgstr ""
-
-msgid "Quantity selector"
-msgstr ""
-
-msgid "Checkout simulator"
-msgstr ""
-
-msgid "Include simulator in checkout page"
-msgstr ""
-
-msgid "Confirmation Url"
-msgstr ""
-
-msgid "Fail url"
-msgstr ""
-
-msgid "MANDATORY. You can get in your pagantis profile"
-msgstr ""
-
-msgid "is not configured correctly, the fields Public Key and Secret Key are mandatory for use this plugin"
-msgstr ""
-
-msgid "Html selector to obtain the number of products to buy on the product page. The quantity of products will be multiplied by the price of the product to obtain the final price, this price will be the one that will be used in the product simulator if it is active. Leave blank to omit its use. By default: "
-msgstr ""
-
-msgid "Page where the user will be redirected after a correct payment process. {{order-received}} will be replaced by the value of the order_id"
-msgstr ""
-
-msgid "Page where the user will be redirected after a failure payment process. {{order-received}} will be replaced by the value of the order_id"
-msgstr ""
-
-msgid "Html selector to get the price on the product page. It will be the amount used in the product simulator if it is active. By default: "
-msgstr ""
-
-msgid "is a payment method online. Choose Pagantis as your payment method in Woocommerce to allow the partial payments."
-msgstr ""
-
-msgid "Minimum number of installments to show in simulator. Must be between 2-12"
-msgstr ""
-
-msgid "is a payment gateway to get partial payment. Choose Paga + Tarde like your payment method in Woocommerce to allow the partial payment."
+#. URI of the plugin
+msgid "http://www.pagantis.com/"
 msgstr ""
