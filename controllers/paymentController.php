@@ -84,7 +84,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $template_fields = array(
             'panel_header' => $this->title,
             'panel_description' => $this->method_description,
-            'button1_label' => __('Login to panel of ', 'pagantis') . WcPagantisGateway::METHOD_ID,
+            'button1_label' => __('Login to panel of ', 'pagantis') . ucfirst(WcPagantisGateway::METHOD_ID),
             'button2_label' => __('Documentation', 'pagantis'),
             'logo' => $this->icon,
             'settings' => $this->generate_settings_html($this->form_fields, false)
@@ -101,7 +101,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         if ($this->settings['enabled'] !== 'yes') {
             return;
         } elseif (!version_compare(phpversion(), '5.3.0', '>=')) {
-            $error_string =  __(' no es compatible con su versión de php y/o curl', 'pagantis');
+            $error_string =  __(' is not compatible with your php and/or curl version', 'pagantis');
             $this->settings['enabled'] = 'no';
         } elseif ($this->settings['pagantis_public_key']=="" || $this->settings['pagantis_private_key']=="") {
             $keys_error =  <<<EOD
