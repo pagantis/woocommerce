@@ -8,13 +8,14 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Faker\Factory;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class PagantisWoocommerceTest
+ * Class PaylaterWoocommerceTest
  * @package Test\Selenium
  */
-abstract class PagantisWoocommerceTest extends TestCase
+abstract class PaylaterWoocommerceTest extends TestCase
 {
     const WC3URL = 'http://woocommerce-test.docker:8091';
 
@@ -31,7 +32,7 @@ abstract class PagantisWoocommerceTest extends TestCase
         'birthdate'     => '05/05/2005',
         'firstname'     => 'Jøhn',
         'lastname'      => 'Dōè',
-        'email'         => 'john_wc@Pagantis.com',
+        'email'         => 'john_wc@digitalorigin.com',
         'company'       => 'Digital Origin SL',
         'zip'           => '08023',
         'city'          => 'Barcelona',
@@ -39,22 +40,18 @@ abstract class PagantisWoocommerceTest extends TestCase
         'dni'           => '09422447Z',
         'extra'         => 'Free Finance',
         'address'       => 'Av.Diagonal 579',
-        'methodName'    => 'Pagantis',
+        'methodName'    => 'Instant Financing',
         'defaultMinIns' => 3,
         'defaultMaxIns' => 12,
         'defaultSimulatorOpt' => 6,
         'confirmationMsg'=>'Pedido recibido',
-        'checkoutDescription'=> 'Pay up to 12 comfortable installments with Pagantis',
+        'checkoutDescription'=> 'Paga hasta en 12 cómodas cuotas con Paga+Tarde',
         'enter' => 'Haz clic aquí para acceder'
     );
 
-    /**
-     * @var RemoteWebDriver
-     */
-    protected $webDriver;
 
     /**
-     * PagantisWoocommerceTest constructor.
+     * WooCommerce constructor.
      *
      * @param null   $name
      * @param array  $data
@@ -62,21 +59,50 @@ abstract class PagantisWoocommerceTest extends TestCase
      */
     public function __construct($name = null, array $data = array(), $dataName = '')
     {
-        $this->configuration['email'] = "john.doe+".microtime(true)."@pagantis.com";
-
-        return parent::__construct($name, $data, $dataName);
+        $faker = Factory::create();
+        $this->configuration['dni'] = $this->getDNI();
+        $this->configuration['birthdate'] =
+            $faker->numberBetween(1, 28) . '/' .
+            $faker->numberBetween(1, 12). '/1975'
+        ;
+        $this->configuration['firstname'] = $faker->firstName;
+        $this->configuration['lastname'] = $faker->lastName . ' ' . $faker->lastName;
+        $this->configuration['company'] = $faker->company;
+        $this->configuration['zip'] = '28'.$faker->randomNumber(3, true);
+        $this->configuration['street'] = $faker->streetAddress;
+        $this->configuration['phone'] = '6' . $faker->randomNumber(8);
+        $this->configuration['email'] = date('ymd') . '@pagamastarde.com';
+        parent::__construct($name, $data, $dataName);
     }
+    /**
+     * @return string
+     */
+    protected function getDNI()
+    {
+        $dni = '0000' . rand(pow(10, 4-1), pow(10, 4)-1);
+        $value = (int) ($dni / 23);
+        $value *= 23;
+        $value= $dni - $value;
+        $letter= "TRWAGMYFPDXBNJZSQVHLCKEO";
+        $dniLetter= substr($letter, $value, 1);
+        return $dni.$dniLetter;
+    }
+
+    /**
+     * @var RemoteWebDriver
+     */
+    protected $webDriver;
 
     /**
      * Configure selenium
      */
     protected function setUp()
     {
-        $this->webDriver = PagantisWebDriver::create(
+        $this->webDriver = PmtWebDriver::create(
             'http://localhost:4444/wd/hub',
             DesiredCapabilities::chrome(),
-            240000,
-            240000
+            90000,
+            90000
         );
     }
 

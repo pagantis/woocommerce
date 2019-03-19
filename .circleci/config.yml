@@ -1,0 +1,56 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Add Docker Host
+          command: |
+            export DOCKERHOST=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | awk '{ print $2 }' | cut -f2 -d: | head -n1)
+            echo $DOCKERHOST
+            echo 127.0.0.1 woocommerce-test.docker | sudo tee -a /etc/hosts
+      - run:
+          name: Composer Install
+          command: |
+            sudo apt install -y python-software-properties
+            sudo add-apt-repository -y ppa:ondrej/php
+            find /etc/apt/sources.list.d -type f -name '*.list' -exec sudo apt-get update -o Dir::Etc::sourcelist="{}" ';'
+            sudo apt install -y php7.2-fpm php7.2-gd php7.2-curl php7.2-mysql php7.2-dev php7.2-cli php7.2-common php7.2-mbstring php7.2-intl php7.2-zip php7.2-bcmath php7.2-dom node
+            curl -s https://getcomposer.org/installer | php
+            sudo mv composer.phar /usr/local/bin/composer
+            composer install
+      - run:
+          name: Npm Install
+          command: |
+            npm install
+            node_modules/.bin/grunt
+      - run:
+          name: Docker UP
+          command: |
+            export DOCKERHOST=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | awk '{ print $2 }' | cut -f2 -d: | head -n1)
+            sudo curl -L "https://github.com/docker/compose/releases/download/1.23.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            docker-compose up -d woocommerce-test
+            docker-compose up -d selenium
+            sleep 15
+      - run:
+          name: Docker CP paylater.zip
+          command: |
+            docker cp ./paylater.zip woocommerce-test:/paylater
+      - run:
+          name: woocommerce3-basic
+          command: |
+            export DOCKERHOST=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | awk '{ print $2 }' | cut -f2 -d: | head -n1)
+            vendor/bin/phpunit --group woocommerce3-basic
+      - run:
+          name: woocommerce3-install
+          command: |
+            export DOCKERHOST=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | awk '{ print $2 }' | cut -f2 -d: | head -n1)
+            vendor/bin/phpunit --group woocommerce3-install
+      - run:
+          name: woocommerce3-buy
+          command: |
+            export DOCKERHOST=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | awk '{ print $2 }' | cut -f2 -d: | head -n1)
+            vendor/bin/phpunit --group woocommerce3-buy

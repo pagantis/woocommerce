@@ -2,12 +2,9 @@
 
 namespace Test\Selenium\Buy;
 
-use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Pagantis\ModuleUtils\Exception\AlreadyProcessedException;
-use Pagantis\ModuleUtils\Exception\ConcurrencyException;
-use Pagantis\ModuleUtils\Exception\MerchantOrderNotFoundException;
 use Pagantis\ModuleUtils\Exception\NoIdentificationException;
 use Pagantis\ModuleUtils\Exception\QuoteNotFoundException;
 use Test\Selenium\PagantisWoocommerceTest;
