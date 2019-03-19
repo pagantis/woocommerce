@@ -54,6 +54,20 @@ class WcPagantisGateway extends WC_Payment_Gateway
         add_action('woocommerce_receipt_'.$this->id, array($this, 'pagantisReceiptPage'));          //Pagantis form
         add_action('woocommerce_api_wcpagantisgateway', array($this, 'pagantisNotification'));      //Json Notification
         add_filter('woocommerce_payment_complete_order_status', array($this,'pagantisCompleteStatus'), 10, 3);
+        add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
+    }
+
+    /*
+     * Replace 'textdomain' with your plugin's textdomain. e.g. 'woocommerce'.
+     * File to be named, for example, yourtranslationfile-en_GB.mo
+     * File to be placed, for example, wp-content/lanaguages/textdomain/yourtranslationfile-en_GB.mo
+     */
+    public function loadPagantisTranslation($mofile, $domain)
+    {
+        if ('pagantis' === $domain) {
+            $mofile = WP_LANG_DIR . '/../plugins/pagantis/languages/pagantis-' . get_locale() . '.mo';
+        }
+        return $mofile;
     }
 
     /***********
@@ -70,8 +84,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $template_fields = array(
             'panel_header' => $this->title,
             'panel_description' => $this->method_description,
-            'button1_label' => __('Login al panel de ', 'pagantis') . WcPagantisGateway::METHOD_ID,
-            'button2_label' => __('Documentación', 'pagantis'),
+            'button1_label' => __('Login to panel of ', 'pagantis') . WcPagantisGateway::METHOD_ID,
+            'button2_label' => __('Documentation', 'pagantis'),
             'logo' => $this->icon,
             'settings' => $this->generate_settings_html($this->form_fields, false)
         );
@@ -91,21 +105,21 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $this->settings['enabled'] = 'no';
         } elseif ($this->settings['pagantis_public_key']=="" || $this->settings['pagantis_private_key']=="") {
             $keys_error =  <<<EOD
-no está configurado correctamente, los campos Public Key y Secret Key son obligatorios para su funcionamiento
+is not configured correctly, the fields Public Key and Secret Key are mandatory for use this plugin
 EOD;
             $error_string = __($keys_error, 'pagantis');
             $this->settings['enabled'] = 'no';
         } elseif (!in_array(get_woocommerce_currency(), $this->allowed_currencies)) {
-            $error_string =  __(' solo puede ser usado en Euros', 'pagantis');
+            $error_string =  __(' only can be used in Euros', 'pagantis');
             $this->settings['enabled'] = 'no';
-        }elseif (getenv('PAGANTIS_SIMULATOR_MAX_INSTALLMENTS')<'2'
+        } elseif (getenv('PAGANTIS_SIMULATOR_MAX_INSTALLMENTS')<'2'
                   || getenv('PAGANTIS_SIMULATOR_MAX_INSTALLMENTS')>'12') {
-            $error_string = __(' solo puede ser pagado de 2 a 12 plazos.', 'pagantis');
+            $error_string = __(' only can be payed from 2 to 12 installments', 'pagantis');
         } elseif (getenv('PAGANTIS_SIMULATOR_START_INSTALLMENTS')<'2'
                   || getenv('PAGANTIS_SIMULATOR_START_INSTALLMENTS')>'12') {
-            $error_string = __(' solo puede ser pagado de 2 a 12 plazos.', 'pagantis');
+            $error_string = __(' only can be payed from 2 to 12 installments', 'pagantis');
         } elseif (getenv('PAGANTIS_DISPLAY_MIN_AMOUNT')<0) {
-            $error_string = __(' el importe debe ser mayor a 0.', 'pagantis');
+            $error_string = __(' can not have a minimum amount less than 0', 'pagantis');
         }
 
         if ($error_string!='') {
@@ -277,7 +291,7 @@ EOD;
                 wc_get_template('iframe.php', $template_fields, '', $this->template_path);
             }
         } catch (\Exception $exception) {
-            wc_add_notice(__('Error en el pago - ', 'pagantis') . $exception->getMessage(), 'error');
+            wc_add_notice(__('Payment error ', 'pagantis') . $exception->getMessage(), 'error');
             $checkout_url = get_permalink(wc_get_page_id('checkout'));
             wp_redirect($checkout_url);
             exit;
@@ -381,7 +395,7 @@ EOD;
 
             $redirectUrl = $order->get_checkout_payment_url(true); //pagantisReceiptPage function
             if (strpos($redirectUrl, 'order-pay=')===false) {
-                $redirectUrl = "&order-pay=".$order->getId();
+                $redirectUrl.= "&order-pay=".$order->getId();
             }
 
             return array(
@@ -390,7 +404,7 @@ EOD;
             );
 
         } catch (Exception $e) {
-            wc_add_notice(__('Error en el pago ', 'pagantis') . $e->getMessage(), 'error');
+            wc_add_notice(__('Payment error ', 'pagantis') . $e->getMessage(), 'error');
             return array();
         }
     }

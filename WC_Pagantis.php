@@ -61,6 +61,20 @@ class WcPagantis
         add_action('woocommerce_after_add_to_cart_form', array($this, 'pagantisAddProductSimulator'));
         add_action('wp_enqueue_scripts', 'add_widget_js');
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
+        add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
+    }
+
+    /*
+     * Replace 'textdomain' with your plugin's textdomain. e.g. 'woocommerce'.
+     * File to be named, for example, yourtranslationfile-en_GB.mo
+     * File to be placed, for example, wp-content/lanaguages/textdomain/yourtranslationfile-en_GB.mo
+     */
+    public function loadPagantisTranslation($mofile, $domain)
+    {
+        if ('pagantis' === $domain) {
+            $mofile = WP_LANG_DIR . '/../plugins/pagantis/languages/pagantis-' . get_locale() . '.mo';
+        }
+        return $mofile;
     }
 
     /**
