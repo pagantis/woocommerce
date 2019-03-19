@@ -3,9 +3,9 @@ msgstr ""
 "Project-Id-Version: Pagantis WooCommerce V2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-03-19 10:41+0000\n"
-"PO-Revision-Date: 2019-03-19 11:05+0000\n"
+"PO-Revision-Date: 2019-03-19 11:39+0000\n"
 "Last-Translator: admin <demo@woocommerceshop.com>\n"
-"Language-Team: Italiano\n"
+"Language-Team: Italian\n"
 "Language: it_IT\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
@@ -40,7 +40,7 @@ msgstr "Chiave pubblica"
 
 #: includes/settings-pagantis.php:19 includes/settings-pagantis.php:24
 msgid "MANDATORY. You can get in your pagantis profile"
-msgstr "OBBLIGATORIO. Puoi inserire il tuo profilo paymastar"
+msgstr "OBBLIGATORIO. Puoi inserire il tuo profilo Pagantis"
 
 #: includes/settings-pagantis.php:22
 msgid "Secret Key"
@@ -85,3 +85,19 @@ msgstr "Finanza con Pagantis"
 #. URI of the plugin
 msgid "http://www.pagantis.com/"
 msgstr "http://www.pagantis.com/"
+
+#: controllers/paymentController.php:107
+msgid ""
+" is not configured correctly, the fields Public Key and Secret Key are "
+"mandatory for use this plugin"
+msgstr ""
+"non è configurato correttamente, i campi Public Key e Secret Key sono "
+"obbligatori per utilizzare questo plugin"
+
+#: controllers/paymentController.php:419
+msgid ""
+"Pay up to 12 comfortable installments with Pagantis. Completely online and "
+"sympathetic request, and the answer is immediate!"
+msgstr ""
+"Paga fino a 12 comode rate con Pagantis. Richiesta completamente online e "
+"comprensiva, e la risposta è immediata!"

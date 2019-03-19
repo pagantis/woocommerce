@@ -89,3 +89,7 @@ msgstr ""
 #: controllers/paymentController.php:107
 msgid " is not configured correctly, the fields Public Key and Secret Key are mandatory for use this plugin"
 msgstr ""
+
+#: controllers/paymentController.php:421
+msgid "Pay up to 12 comfortable installments with Pagantis. Completely online and sympathetic request, and the answer is immediate!"
+msgstr ""

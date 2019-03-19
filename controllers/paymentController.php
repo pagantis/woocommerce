@@ -416,7 +416,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             'total' => WC()->session->cart_totals['total'],
             'enabled' =>  $this->settings['enabled'],
             'min_installments' => getenv('PAGANTIS_DISPLAY_MIN_AMOUNT'),
-            'message' => getenv('PAGANTIS_TITLE_EXTRA')
+            'message' => __(getenv('PAGANTIS_TITLE_EXTRA'))
         );
         wc_get_template('checkout_description.php', $template_fields, '', $this->template_path);
     }

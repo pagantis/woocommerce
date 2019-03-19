@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Pagantis WooCommerce V2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-03-19 10:41+0000\n"
-"PO-Revision-Date: 2019-03-19 11:06+0000\n"
+"PO-Revision-Date: 2019-03-19 11:40+0000\n"
 "Last-Translator: admin <demo@woocommerceshop.com>\n"
 "Language-Team: Portuguese (Portugal)\n"
 "Language: pt_PT\n"
@@ -85,3 +85,19 @@ msgstr "Finanças com Pagantis"
 #. URI of the plugin
 msgid "http://www.pagantis.com/"
 msgstr "http://www.pagantis.com/"
+
+#: controllers/paymentController.php:107
+msgid ""
+" is not configured correctly, the fields Public Key and Secret Key are "
+"mandatory for use this plugin"
+msgstr ""
+" não está configurado corretamente, os campos Public Key e Secret Key são "
+"obrigatórios para usar este plugin"
+
+#: controllers/paymentController.php:419
+msgid ""
+"Pay up to 12 comfortable installments with Pagantis. Completely online and "
+"sympathetic request, and the answer is immediate!"
+msgstr ""
+"Pague até 12 parcelas confortáveis ​​com o Pagantis. Completamente on-line e "
+"pedido simpático, ea resposta é imediata!"

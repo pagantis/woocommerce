@@ -38,8 +38,7 @@ class WcPagantis
                             'PAGANTIS_DISPLAY_MIN_AMOUNT'=>1,
                             'PAGANTIS_URL_OK'=>'',
                             'PAGANTIS_URL_KO'=>'',
-                            'PAGANTIS_TITLE_EXTRA' => 'Paga hasta en 12 cómodas cuotas con Pagantis. Solicitud totalmente 
-                            online y sin papeleos,¡y la respuesta es inmediata!'
+                            'PAGANTIS_TITLE_EXTRA' => 'Pay up to 12 comfortable installments with Pagantis. Completely online and sympathetic request, and the answer is immediate!'
     );
 
     /**
