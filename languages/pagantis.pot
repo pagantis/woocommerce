@@ -85,3 +85,7 @@ msgstr ""
 #. URI of the plugin
 msgid "http://www.pagantis.com/"
 msgstr ""
+
+#: controllers/paymentController.php:107
+msgid " is not configured correctly, the fields Public Key and Secret Key are mandatory for use this plugin"
+msgstr ""

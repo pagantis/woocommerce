@@ -104,10 +104,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $error_string =  __(' is not compatible with your php and/or curl version', 'pagantis');
             $this->settings['enabled'] = 'no';
         } elseif ($this->settings['pagantis_public_key']=="" || $this->settings['pagantis_private_key']=="") {
-            $keys_error =  <<<EOD
-is not configured correctly, the fields Public Key and Secret Key are mandatory for use this plugin
-EOD;
-            $error_string = __($keys_error, 'pagantis');
+            $error_string = __(' is not configured correctly, the fields Public Key and Secret Key are mandatory for use this plugin', 'pagantis');
             $this->settings['enabled'] = 'no';
         } elseif (!in_array(get_woocommerce_currency(), $this->allowed_currencies)) {
             $error_string =  __(' only can be used in Euros', 'pagantis');

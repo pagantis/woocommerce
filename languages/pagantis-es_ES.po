@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Pagantis WooCommerce V2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-03-19 10:41+0000\n"
-"PO-Revision-Date: 2019-03-19 10:41+0000\n"
+"PO-Revision-Date: 2019-03-19 10:56+0000\n"
 "Last-Translator: admin <demo@woocommerceshop.com>\n"
 "Language-Team: Español\n"
 "Language: es_ES\n"
@@ -56,7 +56,7 @@ msgstr "Login al panel de "
 
 #: controllers/paymentController.php:104
 msgid " is not compatible with your php and/or curl version"
-msgstr ""
+msgstr " no es compatible con su versión de php/curl"
 
 #: controllers/paymentController.php:113
 msgid " only can be used in Euros"
@@ -80,8 +80,16 @@ msgstr "Pagantis"
 
 #. Description of the plugin
 msgid "Financiar con Pagantis"
-msgstr ""
+msgstr "Financiar con Pagantis"
 
 #. URI of the plugin
 msgid "http://www.pagantis.com/"
 msgstr "http://www.pagantis.com/"
+
+#: controllers/paymentController.php:107
+msgid ""
+" is not configured correctly, the fields Public Key and Secret Key are "
+"mandatory for use this plugin"
+msgstr ""
+" no está configurado correctamente, los campos Public Key y Secret Key son "
+"obligatorios para su uso"

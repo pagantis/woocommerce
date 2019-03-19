@@ -3,9 +3,9 @@ msgstr ""
 "Project-Id-Version: Pagantis WooCommerce V2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-03-19 10:41+0000\n"
-"PO-Revision-Date: 2019-03-19 10:43+0000\n"
+"PO-Revision-Date: 2019-03-19 11:05+0000\n"
 "Last-Translator: admin <demo@woocommerceshop.com>\n"
-"Language-Team: Italian\n"
+"Language-Team: Italiano\n"
 "Language: it_IT\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
@@ -16,11 +16,11 @@ msgstr ""
 
 #: WC_Pagantis.php:206
 msgid "Settings"
-msgstr "impostazioni"
+msgstr "Impostazioni"
 
 #: WC_Pagantis.php:224 controllers/paymentController.php:88
 msgid "Documentation"
-msgstr "documentazione"
+msgstr "Documentazione"
 
 #: WC_Pagantis.php:226
 msgid "API documentation"
@@ -28,7 +28,7 @@ msgstr "Documentazione API"
 
 #: WC_Pagantis.php:227
 msgid "Support"
-msgstr "supporto"
+msgstr "Supporto"
 
 #: includes/settings-pagantis.php:12
 msgid "Activate the module"
@@ -56,7 +56,7 @@ msgstr "Accedi al pannello di"
 
 #: controllers/paymentController.php:104
 msgid " is not compatible with your php and/or curl version"
-msgstr ""
+msgstr "non è compatibile con la tua versione php e / o curl"
 
 #: controllers/paymentController.php:113
 msgid " only can be used in Euros"
@@ -80,7 +80,7 @@ msgstr "Pagantis"
 
 #. Description of the plugin
 msgid "Financiar con Pagantis"
-msgstr ""
+msgstr "Finanza con Pagantis"
 
 #. URI of the plugin
 msgid "http://www.pagantis.com/"
