@@ -44,7 +44,7 @@ abstract class PagantisWoocommerceTest extends TestCase
         'defaultMaxIns' => 12,
         'defaultSimulatorOpt' => 6,
         'confirmationMsg'=>'Pedido recibido',
-        'checkoutDescription'=> 'Paga hasta en 12 cómodas cuotas con Pagantis',
+        'checkoutDescription'=> 'Pay up to 12 comfortable installments with Pagantis',
         'enter' => 'Haz clic aquí para acceder'
     );
 
