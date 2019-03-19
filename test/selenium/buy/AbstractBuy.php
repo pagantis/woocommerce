@@ -11,7 +11,7 @@ use PagaMasTarde\ModuleUtils\Exception\MerchantOrderNotFoundException;
 use PagaMasTarde\ModuleUtils\Exception\NoIdentificationException;
 use PagaMasTarde\ModuleUtils\Exception\QuoteNotFoundException;
 use Test\Selenium\PaylaterWoocommerceTest;
-use PagaMasTarde\SeleniumFormUtils\SeleniumHelper;
+use Pagantis\SeleniumFormUtils\SeleniumHelper;
 use Httpful\Request;
 
 /**
