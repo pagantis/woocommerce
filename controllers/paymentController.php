@@ -392,7 +392,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
             $redirectUrl = $order->get_checkout_payment_url(true); //pagantisReceiptPage function
             if (strpos($redirectUrl, 'order-pay=')===false) {
-                $redirectUrl.= "&order-pay=".$order->getId();
+                $redirectUrl.= "&order-pay=".$order_id;
             }
 
             return array(
