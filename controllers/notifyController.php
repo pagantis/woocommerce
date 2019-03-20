@@ -307,7 +307,7 @@ class WcPagantisNotify extends WcPagantisGateway
         global $woocommerce;
         $paymentResult = $this->woocommerceOrder->payment_complete();
         if ($paymentResult) {
-            $this->woocommerceOrder->add_order_note($this->origin);
+            $this->woocommerceOrder->add_order_note("Notification received via $this->origin");
             $this->woocommerceOrder->reduce_order_stock();
             $this->woocommerceOrder->save();
 

@@ -31,6 +31,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $this->id = WcPagantisGateway::METHOD_ID;
         $this->icon = esc_url(plugins_url('../assets/images/logo.png', __FILE__));
         $this->has_fields = true;
+        $this->method_title = ucfirst($this->id);
+        $this->title = getenv('PAGANTIS_TITLE');
 
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
@@ -57,10 +59,11 @@ class WcPagantisGateway extends WC_Payment_Gateway
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
     }
 
-    /*
-     * Replace 'textdomain' with your plugin's textdomain. e.g. 'woocommerce'.
-     * File to be named, for example, yourtranslationfile-en_GB.mo
-     * File to be placed, for example, wp-content/lanaguages/textdomain/yourtranslationfile-en_GB.mo
+    /**
+     * @param $mofile
+     * @param $domain
+     *
+     * @return string
      */
     public function loadPagantisTranslation($mofile, $domain)
     {
@@ -140,6 +143,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
             require_once(__ROOT__.'/vendor/autoload.php');
             global $woocommerce;
             $order = new WC_Order($order_id);
+            $order->set_payment_method(ucfirst($this->id)); //Method showed in confirmation page.
+            $order->save();
 
             if (!isset($order)) {
                 throw new Exception(_("Order not found"));
@@ -372,12 +377,12 @@ class WcPagantisGateway extends WC_Payment_Gateway
     }
 
     /**
-     * CHECKOUT - Get the checkout title (called by woocommerce, can't apply cammel caps)
+     * CHECKOUT - Checkout + admin panel title(method_title - get_title) (called by woocommerce,can't apply cammel caps)
      * @return string
      */
     public function get_title()
     {
-        return ucfirst($this->id);
+        return getenv('PAGANTIS_TITLE');
     }
 
     /**
