@@ -18,7 +18,7 @@ class WcPagantis
 {
     const GIT_HUB_URL = 'https://github.com/pagantis/woocommerce';
     const PAGANTIS_DOC_URL = 'https://developer.pagamastarde.com';
-    const SUPPORT_EML = 'mailto:integration@pagantis.com?Subject=woocommerce_plugin';
+    const SUPPORT_EML = 'mailto:integrations@pagantis.com?Subject=woocommerce_plugin';
     /** Concurrency tablename */
     const LOGS_TABLE = 'pagantis_logs';
     /** Config tablename */
