@@ -52,3 +52,24 @@ Here you have a complete list of configurations you can change and it's explanat
 | PMT_DISPLAY_MIN_AMOUNT              | Minimum amount to use the module and show the payment method in the checkout page.
 | PMT_URL_OK                          | Location where user will be redirected after a successful payment. This string will be concatenated to the base url to build the full url
 | PMT_URL_KO                          | Location where user will be redirected after a wrong payment. This string will be concatenated to the base url to build the full url 
+
+Example using postman
+
+1- Open the application
+![Step 1](./postman_step1.png?raw=true "Step 1")
+
+2- Set the mode of the request
+2.1- Click on BODY tag
+2.2- Click on x-www-form-urlencoded
+![Step 2](./postman_step2.png?raw=true "Step 2")
+
+3- Set your request
+3.1- On the upper-left side, you need to set a POST request
+3.2- Fill the url field, setting your domain and your secret key (You can get in:http://bo.pagantis.com)
+3.3- Set the config key to modify (see previous table)
+3.4- Set the value for the selected key
+![Step 3](./postman_step3.png?raw=true "Step 3")
+
+4- Press on SEND
+If everything works fine, you could see 
+![Step 4](./postman_step4.png?raw=true "Step 4")
