@@ -54,3 +54,51 @@ jobs:
           command: |
             export DOCKERHOST=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | awk '{ print $2 }' | cut -f2 -d: | head -n1)
             vendor/bin/phpunit --group woocommerce3-buy
+  pushRelease:
+    docker:
+      - image: circleci/php:7.1-node-browsers
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: NPM Install
+          command: npm install
+      - run:
+          name: Package Generation
+          command: |
+            ./node_modules/.bin/grunt
+            mv paylater.zip paylater-$CIRCLE_TAG.zip
+            ls *.zip
+      - run:
+          name: Install GitHub CLI
+          command: |
+            curl -LO https://github.com/aktau/github-release/releases/download/v0.7.2/linux-amd64-github-release.tar.bz2
+            tar xfv linux-amd64-github-release.tar.bz2
+            rm linux-amd64-github-release.tar.bz2
+            sudo mv bin/linux/amd64/github-release /usr/local/bin/github-release
+            sudo chmod +x /usr/local/bin/github-release
+      - run:
+          name: Push ZIP to GitHub
+          command: |
+            github-release upload \
+                --user pagamastarde \
+                --repo woocommerce \
+                --tag $CIRCLE_TAG \
+                --name paylater-$CIRCLE_TAG.zip \
+                --file paylater-$CIRCLE_TAG.zip
+workflows:
+  version: 2
+  test-build:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: /.*/
+  release:
+    jobs:
+      - pushRelease:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
