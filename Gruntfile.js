@@ -6,7 +6,7 @@ module.exports = function(grunt) {
                     'cp paylater.zip paylater-$(git rev-parse --abbrev-ref HEAD).zip \n'
             },
             composerProd: {
-                command: 'rm -rf vendor && composer install --no-dev'
+                command: 'composer install --no-dev'
             },
             composerDev: {
                 command: 'composer install'
