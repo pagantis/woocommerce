@@ -28,6 +28,7 @@ class WcPagantis
                             'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'pmtSDK.simulator.types.SIMPLE',
                             'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'pmtSDK.simulator.skins.BLUE',
                             'PAGANTIS_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
+
                             'PAGANTIS_SIMULATOR_START_INSTALLMENTS'=>3,
                             'PAGANTIS_SIMULATOR_MAX_INSTALLMENTS'=>12,
                             'PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'=>'default',
@@ -141,7 +142,7 @@ class WcPagantis
 
         $cfg = get_option('woocommerce_pagantis_settings');
         if ($cfg['enabled'] !== 'yes' || $cfg['pagantis_public_key'] == '' || $cfg['pagantis_private_key'] == '' ||
-            $cfg['simulator'] !== 'yes') {
+            $cfg['simulator'] !== 'yes' ||  $product->price < getenv('PAGANTIS_DISPLAY_MIN_AMOUNT') ) {
             return;
         }
 
