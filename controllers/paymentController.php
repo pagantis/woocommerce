@@ -394,7 +394,7 @@ EOD;
 
             $redirectUrl = $order->get_checkout_payment_url(true); //paylaterReceiptPage function
             if (strpos($redirectUrl, 'order-pay=')===false) {
-                $redirectUrl = "&order-pay=".$order->getId();
+                $redirectUrl.="&order-pay=".$order->getId();
             }
 
             return array(
