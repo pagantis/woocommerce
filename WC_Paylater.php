@@ -345,4 +345,4 @@ function add_widget_js()
     wp_enqueue_script('pmtSdk', 'https://cdn.pagamastarde.com/js/pmt-v2/sdk.js', '', '', true);
 }
 
-new WcPaylater();
+$WcPaylater = new WcPaylater();
