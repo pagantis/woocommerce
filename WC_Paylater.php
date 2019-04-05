@@ -128,7 +128,7 @@ class WcPaylater
 
         $cfg = get_option('woocommerce_paylater_settings');
         if ($cfg['enabled'] !== 'yes' || $cfg['pmt_public_key'] == '' || $cfg['pmt_private_key'] == '' ||
-            $cfg['simulator'] !== 'yes' || $product->price<getenv('PAGANTIS_DISPLAY_MIN_AMOUNT')) {
+            $cfg['simulator'] !== 'yes' || $product->price<getenv('PMT_DISPLAY_MIN_AMOUNT')) {
             return;
         }
 
