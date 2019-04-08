@@ -366,7 +366,7 @@ EOD;
     public function is_available()
     {
         if ($this->enabled==='yes' && $this->pmt_public_key!='' && $this->pmt_private_key!='' &&
-            $this->get_order_total()>getenv('PMT_DISPLAY_MIN_AMOUNT')) {
+            (int)$this->get_order_total()>getenv('PMT_DISPLAY_MIN_AMOUNT')) {
             return true;
         }
 
@@ -394,7 +394,7 @@ EOD;
 
             $redirectUrl = $order->get_checkout_payment_url(true); //paylaterReceiptPage function
             if (strpos($redirectUrl, 'order-pay=')===false) {
-                $redirectUrl = "&order-pay=".$order->getId();
+                $redirectUrl.="&order-pay=".$order_id;
             }
 
             return array(

@@ -3,7 +3,7 @@
  * Plugin Name: Pagamastarde
  * Plugin URI: http://www.pagamastarde.com/
  * Description: Financiar con Pagamastarde
- * Version: 7.2.1
+ * Version: 7.2.2
  * Author: Pagamastarde
  */
 
@@ -128,7 +128,7 @@ class WcPaylater
 
         $cfg = get_option('woocommerce_paylater_settings');
         if ($cfg['enabled'] !== 'yes' || $cfg['pmt_public_key'] == '' || $cfg['pmt_private_key'] == '' ||
-            $cfg['simulator'] !== 'yes') {
+            $cfg['simulator'] !== 'yes' || $product->price<getenv('PMT_DISPLAY_MIN_AMOUNT')) {
             return;
         }
 
@@ -172,9 +172,10 @@ class WcPaylater
      */
     public function paylaterFilterGateways($methods)
     {
-        global $woocommerce;
         $paylater = new WcPaylaterGateway();
-
+        if ($paylater->is_available()) {
+            $methods['paylater'] = $paylater;
+        }
         return $methods;
     }
 
@@ -345,4 +346,4 @@ function add_widget_js()
     wp_enqueue_script('pmtSdk', 'https://cdn.pagamastarde.com/js/pmt-v2/sdk.js', '', '', true);
 }
 
-new WcPaylater();
+$WcPaylater = new WcPaylater();
