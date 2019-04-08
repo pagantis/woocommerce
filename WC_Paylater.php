@@ -172,9 +172,10 @@ class WcPaylater
      */
     public function paylaterFilterGateways($methods)
     {
-        global $woocommerce;
         $paylater = new WcPaylaterGateway();
-
+        if ($paylater->is_available()) {
+            $methods['paylater'] = $paylater;
+        }
         return $methods;
     }
 
