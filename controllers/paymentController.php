@@ -369,7 +369,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
     public function is_available()
     {
         if ($this->enabled==='yes' && $this->pagantis_public_key!='' && $this->pagantis_private_key!='' &&
-            $this->get_order_total()>getenv('PAGANTIS_DISPLAY_MIN_AMOUNT')) {
+            (int)$this->get_order_total()>getenv('PAGANTIS_DISPLAY_MIN_AMOUNT')) {
             return true;
         }
 
@@ -397,7 +397,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
             $redirectUrl = $order->get_checkout_payment_url(true); //pagantisReceiptPage function
             if (strpos($redirectUrl, 'order-pay=')===false) {
-                $redirectUrl.= "&order-pay=".$order_id;
+                $redirectUrl.="&order-pay=".$order_id;
             }
 
             return array(

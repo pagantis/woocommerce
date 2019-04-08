@@ -186,8 +186,10 @@ class WcPagantis
      */
     public function pagantisFilterGateways($methods)
     {
-        global $woocommerce;
         $pagantis = new WcPagantisGateway();
+        if ($pagantis->is_available()) {
+            $methods['pagantis'] = $pagantis;
+        }
 
         return $methods;
     }
@@ -359,4 +361,4 @@ function add_widget_js()
     wp_enqueue_script('pmtSdk', 'https://cdn.pagamastarde.com/js/pmt-v2/sdk.js', '', '', true);
 }
 
-new WcPagantis();
+$WcPagantis = new WcPagantis();
