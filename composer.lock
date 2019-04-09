@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "38ff3b16c32fbd4a5e5d3de759a06437",
+    "content-hash": "0db2c245a388cd8ec2b83d51be3ed58c",
     "packages": [
         {
             "name": "nategood/httpful",
@@ -96,17 +96,17 @@
             "time": "2015-06-04T13:11:29+00:00"
         },
         {
-            "name": "pagamastarde/module-utils",
-            "version": "v1.1.2",
+            "name": "pagantis/module-utils",
+            "version": "v2.0.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/PagaMasTarde/module-utils.git",
-                "reference": "00b214250b818192d6fe9e0f52b68ee5b24c38d0"
+                "url": "https://github.com/pagantis/module-utils.git",
+                "reference": "e7e09ecfe0dcbe3de37445fef5183cfa3b8d3ddd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PagaMasTarde/module-utils/zipball/00b214250b818192d6fe9e0f52b68ee5b24c38d0",
-                "reference": "00b214250b818192d6fe9e0f52b68ee5b24c38d0",
+                "url": "https://api.github.com/repos/pagantis/module-utils/zipball/e7e09ecfe0dcbe3de37445fef5183cfa3b8d3ddd",
+                "reference": "e7e09ecfe0dcbe3de37445fef5183cfa3b8d3ddd",
                 "shasum": ""
             },
             "require": {
@@ -123,7 +123,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "PagaMasTarde\\ModuleUtils\\": "src/"
+                    "Pagantis\\ModuleUtils\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -132,26 +132,25 @@
             ],
             "authors": [
                 {
-                    "name": "DigitalOrigin",
-                    "email": "cromero@digitalorigin.com"
+                    "name": "Pagantis",
+                    "email": "integration@pagantis.com"
                 }
             ],
-            "description": "Paga+Tarde PHP Library. Module utils",
-            "abandoned": "pagantis/module-utils",
-            "time": "2019-01-23T10:59:08+00:00"
+            "description": "Pagantis PHP Library. Module utils",
+            "time": "2019-03-14T10:52:05+00:00"
         },
         {
-            "name": "pagamastarde/orders-api-client",
-            "version": "v1.1.0",
+            "name": "pagantis/orders-api-client",
+            "version": "v2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pagantis/orders-api-client.git",
-                "reference": "6e6d7312653beeae57bd809f47de2d6d84fddb4d"
+                "reference": "096417dcbc53d2d2d80905758ce58b889c99b632"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pagantis/orders-api-client/zipball/6e6d7312653beeae57bd809f47de2d6d84fddb4d",
-                "reference": "6e6d7312653beeae57bd809f47de2d6d84fddb4d",
+                "url": "https://api.github.com/repos/pagantis/orders-api-client/zipball/096417dcbc53d2d2d80905758ce58b889c99b632",
+                "reference": "096417dcbc53d2d2d80905758ce58b889c99b632",
                 "shasum": ""
             },
             "require": {
@@ -166,7 +165,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "PagaMasTarde\\OrdersApiClient\\": "src/"
+                    "Pagantis\\OrdersApiClient\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -175,13 +174,12 @@
             ],
             "authors": [
                 {
-                    "name": "DigitalOrigin",
-                    "email": "cromero@digitalorigin.com"
+                    "name": "Pagantis",
+                    "email": "integrations@pagantis.com"
                 }
             ],
-            "description": "PagaMasTarde Orders Api Client in PHP. Use the api with simple methods and using OOP.",
-            "abandoned": "pagantis/orders-api-client",
-            "time": "2019-01-21T08:54:34+00:00"
+            "description": "Pagantis Orders Api Client in PHP. Use the api with simple methods and using OOP.",
+            "time": "2019-03-14T10:56:53+00:00"
         }
     ],
     "packages-dev": [
@@ -348,48 +346,6 @@
                 "fixtures"
             ],
             "time": "2018-07-12T10:23:15+00:00"
-        },
-        {
-            "name": "pagantis/orders-api-client",
-            "version": "v2.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pagantis/orders-api-client.git",
-                "reference": "096417dcbc53d2d2d80905758ce58b889c99b632"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pagantis/orders-api-client/zipball/096417dcbc53d2d2d80905758ce58b889c99b632",
-                "reference": "096417dcbc53d2d2d80905758ce58b889c99b632",
-                "shasum": ""
-            },
-            "require": {
-                "nategood/httpful": "^0.2",
-                "nayjest/str-case-converter": "^1.0",
-                "php": ">=5.3"
-            },
-            "require-dev": {
-                "fzaninotto/faker": "^1.7",
-                "phpunit/phpunit": "^4.8"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Pagantis\\OrdersApiClient\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "proprietary"
-            ],
-            "authors": [
-                {
-                    "name": "Pagantis",
-                    "email": "integrations@pagantis.com"
-                }
-            ],
-            "description": "Pagantis Orders Api Client in PHP. Use the api with simple methods and using OOP.",
-            "time": "2019-03-14T10:56:53+00:00"
         },
         {
             "name": "pagantis/selenium-form-utils",
@@ -1505,7 +1461,7 @@
                 },
                 {
                     "name": "Gert de Pagter",
-                    "email": "BackEndTea@gmail.com"
+                    "email": "backendtea@gmail.com"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",

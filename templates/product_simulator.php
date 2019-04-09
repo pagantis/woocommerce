@@ -5,7 +5,7 @@
     {
         var positionSelector = '<? echo $positionSelector;?>';
         if (positionSelector === 'default') {
-            positionSelector = '.PmtSimulator';
+            positionSelector = '.PagantisSimulator';
         }
 
         var priceSelector = '<? echo $priceSelector;?>';
@@ -18,8 +18,8 @@
             quantitySelector = 'div.quantity>input';
         }
 
-        if (typeof pmtSDK != 'undefined') {
-            pmtSDK.simulator.init({
+        if (typeof pgSDK != 'undefined') {
+            pgSDK.simulator.init({
                 publicKey: '<?php echo $public_key; ?>',
                 type: <?php echo $simulator_type; ?>,
                 selector: positionSelector,
@@ -34,4 +34,4 @@
         loadSimulator();
     }, 2000);
 </script>
-<div class="PmtSimulator"></div>
+<div class="PagantisSimulator"></div>

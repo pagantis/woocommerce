@@ -1,6 +1,6 @@
 /node_modules
 /vendor
-paylater*.zip
+pagantis*.zip
 composer.phar
 /svn
 !/svn/README.md

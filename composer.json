@@ -1,6 +1,6 @@
 {
-    "name": "pagamastarde/woocommerce",
-    "description": "Woocommerce module to add PagaMasTarde",
+    "name": "pagantis/woocommerce",
+    "description": "Woocommerce module to add Pagantis",
     "license": "proprietary",
     "type": "module",
     "keywords": [
@@ -12,26 +12,26 @@
         "payment",
         "checkout",
         "credit",
-        "pagamastarde",
+        "pagantis",
         "financiar",
         "financiera",
         "financiación"
     ],
     "authors": [
         {
-            "name": "DigitalOrigin",
-            "email": "pgarces@digitalorigin.com"
+            "name": "Pagantis",
+            "email": "pgarces@Pagantis.com"
         }
     ],
     "require": {
-        "pagamastarde/orders-api-client": "^1.0",
-        "pagamastarde/module-utils": "^1.1"
+        "pagantis/orders-api-client": "^2.0",
+        "pagantis/module-utils": "^2.0"
     },
     "require-dev": {
         "pagantis/selenium-form-utils": "^2.0"
     },
     "autoload-dev": {
-      "psr-4": { "Test\\Selenium\\Buy\\": "test/selenium/buy/", "Test\\Selenium\\": "test/selenium/" }
+        "psr-4": { "Test\\Selenium\\Buy\\": "test/selenium/buy/", "Test\\Selenium\\": "test/selenium/" }
     },
     "minimum-stability": "stable"
 }

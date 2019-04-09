@@ -1,8 +1,8 @@
 <?php
 
 //namespace empty
-use PagaMasTarde\OrdersApiClient\Model\Order\User\Address;
-use PagaMasTarde\ModuleUtils\Exception\OrderNotFoundException;
+use Pagantis\ModuleUtils\Exception\OrderNotFoundException;
+use Pagantis\OrdersApiClient\Model\Order\User\Address;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -10,57 +10,67 @@ if (!defined('ABSPATH')) {
 
 define('__ROOT__', dirname(dirname(__FILE__)));
 
-class WcPaylaterGateway extends WC_Payment_Gateway
+class WcPagantisGateway extends WC_Payment_Gateway
 {
-    const METHOD_ID             = "paylater";
-    const METHOD_TITLE          = "Paga Más Tarde";
-    const METHOD_ABREV          = "Paga+Tarde";
-    const PAGA_MAS_TARDE        = 'pagamastarde';
-    const PAYLATER_SHOPPER_URL  = 'https://shopper.pagamastarde.com/woocommerce/';
+    const METHOD_ID = "pagantis";
 
     /** Orders tablename */
     const ORDERS_TABLE = 'cart_process';
 
     /** Concurrency tablename */
-    const LOGS_TABLE = 'pmt_logs';
+    const LOGS_TABLE = 'pagantis_logs';
 
     const NOT_CONFIRMED = 'No se ha podido confirmar el pago';
 
     /**
-     * WcPaylaterGateway constructor.
+     * WcPagantisGateway constructor.
      */
     public function __construct()
     {
         //Mandatory vars for plugin
-        $this->id = WcPaylaterGateway::METHOD_ID;
+        $this->id = WcPagantisGateway::METHOD_ID;
         $this->icon = esc_url(plugins_url('../assets/images/logo.png', __FILE__));
         $this->has_fields = true;
-        $this->method_title = WcPaylaterGateway::METHOD_TITLE;
-        $this->title = WcPaylaterGateway::METHOD_TITLE;
+        $this->method_title = ucfirst($this->id);
+        $this->title = getenv('PAGANTIS_TITLE');
 
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
         $this->allowed_currencies = array("EUR");
-        $this->allowed_languages  = array("es_ES");
-        $this->mainFileLocation = dirname(plugin_dir_path(__FILE__)) . '/WC_Paylater.php';
+        $this->mainFileLocation = dirname(plugin_dir_path(__FILE__)) . '/WC_Pagantis.php';
         $this->plugin_info = get_file_data($this->mainFileLocation, array('Version' => 'Version'), false);
 
         //Panel form fields
-        $this->form_fields = include(plugin_dir_path(__FILE__).'../includes/settings-paylater.php');//Panel options
+        $this->form_fields = include(plugin_dir_path(__FILE__).'../includes/settings-pagantis.php');//Panel options
         $this->init_settings();
 
-        $this->settings['ok_url'] = (getenv('PMT_URL_OK')!='')?getenv('PMT_URL_OK'):$this->generateOkUrl();
-        $this->settings['ko_url'] = (getenv('PMT_URL_KO')!='')?getenv('PMT_URL_KO'):$this->generateKoUrl();
+        $this->settings['ok_url'] = (getenv('PAGANTIS_URL_OK')!='')?getenv('PAGANTIS_URL_OK'):$this->generateOkUrl();
+        $this->settings['ko_url'] = (getenv('PAGANTIS_URL_KO')!='')?getenv('PAGANTIS_URL_KO'):$this->generateKoUrl();
         foreach ($this->settings as $setting_key => $setting_value) {
             $this->$setting_key = $setting_value;
         }
 
         //Hooks
         add_action('woocommerce_update_options_payment_gateways_'.$this->id, array($this,'process_admin_options')); //Save plugin options
-        add_action('admin_notices', array($this, 'paylaterCheckFields'));                          //Check config fields
-        add_action('woocommerce_receipt_'.$this->id, array($this, 'paylaterReceiptPage'));          //Pmt form
-        add_action('woocommerce_api_wcpaylatergateway', array($this, 'paylaterNotification'));      //Json Notification
-        add_filter('woocommerce_payment_complete_order_status', array($this,'paylaterCompleteStatus'), 10, 3);
+        add_action('admin_notices', array($this, 'pagantisCheckFields'));                          //Check config fields
+        add_action('woocommerce_receipt_'.$this->id, array($this, 'pagantisReceiptPage'));          //Pagantis form
+        add_action('woocommerce_api_wcpagantisgateway', array($this, 'pagantisNotification'));      //Json Notification
+        add_filter('woocommerce_payment_complete_order_status', array($this,'pagantisCompleteStatus'), 10, 3);
+        add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
+    }
+
+    /**
+     * @param $mofile
+     * @param $domain
+     *
+     * @return string
+     */
+    public function loadPagantisTranslation($mofile, $domain)
+    {
+        if ('pagantis' === $domain) {
+            $mofile = WP_LANG_DIR . '/../plugins/pagantis/languages/pagantis-' . get_locale() . '.mo';
+        }
+        return $mofile;
     }
 
     /***********
@@ -70,15 +80,15 @@ class WcPaylaterGateway extends WC_Payment_Gateway
      ***********/
 
     /**
-     * PANEL - Display admin panel -> Hook: woocommerce_update_options_payment_gateways_paylater
+     * PANEL - Display admin panel -> Hook: woocommerce_update_options_payment_gateways_pagantis
      */
     public function admin_options()
     {
         $template_fields = array(
             'panel_header' => $this->title,
             'panel_description' => $this->method_description,
-            'button1_label' => __('Login al panel de ', 'paylater') . WcPaylaterGateway::METHOD_TITLE,
-            'button2_label' => __('Documentación', 'paylater'),
+            'button1_label' => __('Login to panel of ', 'pagantis') . ucfirst(WcPagantisGateway::METHOD_ID),
+            'button2_label' => __('Documentation', 'pagantis'),
             'logo' => $this->icon,
             'settings' => $this->generate_settings_html($this->form_fields, false)
         );
@@ -88,39 +98,33 @@ class WcPaylaterGateway extends WC_Payment_Gateway
     /**
      * PANEL - Check admin panel fields -> Hook: admin_notices
      */
-    public function paylaterCheckFields()
+    public function pagantisCheckFields()
     {
         $error_string = '';
         if ($this->settings['enabled'] !== 'yes') {
             return;
         } elseif (!version_compare(phpversion(), '5.3.0', '>=')) {
-            $error_string =  __(' no es compatible con su versión de php y/o curl', 'paylater');
+            $error_string =  __(' is not compatible with your php and/or curl version', 'pagantis');
             $this->settings['enabled'] = 'no';
-        } elseif ($this->settings['pmt_public_key']=="" || $this->settings['pmt_private_key']=="") {
-            $keys_error =  <<<EOD
-no está configurado correctamente, los campos Public Key y Secret Key son obligatorios para su funcionamiento
-EOD;
-            $error_string = __($keys_error, 'paylater');
+        } elseif ($this->settings['pagantis_public_key']=="" || $this->settings['pagantis_private_key']=="") {
+            $error_string = __(' is not configured correctly, the fields Public Key and Secret Key are mandatory for use this plugin', 'pagantis');
             $this->settings['enabled'] = 'no';
         } elseif (!in_array(get_woocommerce_currency(), $this->allowed_currencies)) {
-            $error_string =  __(' solo puede ser usado en Euros', 'paylater');
+            $error_string =  __(' only can be used in Euros', 'pagantis');
             $this->settings['enabled'] = 'no';
-        } elseif (!in_array(get_locale(), $this->allowed_languages)) {
-            $error_string = __(' solo puede ser usado en Español', 'paylater');
-            $this->settings['enabled'] = 'no';
-        } elseif (getenv('PMT_SIMULATOR_MAX_INSTALLMENTS')<'2'
-                  || getenv('PMT_SIMULATOR_MAX_INSTALLMENTS')>'12') {
-            $error_string = __(' solo puede ser pagado de 2 a 12 plazos.', 'paylater');
-        } elseif (getenv('PMT_SIMULATOR_START_INSTALLMENTS')<'2'
-                  || getenv('PMT_SIMULATOR_START_INSTALLMENTS')>'12') {
-            $error_string = __(' solo puede ser pagado de 2 a 12 plazos.', 'paylater');
-        } elseif (getenv('PMT_DISPLAY_MIN_AMOUNT')<0) {
-            $error_string = __(' el importe debe ser mayor a 0.', 'paylater');
+        } elseif (getenv('PAGANTIS_SIMULATOR_MAX_INSTALLMENTS')<'2'
+                  || getenv('PAGANTIS_SIMULATOR_MAX_INSTALLMENTS')>'12') {
+            $error_string = __(' only can be payed from 2 to 12 installments', 'pagantis');
+        } elseif (getenv('PAGANTIS_SIMULATOR_START_INSTALLMENTS')<'2'
+                  || getenv('PAGANTIS_SIMULATOR_START_INSTALLMENTS')>'12') {
+            $error_string = __(' only can be payed from 2 to 12 installments', 'pagantis');
+        } elseif (getenv('PAGANTIS_DISPLAY_MIN_AMOUNT')<0) {
+            $error_string = __(' can not have a minimum amount less than 0', 'pagantis');
         }
 
         if ($error_string!='') {
             $template_fields = array(
-                'error_msg' => WcPaylaterGateway::METHOD_TITLE .' '.$error_string,
+                'error_msg' => ucfirst(WcPagantisGateway::METHOD_ID).' '.$error_string,
             );
             wc_get_template('error_msg.php', $template_fields, '', $this->template_path);
         }
@@ -128,17 +132,19 @@ EOD;
 
 
     /**
-     * CHECKOUT - Generate the pmt form. "Return" iframe or redirect. - Hook: woocommerce_receipt_paylater
+     * CHECKOUT - Generate the pagantis form. "Return" iframe or redirect. - Hook: woocommerce_receipt_pagantis
      * @param $order_id
      *
      * @throws Exception
      */
-    public function paylaterReceiptPage($order_id)
+    public function pagantisReceiptPage($order_id)
     {
         try {
             require_once(__ROOT__.'/vendor/autoload.php');
             global $woocommerce;
             $order = new WC_Order($order_id);
+            $order->set_payment_method(ucfirst($this->id)); //Method showed in confirmation page.
+            $order->save();
 
             if (!isset($order)) {
                 throw new Exception(_("Order not found"));
@@ -178,7 +184,7 @@ EOD;
                 ->setFixPhone($billingAddress['phone'])
                 ->setMobilePhone($billingAddress['phone'])
             ;
-            $orderUser = new \PagaMasTarde\OrdersApiClient\Model\Order\User();
+            $orderUser = new \Pagantis\OrdersApiClient\Model\Order\User();
             $orderUser
                 ->setAddress($userAddress)
                 ->setFullName($billingAddress['fist_name']." ".$billingAddress['last_name'])
@@ -191,7 +197,7 @@ EOD;
 
             $previousOrders = $this->getOrders($order->get_user(), $billingAddress['email']);
             foreach ($previousOrders as $previousOrder) {
-                $orderHistory = new \PagaMasTarde\OrdersApiClient\Model\Order\User\OrderHistory();
+                $orderHistory = new \Pagantis\OrdersApiClient\Model\Order\User\OrderHistory();
                 $orderElement = wc_get_order($previousOrder);
                 $orderCreated = $orderElement->get_date_created();
                 $orderHistory
@@ -201,12 +207,12 @@ EOD;
                 $orderUser->addOrderHistory($orderHistory);
             }
 
-            $details = new \PagaMasTarde\OrdersApiClient\Model\Order\ShoppingCart\Details();
+            $details = new \Pagantis\OrdersApiClient\Model\Order\ShoppingCart\Details();
             $shippingCost = $order->shipping_total;
             $details->setShippingCost(intval(strval(100 * $shippingCost)));
             $items = $woocommerce->cart->get_cart();
             foreach ($items as $key => $item) {
-                $product = new \PagaMasTarde\OrdersApiClient\Model\Order\ShoppingCart\Details\Product();
+                $product = new \Pagantis\OrdersApiClient\Model\Order\ShoppingCart\Details\Product();
                 $product
                     ->setAmount(intval(100 * $item['line_total']))
                     ->setQuantity($item['quantity'])
@@ -214,17 +220,17 @@ EOD;
                 $details->addProduct($product);
             }
 
-            $orderShoppingCart = new \PagaMasTarde\OrdersApiClient\Model\Order\ShoppingCart();
+            $orderShoppingCart = new \Pagantis\OrdersApiClient\Model\Order\ShoppingCart();
             $orderShoppingCart
                 ->setDetails($details)
                 ->setOrderReference($order->get_id())
                 ->setPromotedAmount(0)
                 ->setTotalAmount(intval(strval(100 * $order->total)))
             ;
-            $orderConfigurationUrls = new \PagaMasTarde\OrdersApiClient\Model\Order\Configuration\Urls();
+            $orderConfigurationUrls = new \Pagantis\OrdersApiClient\Model\Order\Configuration\Urls();
             $cancelUrl = $this->getKoUrl($order);
             $callback_arg = array(
-                'wc-api'=>'wcpaylatergateway',
+                'wc-api'=>'wcpagantisgateway',
                 'key'=>$order->get_order_key(),
                 'order-received'=>$order->get_id());
             $callback_url = add_query_arg($callback_arg, home_url('/'));
@@ -235,26 +241,26 @@ EOD;
                 ->setRejectedNotificationCallback($callback_url)
                 ->setOk($callback_url)
             ;
-            $orderChannel = new \PagaMasTarde\OrdersApiClient\Model\Order\Configuration\Channel();
+            $orderChannel = new \Pagantis\OrdersApiClient\Model\Order\Configuration\Channel();
             $orderChannel
                 ->setAssistedSale(false)
-                ->setType(\PagaMasTarde\OrdersApiClient\Model\Order\Configuration\Channel::ONLINE)
+                ->setType(\Pagantis\OrdersApiClient\Model\Order\Configuration\Channel::ONLINE)
             ;
-            $orderConfiguration = new \PagaMasTarde\OrdersApiClient\Model\Order\Configuration();
+            $orderConfiguration = new \Pagantis\OrdersApiClient\Model\Order\Configuration();
             $orderConfiguration
                 ->setChannel($orderChannel)
                 ->setUrls($orderConfigurationUrls)
             ;
-            $metadataOrder = new \PagaMasTarde\OrdersApiClient\Model\Order\Metadata();
+            $metadataOrder = new \Pagantis\OrdersApiClient\Model\Order\Metadata();
             $metadata = array(
                 'woocommerce' => WC()->version,
-                'pmt'         => $this->plugin_info['Version'],
+                'pagantis'         => $this->plugin_info['Version'],
                 'php'         => phpversion()
             );
             foreach ($metadata as $key => $metadatum) {
                 $metadataOrder->addMetadata($key, $metadatum);
             }
-            $orderApiClient = new \PagaMasTarde\OrdersApiClient\Model\Order();
+            $orderApiClient = new \Pagantis\OrdersApiClient\Model\Order();
             $orderApiClient
                 ->setConfiguration($orderConfiguration)
                 ->setMetadata($metadataOrder)
@@ -262,35 +268,32 @@ EOD;
                 ->setUser($orderUser)
             ;
 
-            if ($this->pmt_public_key=='' || $this->pmt_private_key=='') {
+            if ($this->pagantis_public_key=='' || $this->pagantis_private_key=='') {
                 throw new \Exception('Public and Secret Key not found');
             }
-            $orderClient = new \PagaMasTarde\OrdersApiClient\Client($this->pmt_public_key, $this->pmt_private_key);
-            $pmtOrder = $orderClient->createOrder($orderApiClient);
-            if ($pmtOrder instanceof \PagaMasTarde\OrdersApiClient\Model\Order) {
-                $url = $pmtOrder->getActionUrls()->getForm();
-                $this->insertRow($order->get_id(), $pmtOrder->getId());
+            $orderClient = new \Pagantis\OrdersApiClient\Client($this->pagantis_public_key, $this->pagantis_private_key);
+            $pagantisOrder = $orderClient->createOrder($orderApiClient);
+            if ($pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
+                $url = $pagantisOrder->getActionUrls()->getForm();
+                $this->insertRow($order->get_id(), $pagantisOrder->getId());
             } else {
                 throw new OrderNotFoundException();
             }
 
             if ($url=="") {
-                throw new Exception(_("No ha sido posible obtener una respuesta de PagaMasTarde"));
-            } elseif (getenv('PMT_FORM_DISPLAY_TYPE')=='0') {
+                throw new Exception(_("No ha sido posible obtener una respuesta de Pagantis"));
+            } elseif (getenv('PAGANTIS_FORM_DISPLAY_TYPE')=='0') {
                 wp_redirect($url);
                 exit;
             } else {
                 $template_fields = array(
-                    'css' => 'https://shopper.pagamastarde.com/css/paylater-modal.min.css',
-                    'prestashopCss' => 'https://shopper.pagamastarde.com/css/paylater-prestashop.min.css',
                     'url' => $url,
-                    'spinner' => esc_url(plugins_url('../assets/images/spinner.gif', __FILE__)),
                     'checkoutUrl'   => $cancelUrl
                 );
                 wc_get_template('iframe.php', $template_fields, '', $this->template_path);
             }
         } catch (\Exception $exception) {
-            wc_add_notice(__('Error en el pago - ', 'paylater') . $exception->getMessage(), 'error');
+            wc_add_notice(__('Payment error ', 'pagantis') . $exception->getMessage(), 'error');
             $checkout_url = get_permalink(wc_get_page_id('checkout'));
             wp_redirect($checkout_url);
             exit;
@@ -298,17 +301,17 @@ EOD;
     }
 
     /**
-     * NOTIFICATION - Endpoint for Json notification - Hook: woocommerce_api_wcpaylatergateway
+     * NOTIFICATION - Endpoint for Json notification - Hook: woocommerce_api_wcpagantisgateway
      */
-    public function paylaterNotification()
+    public function pagantisNotification()
     {
         try {
             $origin = ($_SERVER['REQUEST_METHOD'] == 'POST') ? 'Notify' : 'Order';
 
             include_once('notifyController.php');
-            $notify = new WcPaylaterNotify();
+            $notify = new WcPagantisNotify();
             $notify->setOrigin($origin);
-            /** @var \PagaMasTarde\ModuleUtils\Model\Response\AbstractJsonResponse $result */
+            /** @var \Pagantis\ModuleUtils\Model\Response\AbstractJsonResponse $result */
             $result = $notify->processInformation();
         } catch (Exception $exception) {
             $result['notification_message'] = $exception->getMessage();
@@ -340,9 +343,9 @@ EOD;
      *
      * @return string
      */
-    public function paylaterCompleteStatus($status, $order_id, $order)
+    public function pagantisCompleteStatus($status, $order_id, $order)
     {
-        if ($order->get_payment_method() == WcPaylaterGateway::METHOD_ID) {
+        if ($order->get_payment_method() == WcPagantisGateway::METHOD_ID) {
             if ($order->get_status() == 'failed') {
                 $status = 'processing';
             } elseif ($order->get_status() == 'pending' && $status=='completed') {
@@ -365,8 +368,8 @@ EOD;
      */
     public function is_available()
     {
-        if ($this->enabled==='yes' && $this->pmt_public_key!='' && $this->pmt_private_key!='' &&
-            (int)$this->get_order_total()>getenv('PMT_DISPLAY_MIN_AMOUNT')) {
+        if ($this->enabled==='yes' && $this->pagantis_public_key!='' && $this->pagantis_private_key!='' &&
+            (int)$this->get_order_total()>getenv('PAGANTIS_DISPLAY_MIN_AMOUNT')) {
             return true;
         }
 
@@ -374,16 +377,16 @@ EOD;
     }
 
     /**
-     * CHECKOUT - Get the checkout title (called by woocommerce, can't apply cammel caps)
+     * CHECKOUT - Checkout + admin panel title(method_title - get_title) (called by woocommerce,can't apply cammel caps)
      * @return string
      */
     public function get_title()
     {
-        return getenv('PMT_TITLE');
+        return getenv('PAGANTIS_TITLE');
     }
 
     /**
-     * CHECKOUT - Called after push pmt button on checkout(called by woocommerce, can't apply cammel caps
+     * CHECKOUT - Called after push pagantis button on checkout(called by woocommerce, can't apply cammel caps
      * @param $order_id
      * @return array
      */
@@ -392,7 +395,7 @@ EOD;
         try {
             $order = new WC_Order($order_id);
 
-            $redirectUrl = $order->get_checkout_payment_url(true); //paylaterReceiptPage function
+            $redirectUrl = $order->get_checkout_payment_url(true); //pagantisReceiptPage function
             if (strpos($redirectUrl, 'order-pay=')===false) {
                 $redirectUrl.="&order-pay=".$order_id;
             }
@@ -403,7 +406,7 @@ EOD;
             );
 
         } catch (Exception $e) {
-            wc_add_notice(__('Error en el pago ', 'paylater') . $e->getMessage(), 'error');
+            wc_add_notice(__('Payment error ', 'pagantis') . $e->getMessage(), 'error');
             return array();
         }
     }
@@ -414,11 +417,11 @@ EOD;
     public function payment_fields()
     {
         $template_fields = array(
-            'public_key' => $this->pmt_public_key,
+            'public_key' => $this->pagantis_public_key,
             'total' => WC()->session->cart_totals['total'],
             'enabled' =>  $this->settings['enabled'],
-            'min_installments' => getenv('PMT_DISPLAY_MIN_AMOUNT'),
-            'message' => getenv('PMT_TITLE_EXTRA')
+            'min_installments' => getenv('PAGANTIS_DISPLAY_MIN_AMOUNT'),
+            'message' => __(getenv('PAGANTIS_TITLE_EXTRA'))
         );
         wc_get_template('checkout_description.php', $template_fields, '', $this->template_path);
     }
@@ -624,11 +627,11 @@ EOD;
 
     /**
      * @param $orderId
-     * @param $pmtOrderId
+     * @param $pagantisOrderId
      *
      * @throws Exception
      */
-    private function insertRow($orderId, $pmtOrderId)
+    private function insertRow($orderId, $pagantisOrderId)
     {
         global $wpdb;
         $this->checkDbTable();
@@ -640,13 +643,13 @@ EOD;
         if ($countResults == 0) {
             $wpdb->insert(
                 $tableName,
-                array('id' => $orderId, 'order_id' => $pmtOrderId),
+                array('id' => $orderId, 'order_id' => $pagantisOrderId),
                 array('%d', '%s')
             );
         } else {
             $wpdb->update(
                 $tableName,
-                array('order_id' => $pmtOrderId),
+                array('order_id' => $pagantisOrderId),
                 array('id' => $orderId),
                 array('%s'),
                 array('%d')

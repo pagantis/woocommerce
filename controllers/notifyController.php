@@ -1,26 +1,26 @@
 <?php
 
-use PagaMasTarde\OrdersApiClient\Client;
-use PagaMasTarde\ModuleUtils\Exception\AlreadyProcessedException;
-use PagaMasTarde\ModuleUtils\Exception\AmountMismatchException;
-use PagaMasTarde\ModuleUtils\Exception\MerchantOrderNotFoundException;
-use PagaMasTarde\ModuleUtils\Exception\NoIdentificationException;
-use PagaMasTarde\ModuleUtils\Exception\OrderNotFoundException;
-use PagaMasTarde\ModuleUtils\Exception\QuoteNotFoundException;
-use PagaMasTarde\ModuleUtils\Exception\UnknownException;
-use PagaMasTarde\ModuleUtils\Exception\WrongStatusException;
-use PagaMasTarde\ModuleUtils\Model\Response\JsonSuccessResponse;
-use PagaMasTarde\ModuleUtils\Model\Response\JsonExceptionResponse;
-use PagaMasTarde\ModuleUtils\Model\Log\LogEntry;
+use Pagantis\OrdersApiClient\Client;
+use Pagantis\ModuleUtils\Exception\AlreadyProcessedException;
+use Pagantis\ModuleUtils\Exception\AmountMismatchException;
+use Pagantis\ModuleUtils\Exception\MerchantOrderNotFoundException;
+use Pagantis\ModuleUtils\Exception\NoIdentificationException;
+use Pagantis\ModuleUtils\Exception\OrderNotFoundException;
+use Pagantis\ModuleUtils\Exception\QuoteNotFoundException;
+use Pagantis\ModuleUtils\Exception\UnknownException;
+use Pagantis\ModuleUtils\Exception\WrongStatusException;
+use Pagantis\ModuleUtils\Model\Response\JsonSuccessResponse;
+use Pagantis\ModuleUtils\Model\Response\JsonExceptionResponse;
+use Pagantis\ModuleUtils\Model\Log\LogEntry;
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class WcPaylaterNotify extends WcPaylaterGateway
+class WcPagantisNotify extends WcPagantisGateway
 {
-    /** @var mixed $pmtOrder */
-    protected $pmtOrder;
+    /** @var mixed $pagantisOrder */
+    protected $pagantisOrder;
 
     /** @var $string $origin */
     public $origin;
@@ -40,11 +40,11 @@ class WcPaylaterNotify extends WcPaylaterGateway
     /** @var  WC_Order $woocommerceOrder */
     protected $woocommerceOrder;
 
-    /** @var mixed $pmtOrderId */
-    protected $pmtOrderId = '';
+    /** @var mixed $pagantisOrderId */
+    protected $pagantisOrderId = '';
 
     /**
-     * Validation vs PmtClient
+     * Validation vs PagantisClient
      *
      * @return array|Array_
      * @throws Exception
@@ -55,8 +55,8 @@ class WcPaylaterNotify extends WcPaylaterGateway
         try {
             $this->checkConcurrency();
             $this->getMerchantOrder();
-            $this->getPmtOrderId();
-            $this->getPmtOrder();
+            $this->getPagantisOrderId();
+            $this->getPagantisOrder();
             $this->checkOrderStatus();
             $this->checkMerchantOrderStatus();
             $this->validateAmount();
@@ -64,23 +64,23 @@ class WcPaylaterNotify extends WcPaylaterGateway
         } catch (\Exception $exception) {
             $jsonResponse = new JsonExceptionResponse();
             $jsonResponse->setMerchantOrderId($this->woocommerceOrderId);
-            $jsonResponse->setPmtOrderId($this->pmtOrderId);
+            $jsonResponse->setPagantisOrderId($this->pagantisOrderId);
             $jsonResponse->setException($exception);
             $response = $jsonResponse->toJson();
             $this->insertLog($exception);
         }
         try {
             if (!isset($response)) {
-                $this->confirmPmtOrder();
+                $this->confirmPagantisOrder();
                 $jsonResponse = new JsonSuccessResponse();
                 $jsonResponse->setMerchantOrderId($this->woocommerceOrderId);
-                $jsonResponse->setPmtOrderId($this->pmtOrderId);
+                $jsonResponse->setPagantisOrderId($this->pagantisOrderId);
             }
         } catch (\Exception $exception) {
             $this->rollbackMerchantOrder();
             $jsonResponse = new JsonExceptionResponse();
             $jsonResponse->setMerchantOrderId($this->woocommerceOrderId);
-            $jsonResponse->setPmtOrderId($this->pmtOrderId);
+            $jsonResponse->setPagantisOrderId($this->pagantisOrderId);
             $jsonResponse->setException($exception);
             $jsonResponse->toJson();
             $this->insertLog($exception);
@@ -123,15 +123,15 @@ class WcPaylaterNotify extends WcPaylaterGateway
     /**
      * @throws NoIdentificationException
      */
-    private function getPmtOrderId()
+    private function getPagantisOrderId()
     {
         global $wpdb;
         $this->checkDbTable();
         $tableName = $wpdb->prefix.self::ORDERS_TABLE;
         $queryResult = $wpdb->get_row("select order_id from $tableName where id='".$this->woocommerceOrderId."'");
-        $this->pmtOrderId = $queryResult->order_id;
+        $this->pagantisOrderId = $queryResult->order_id;
 
-        if ($this->pmtOrderId == '') {
+        if ($this->pagantisOrderId == '') {
             throw new NoIdentificationException();
         }
     }
@@ -139,12 +139,12 @@ class WcPaylaterNotify extends WcPaylaterGateway
     /**
      * @throws OrderNotFoundException
      */
-    private function getPmtOrder()
+    private function getPagantisOrder()
     {
         try {
-            $this->cfg = get_option('woocommerce_paylater_settings');
-            $this->orderClient = new Client($this->cfg['pmt_public_key'], $this->cfg['pmt_private_key']);
-            $this->pmtOrder = $this->orderClient->getOrder($this->pmtOrderId);
+            $this->cfg = get_option('woocommerce_pagantis_settings');
+            $this->orderClient = new Client($this->cfg['pagantis_public_key'], $this->cfg['pagantis_private_key']);
+            $this->pagantisOrder = $this->orderClient->getOrder($this->pagantisOrderId);
         } catch (\Exception $e) {
             throw new OrderNotFoundException();
         }
@@ -157,13 +157,13 @@ class WcPaylaterNotify extends WcPaylaterGateway
     private function checkOrderStatus()
     {
         try {
-            $this->checkPmtStatus(array('AUTHORIZED'));
+            $this->checkPagantisStatus(array('AUTHORIZED'));
         } catch (\Exception $e) {
             if ($this->woocommerceOrderId!='') {
                 throw new AlreadyProcessedException();
             } else {
-                if ($this->pmtOrder instanceof \PagaMasTarde\OrdersApiClient\Model\Order) {
-                    $status = $this->pmtOrder->getStatus();
+                if ($this->pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
+                    $status = $this->pagantisOrder->getStatus();
                 } else {
                     $status = '-';
                 }
@@ -194,10 +194,10 @@ class WcPaylaterNotify extends WcPaylaterGateway
      */
     private function validateAmount()
     {
-        $pmtAmount = $this->pmtOrder->getShoppingCart()->getTotalAmount();
+        $pagantisAmount = $this->pagantisOrder->getShoppingCart()->getTotalAmount();
         $wcAmount = intval(strval(100 * $this->woocommerceOrder->get_total()));
-        if ($pmtAmount != $wcAmount) {
-            throw new AmountMismatchException($pmtAmount, $wcAmount);
+        if ($pagantisAmount != $wcAmount) {
+            throw new AmountMismatchException($pagantisAmount, $wcAmount);
         }
     }
 
@@ -214,10 +214,10 @@ class WcPaylaterNotify extends WcPaylaterGateway
      * @return false|string
      * @throws UnknownException
      */
-    private function confirmPmtOrder()
+    private function confirmPagantisOrder()
     {
         try {
-            $this->pmtOrder = $this->orderClient->confirmOrder($this->pmtOrderId);
+            $this->pagantisOrder = $this->orderClient->confirmOrder($this->pagantisOrderId);
         } catch (\Exception $e) {
             throw new UnknownException($e->getMessage());
         }
@@ -267,26 +267,26 @@ class WcPaylaterNotify extends WcPaylaterGateway
     }
 
     /** STEP 2 GMO - Get Merchant Order */
-    /** STEP 3 GPOI - Get Pmt OrderId */
-    /** STEP 4 GPO - Get Pmt Order */
+    /** STEP 3 GPOI - Get Pagantis OrderId */
+    /** STEP 4 GPO - Get Pagantis Order */
     /** STEP 5 COS - Check Order Status */
     /**
      * @param $statusArray
      *
      * @throws \Exception
      */
-    private function checkPmtStatus($statusArray)
+    private function checkPagantisStatus($statusArray)
     {
-        $pmtStatus = array();
+        $pagantisStatus = array();
         foreach ($statusArray as $status) {
-            $pmtStatus[] = constant("\PagaMasTarde\OrdersApiClient\Model\Order::STATUS_$status");
+            $pagantisStatus[] = constant("\Pagantis\OrdersApiClient\Model\Order::STATUS_$status");
         }
 
-        if ($this->pmtOrder instanceof \PagaMasTarde\OrdersApiClient\Model\Order) {
-            $payed = in_array($this->pmtOrder->getStatus(), $pmtStatus);
+        if ($this->pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
+            $payed = in_array($this->pagantisOrder->getStatus(), $pagantisStatus);
             if (!$payed) {
-                if ($this->pmtOrder instanceof \PagaMasTarde\OrdersApiClient\Model\Order) {
-                    $status = $this->pmtOrder->getStatus();
+                if ($this->pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
+                    $status = $this->pagantisOrder->getStatus();
                 } else {
                     $status = '-';
                 }
@@ -307,7 +307,7 @@ class WcPaylaterNotify extends WcPaylaterGateway
         global $woocommerce;
         $paymentResult = $this->woocommerceOrder->payment_complete();
         if ($paymentResult) {
-            $this->woocommerceOrder->add_order_note($this->origin);
+            $this->woocommerceOrder->add_order_note("Notification received via $this->origin");
             $this->woocommerceOrder->reduce_order_stock();
             $this->woocommerceOrder->save();
 
@@ -337,7 +337,7 @@ class WcPaylaterNotify extends WcPaylaterGateway
         );
     }
 
-    /** STEP 9 CPO - Confirmation Pmt Order */
+    /** STEP 9 CPO - Confirmation Pagantis Order */
     private function rollbackMerchantOrder()
     {
         $this->woocommerceOrder->update_status('pending', __('Pending payment', 'woocommerce'));

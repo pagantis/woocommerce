@@ -2,29 +2,26 @@
 
 namespace Test\Selenium\Install;
 
-use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Facebook\WebDriver\Remote\LocalFileDetector;
-use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Facebook\WebDriver\WebDriverKeys;
-use Test\Selenium\PaylaterWoocommerceTest;
+use Test\Selenium\PagantisWoocommerceTest;
 
 /**
- * Class PaylaterWc3InstallTest
+ * Class PagantisWc3InstallTest
  * @package Test\Selenium\install
  *
  * @group woocommerce3-install
  */
-class PaylaterWc3InstallTest extends PaylaterWoocommerceTest
+class PagantisWc3InstallTest extends PagantisWoocommerceTest
 {
     /**
-     * testInstallPaylaterInPrestashop15
+     * testInstallPagantisInPrestashop15
      */
-    public function testInstallAndConfigurePaylaterInWoocommerce3()
+    public function testInstallAndConfigurePagantisInWoocommerce3()
     {
         $this->loginToBackOffice();
-        $this->uploadPaylaterModule();
+        $this->uploadPagantisModule();
         $this->configureModule();
         $this->quit();
     }
@@ -61,9 +58,9 @@ class PaylaterWc3InstallTest extends PaylaterWoocommerceTest
     }
 
     /**
-     * Install PaylaterModule
+     * Install PagantisModule
      */
-    public function uploadPaylaterModule()
+    public function uploadPagantisModule()
     {
         $this->findByLinkText('Plugins')->click();
 
@@ -85,7 +82,7 @@ class PaylaterWc3InstallTest extends PaylaterWoocommerceTest
         $fileInputSearch = $moduleInstallBlock->name('pluginzip');
         $fileInput = $this->webDriver->findElement($fileInputSearch);
         $fileInput->setFileDetector(new LocalFileDetector());
-        $fileInput->sendKeys(__DIR__.'/../../../paylater.zip');
+        $fileInput->sendKeys(__DIR__.'/../../../pagantis.zip');
         $fileInput->submit();
 
         //Mensaje con el resultado de la instalación
@@ -103,34 +100,34 @@ class PaylaterWc3InstallTest extends PaylaterWoocommerceTest
     }
 
     /**
-     * Configure paylater module
+     * Configure pagantis module
      */
     public function configureModule()
     {
         $this->findByLinkText('WooCommerce')->click();
         $this->findByLinkText('Ajustes')->click();
         $this->findByLinkText('Pagos')->click();
-        $this->findByLinkText('Paga Más Tarde')->click();
+        $this->findByLinkText('Pagantis')->click();
 
-        $verify = WebDriverBy::id('woocommerce_paylater_pmt_public_key');
+        $verify = WebDriverBy::id('woocommerce_pagantis_pagantis_public_key');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR5");
 
-        $verify = WebDriverBy::id('woocommerce_paylater_pmt_private_key');
+        $verify = WebDriverBy::id('woocommerce_pagantis_pagantis_private_key');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR5");
 
-        $verify = WebDriverBy::id('woocommerce_paylater_enabled');
+        $verify = WebDriverBy::id('woocommerce_pagantis_enabled');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR7");
 
-        $enabledModule = $this->findById('woocommerce_paylater_enabled')->click();
+        $enabledModule = $this->findById('woocommerce_pagantis_enabled')->click();
 
-        $this->findById('woocommerce_paylater_pmt_public_key')->sendKeys($this->configuration['publicKey']);
-        $this->findById('woocommerce_paylater_pmt_private_key')->sendKeys($this->configuration['secretKey']);
+        $this->findById('woocommerce_pagantis_pagantis_public_key')->sendKeys($this->configuration['publicKey']);
+        $this->findById('woocommerce_pagantis_pagantis_private_key')->sendKeys($this->configuration['secretKey']);
         $cssSelector = "form#mainform > p.submit > button.button-primary.woocommerce-save-button";
         $menuSearch = WebDriverBy::cssSelector($cssSelector);
         $menuElement = $this->webDriver->findElement($menuSearch);
@@ -145,12 +142,12 @@ class PaylaterWc3InstallTest extends PaylaterWoocommerceTest
         $compareString = (strstr($actualString, 'Tus ajustes se han guardado')) === false ? false : true;
         $this->assertTrue($compareString, $actualString);
 
-        $verify = WebDriverBy::id('woocommerce_paylater_enabled');
+        $verify = WebDriverBy::id('woocommerce_pagantis_enabled');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR7");
 
-        $verify = WebDriverBy::id('woocommerce_paylater_simulator');
+        $verify = WebDriverBy::id('woocommerce_pagantis_simulator');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR9");

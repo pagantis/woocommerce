@@ -20,8 +20,9 @@ class BuyWc3Test extends AbstractBuy
     {
         $this->prepareProductAndCheckout();
         $this->prepareCheckout();
-        $this->makeCheckoutAndPmt();
+        $this->makeCheckoutAndPagantis();
         $this->makeValidation();
+        $this->checkNotificationException();
         $this->quit();
     }
 }
