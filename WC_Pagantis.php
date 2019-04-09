@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 class WcPagantis
 {
     const GIT_HUB_URL = 'https://github.com/pagantis/woocommerce';
-    const PAGANTIS_DOC_URL = 'https://developer.pagamastarde.com';
+    const PAGANTIS_DOC_URL = 'https://developer.pagantis.com';
     const SUPPORT_EML = 'mailto:integrations@pagantis.com?Subject=woocommerce_plugin';
     /** Concurrency tablename */
     const LOGS_TABLE = 'pagantis_logs';
@@ -25,14 +25,14 @@ class WcPagantis
     const CONFIG_TABLE = 'pagantis_config';
 
     public $defaultConfigs = array('PAGANTIS_TITLE'=>'Instant Financing',
-                            'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'pmtSDK.simulator.types.SIMPLE',
-                            'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'pmtSDK.simulator.skins.BLUE',
+                            'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'pgSDK.simulator.types.SIMPLE',
+                            'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'pgSDK.simulator.skins.BLUE',
                             'PAGANTIS_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
 
                             'PAGANTIS_SIMULATOR_START_INSTALLMENTS'=>3,
                             'PAGANTIS_SIMULATOR_MAX_INSTALLMENTS'=>12,
                             'PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'=>'default',
-                            'PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'=>'pmtSDK.simulator.positions.INNER',
+                            'PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'=>'pgSDK.simulator.positions.INNER',
                             'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'=>'default',
                             'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'=>'default',
                             'PAGANTIS_FORM_DISPLAY_TYPE'=>0,
@@ -358,7 +358,7 @@ class WcPagantis
  **/
 function add_widget_js()
 {
-    wp_enqueue_script('pmtSdk', 'https://cdn.pagamastarde.com/js/pmt-v2/sdk.js', '', '', true);
+    wp_enqueue_script('pgSDK', 'https://cdn.pagantis.com/js/pg-v2/sdk.js', '', '', true);
 }
 
 $WcPagantis = new WcPagantis();

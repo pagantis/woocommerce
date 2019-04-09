@@ -1,8 +1,8 @@
-<script type="text/javascript" src="https://cdn.pagamastarde.com/pmt-js-client-sdk/3/js/client-sdk.min.js"></script>
+<script type="text/javascript" src="https://cdn.pagantis.com/js/pg-v2/sdk.js"></script>
 <script type="application/javascript">
-    if (typeof pmtClient !== 'undefined') {
+    if (typeof pgSDK !== 'undefined') {
         document.addEventListener("DOMContentLoaded", function(){
-            pmtClient.modal.open(
+            pgSDK.modal.open(
                 "<?=$url?>",
                 {
                     closeOnBackDropClick: false,
@@ -13,7 +13,7 @@
                 }
             );
         });
-        pmtClient.modal.onClose(function() {
+        pgSDK.modal.onClose(function() {
             window.location.href = "<?=$checkoutUrl?>";
         });
     }

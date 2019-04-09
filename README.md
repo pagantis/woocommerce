@@ -1,16 +1,16 @@
 # Module installation <img src="https://pagantis.com/img/icons/logo.svg" width="100" align="right">
 
-CircleCI: [![CircleCI](https://circleci.com/gh/PagaMasTarde/WooCommerce/tree/master.svg?style=svg)](https://circleci.com/gh/PagaMasTarde/WooCommerce/tree/master)
+CircleCI: [![CircleCI](https://circleci.com/gh/pagantis/woocommerce/tree/master.svg?style=svg)](https://circleci.com/gh/pagantis/woocommerce/tree/master)
 
-[![Latest Stable Version](https://poser.pugx.org/pagamastarde/woocommerce/v/stable)](https://packagist.org/packages/pagamastarde/woocommerce)
-[![composer.lock](https://poser.pugx.org/pagamastarde/woocommerce/composerlock)](https://packagist.org/packages/pagamastarde/woocommerce)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/PagaMasTarde/woocommerce/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/PagaMasTarde/woocommerce/?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/pagantis/woocommerce/v/stable)](https://packagist.org/packages/pagantis/woocommerce)
+[![composer.lock](https://poser.pugx.org/pagantis/woocommerce/composerlock)](https://packagist.org/packages/pagantis/woocommerce)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pagantis/woocommerce/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/pagantis/woocommerce/?branch=master)
 
 ## :hand: Requirements
 Wordpress and Woocommerce plugin enabled.
 
 ## :floppy_disk: Installation
-To install the plugin of Paga+Tarde in your Woocommerce shop
+To install the plugin of Pagantis in your Woocommerce shop
 
 #### Common steps
 1. Navigate to plugins dashboard

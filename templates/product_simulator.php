@@ -18,8 +18,8 @@
             quantitySelector = 'div.quantity>input';
         }
 
-        if (typeof pmtSDK != 'undefined') {
-            pmtSDK.simulator.init({
+        if (typeof pgSDK != 'undefined') {
+            pgSDK.simulator.init({
                 publicKey: '<?php echo $public_key; ?>',
                 type: <?php echo $simulator_type; ?>,
                 selector: positionSelector,

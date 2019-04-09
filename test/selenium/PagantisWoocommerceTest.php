@@ -12,7 +12,7 @@ use Faker\Factory;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class PaylaterWoocommerceTest
+ * Class PagantisWoocommerceTest
  * @package Test\Selenium
  */
 abstract class PagantisWoocommerceTest extends TestCase
@@ -72,7 +72,7 @@ abstract class PagantisWoocommerceTest extends TestCase
         $this->configuration['zip'] = '28'.$faker->randomNumber(3, true);
         $this->configuration['street'] = $faker->streetAddress;
         $this->configuration['phone'] = '6' . $faker->randomNumber(8);
-        $this->configuration['email'] = date('ymd') . '@pagamastarde.com';
+        $this->configuration['email'] = date('ymd') . '@pagantis.com';
         parent::__construct($name, $data, $dataName);
     }
     /**
