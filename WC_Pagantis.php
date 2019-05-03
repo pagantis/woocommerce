@@ -97,7 +97,7 @@ class WcPagantis
             $sql = "CREATE TABLE IF NOT EXISTS $tableName (
                                 id int NOT NULL AUTO_INCREMENT, 
                                 config varchar(60) NOT NULL, 
-                                value varchar(100) NOT NULL, 
+                                value varchar(150) NOT NULL, 
                                 UNIQUE KEY id(id)) $charset_collate";
 
             require_once(ABSPATH.'wp-admin/includes/upgrade.php');
