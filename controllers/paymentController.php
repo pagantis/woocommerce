@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('__ROOT__', dirname(dirname(__FILE__)));
-const CONFIG_TABLE = 'pagantis_config';
+
 
 class WcPagantisGateway extends WC_Payment_Gateway
 {
@@ -22,6 +22,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
     const LOGS_TABLE = 'pagantis_logs';
 
     const NOT_CONFIRMED = 'No se ha podido confirmar el pago';
+
+    const CONFIG_TABLE = 'pagantis_config';
 
     /** @var Array $extraConfig */
     public $extraConfig;
