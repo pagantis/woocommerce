@@ -1,10 +1,10 @@
 FROM php:7.1-apache
 
-ENV WORDPRESS_VERSION=5.2
+ENV WORDPRESS_VERSION=5.1
 ENV WOOCOMMERCE_VERSION=3.6.2
 
 RUN cd /tmp \
-    && curl https://wordpress.org/wordpress-5.2-beta2.tar.gz  -o $WORDPRESS_VERSION-es_ES.tar.gz \
+    && curl https://es.wordpress.org/wordpress-$WORDPRESS_VERSION-es_ES.tar.gz  -o $WORDPRESS_VERSION-es_ES.tar.gz \
     && tar xf $WORDPRESS_VERSION-es_ES.tar.gz \
     && rm -rf /var/www/html/ \
     && mv wordpress /var/www/html/
