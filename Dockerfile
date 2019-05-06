@@ -1,4 +1,4 @@
-FROM php:7.1-apache
+FROM php:7.2-apache
 
 ENV WORDPRESS_VERSION=5.1
 ENV WOOCOMMERCE_VERSION=3.6.2
@@ -25,7 +25,7 @@ RUN buildDeps="libxml2-dev" \
         libjpeg62-turbo-dev \
         libmcrypt-dev \
         --no-install-recommends && rm -rf /var/lib/apt/lists/* \
-    && docker-php-ext-install -j$(nproc) pdo_mysql mcrypt soap mysqli pdo mbstring zip \
+    && docker-php-ext-install -j$(nproc) pdo_mysql soap mysqli pdo mbstring zip \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false $buildDeps
