@@ -2,6 +2,7 @@ version: 2
 jobs:
   build:
     machine: true
+      - image: circleci/php:7.2
     working_directory: ~/repo
     steps:
       - checkout
@@ -16,8 +17,6 @@ jobs:
           command: |
             sudo apt install -y python-software-properties
             sudo add-apt-repository -y ppa:ondrej/php
-            find /etc/apt/sources.list.d -type f -name '*.list' -exec sudo apt-get update -o Dir::Etc::sourcelist="{}" ';'
-            sudo apt install -y php7.2-fpm php7.2-gd php7.2-curl php7.2-mysql php7.2-dev php7.2-cli php7.2-common php7.2-mbstring php7.2-intl php7.2-zip php7.2-bcmath php7.2-dom node
             curl -s https://getcomposer.org/installer | php
             sudo mv composer.phar /usr/local/bin/composer
             composer install
@@ -36,9 +35,9 @@ jobs:
             docker-compose up -d selenium
             sleep 15
       - run:
-          name: Docker CP pagantis.zip
+          name: Docker CP paylater.zip
           command: |
-            docker cp ./pagantis.zip woocommerce-test:/pagantis
+            docker cp ./paylater.zip woocommerce-test:/paylater
       - run:
           name: woocommerce3-basic
           command: |
@@ -67,7 +66,7 @@ jobs:
           name: Package Generation
           command: |
             ./node_modules/.bin/grunt
-            mv pagantis.zip pagantis-$CIRCLE_TAG.zip
+            mv paylater.zip paylater-$CIRCLE_TAG.zip
             ls *.zip
       - run:
           name: Install GitHub CLI
@@ -81,11 +80,11 @@ jobs:
           name: Push ZIP to GitHub
           command: |
             github-release upload \
-                --user pagantis \
+                --user pagamastarde \
                 --repo woocommerce \
                 --tag $CIRCLE_TAG \
-                --name pagantis-$CIRCLE_TAG.zip \
-                --file pagantis-$CIRCLE_TAG.zip
+                --name paylater-$CIRCLE_TAG.zip \
+                --file paylater-$CIRCLE_TAG.zip
 workflows:
   version: 2
   test-build:
@@ -101,4 +100,4 @@ workflows:
             tags:
               only: /^v.*/
             branches:
-              ignore: /.*/
+              ignore: /.*/```
