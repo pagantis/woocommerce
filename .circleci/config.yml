@@ -23,7 +23,7 @@ jobs:
             sudo apt install -y php7.0-fpm php7.0-gd php7.0-curl php7.0-mysql php7.0-dev php7.0-cli php7.0-common php7.0-mbstring php7.0-intl php7.0-bcmath php7.0-xml nodejs
             curl -s https://getcomposer.org/installer | php
             sudo mv composer.phar /usr/local/bin/composer
-            composer install
+            composer install --ignore-platform-reqs
       - run:
           name: Npm Install
           command: |
