@@ -20,7 +20,7 @@ jobs:
             #sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6494C6D6997C215E
             #sudo rm -rf /etc/apt/sources.list.d/circleci_trusty.list*
             #find /etc/apt/sources.list.d -type f -name '*.list' -exec sudo apt-get update -o Dir::Etc::sourcelist="{}" ';'
-            sudo apt install -y php7-fpm php7-gd php7-curl php7-mysql php7-dev php7-cli php7-common php7-mbstring php7-intl php7-zip php7-bcmath php7-dom node
+            sudo apt install -y php7.0-fpm php7.0-gd php7.0-curl php7.0-mysql php7.0-dev php7.0-cli php7.0-common php7.0-mbstring php7.0-intl php7.0-bcmath php7.0-xml nodejs
             curl -s https://getcomposer.org/installer | php
             sudo mv composer.phar /usr/local/bin/composer
             composer install
