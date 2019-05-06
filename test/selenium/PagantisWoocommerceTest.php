@@ -21,7 +21,7 @@ abstract class PagantisWoocommerceTest extends TestCase
 
     const BACKOFFICE_FOLDER = '/wp-admin';
 
-    const LANG = 'EN';
+    const LANG = '';
 
     /**
      * @var array
