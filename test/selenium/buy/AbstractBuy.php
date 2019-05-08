@@ -286,8 +286,9 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $this->waitUntil($condition);
         $actualString = $this->webDriver->findElement($messageElementSearch)->getText();
         $this->assertNotEmpty($actualString, "PR45");
-        $this->assertNotEmpty($this->configuration['confirmationMsg'], "PR45");
-        $compareString = (strstr($actualString, $this->configuration['confirmationMsg'])) === false ? false : true;
+        $confString = (PagantisWoocommerceTest::LANG == 'EN') ? "Order received" : "Pedido recibido";
+        $this->assertNotEmpty($confString, "PR45");
+        $compareString = (strstr($actualString, $confString)) === false ? false : true;
         $this->assertTrue($compareString, $actualString." PR45");
 
         $menuSearch = WebDriverBy::cssSelector("li.woocommerce-order-overview__total > strong > span.woocommerce-Price-amount");

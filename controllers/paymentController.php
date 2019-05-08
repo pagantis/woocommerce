@@ -10,6 +10,7 @@ if (!defined('ABSPATH')) {
 
 define('__ROOT__', dirname(dirname(__FILE__)));
 
+
 class WcPagantisGateway extends WC_Payment_Gateway
 {
     const METHOD_ID = "pagantis";
@@ -22,6 +23,11 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
     const NOT_CONFIRMED = 'No se ha podido confirmar el pago';
 
+    const CONFIG_TABLE = 'pagantis_config';
+
+    /** @var Array $extraConfig */
+    public $extraConfig;
+
     /**
      * WcPagantisGateway constructor.
      */
@@ -32,7 +38,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $this->icon = esc_url(plugins_url('../assets/images/logo.png', __FILE__));
         $this->has_fields = true;
         $this->method_title = ucfirst($this->id);
-        $this->title = getenv('PAGANTIS_TITLE');
+        $this->title = $this->extraConfig['PAGANTIS_TITLE'];
 
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
@@ -44,8 +50,10 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $this->form_fields = include(plugin_dir_path(__FILE__).'../includes/settings-pagantis.php');//Panel options
         $this->init_settings();
 
-        $this->settings['ok_url'] = (getenv('PAGANTIS_URL_OK')!='')?getenv('PAGANTIS_URL_OK'):$this->generateOkUrl();
-        $this->settings['ko_url'] = (getenv('PAGANTIS_URL_KO')!='')?getenv('PAGANTIS_URL_KO'):$this->generateKoUrl();
+        $this->extraConfig = $this->getExtraConfig();
+
+        $this->settings['ok_url'] = ($this->extraConfig['PAGANTIS_URL_OK']!='')?$this->extraConfig['PAGANTIS_URL_OK']:$this->generateOkUrl();
+        $this->settings['ko_url'] = ($this->extraConfig['PAGANTIS_URL_KO']!='')?$this->extraConfig['PAGANTIS_URL_KO']:$this->generateKoUrl();
         foreach ($this->settings as $setting_key => $setting_value) {
             $this->$setting_key = $setting_value;
         }
@@ -112,13 +120,13 @@ class WcPagantisGateway extends WC_Payment_Gateway
         } elseif (!in_array(get_woocommerce_currency(), $this->allowed_currencies)) {
             $error_string =  __(' only can be used in Euros', 'pagantis');
             $this->settings['enabled'] = 'no';
-        } elseif (getenv('PAGANTIS_SIMULATOR_MAX_INSTALLMENTS')<'2'
-                  || getenv('PAGANTIS_SIMULATOR_MAX_INSTALLMENTS')>'12') {
+        } elseif ($this->extraConfig['PAGANTIS_SIMULATOR_MAX_INSTALLMENTS']<'2'
+                  || $this->extraConfig['PAGANTIS_SIMULATOR_MAX_INSTALLMENTS']>'12') {
             $error_string = __(' only can be payed from 2 to 12 installments', 'pagantis');
-        } elseif (getenv('PAGANTIS_SIMULATOR_START_INSTALLMENTS')<'2'
-                  || getenv('PAGANTIS_SIMULATOR_START_INSTALLMENTS')>'12') {
+        } elseif ($this->extraConfig['PAGANTIS_SIMULATOR_START_INSTALLMENTS']<'2'
+                  || $this->extraConfig['PAGANTIS_SIMULATOR_START_INSTALLMENTS']>'12') {
             $error_string = __(' only can be payed from 2 to 12 installments', 'pagantis');
-        } elseif (getenv('PAGANTIS_DISPLAY_MIN_AMOUNT')<0) {
+        } elseif ($this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT']<0) {
             $error_string = __(' can not have a minimum amount less than 0', 'pagantis');
         }
 
@@ -282,7 +290,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
             if ($url=="") {
                 throw new Exception(_("No ha sido posible obtener una respuesta de Pagantis"));
-            } elseif (getenv('PAGANTIS_FORM_DISPLAY_TYPE')=='0') {
+            } elseif ($this->extraConfig['PAGANTIS_FORM_DISPLAY_TYPE']=='0') {
                 wp_redirect($url);
                 exit;
             } else {
@@ -369,7 +377,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
     public function is_available()
     {
         if ($this->enabled==='yes' && $this->pagantis_public_key!='' && $this->pagantis_private_key!='' &&
-            (int)$this->get_order_total()>getenv('PAGANTIS_DISPLAY_MIN_AMOUNT')) {
+            (int)$this->get_order_total()>$this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT']) {
             return true;
         }
 
@@ -382,7 +390,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function get_title()
     {
-        return getenv('PAGANTIS_TITLE');
+        return $this->extraConfig['PAGANTIS_TITLE'];
     }
 
     /**
@@ -420,8 +428,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
             'public_key' => $this->pagantis_public_key,
             'total' => WC()->session->cart_totals['total'],
             'enabled' =>  $this->settings['enabled'],
-            'min_installments' => getenv('PAGANTIS_DISPLAY_MIN_AMOUNT'),
-            'message' => __(getenv('PAGANTIS_TITLE_EXTRA'))
+            'min_installments' => $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'],
+            'message' => __($this->extraConfig['PAGANTIS_TITLE_EXTRA'])
         );
         wc_get_template('checkout_description.php', $template_fields, '', $this->template_path);
     }
@@ -673,5 +681,21 @@ class WcPagantisGateway extends WC_Payment_Gateway
             require_once(ABSPATH.'wp-admin/includes/upgrade.php');
             dbDelta($sql);
         }
+    }
+
+    /**
+     * @return array
+     */
+    private function getExtraConfig()
+    {
+        global $wpdb;
+        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $response = array();
+        $dbResult = $wpdb->get_results("select config, value from $tableName", ARRAY_A);
+        foreach ($dbResult as $value) {
+            $response[$value['config']] = $value['value'];
+        }
+
+        return $response;
     }
 }

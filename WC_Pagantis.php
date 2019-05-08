@@ -42,6 +42,9 @@ class WcPagantis
                             'PAGANTIS_TITLE_EXTRA' => 'Pay up to 12 comfortable installments with Pagantis. Completely online and sympathetic request, and the answer is immediate!'
     );
 
+    /** @var Array $extraConfig */
+    public $extraConfig;
+
     /**
      * WC_Pagantis constructor.
      */
@@ -52,6 +55,8 @@ class WcPagantis
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
         $this->pagantisActivation();
+
+        $this->extraConfig = $this->getExtraConfig();
 
         load_plugin_textdomain('pagantis', false, basename(dirname(__FILE__)).'/languages');
         add_filter('woocommerce_payment_gateways', array($this, 'addPagantisGateway'));
@@ -92,7 +97,7 @@ class WcPagantis
             $sql = "CREATE TABLE IF NOT EXISTS $tableName (
                                 id int NOT NULL AUTO_INCREMENT, 
                                 config varchar(60) NOT NULL, 
-                                value varchar(100) NOT NULL, 
+                                value varchar(1000) NOT NULL, 
                                 UNIQUE KEY id(id)) $charset_collate";
 
             require_once(ABSPATH.'wp-admin/includes/upgrade.php');
@@ -111,10 +116,6 @@ class WcPagantis
             foreach ($newConfigs as $key => $value) {
                 $wpdb->insert($tableName, array('config' => $key, 'value'  => $value), array('%s', '%s'));
             }
-        }
-
-        foreach (array_merge($this->defaultConfigs, $simpleDbConfigs) as $key => $value) {
-            putenv($key . '=' . $value);
         }
 
         //Current plugin config: pagantis_public_key => New field --- public_key => Old field
@@ -142,17 +143,17 @@ class WcPagantis
 
         $cfg = get_option('woocommerce_pagantis_settings');
         if ($cfg['enabled'] !== 'yes' || $cfg['pagantis_public_key'] == '' || $cfg['pagantis_private_key'] == '' ||
-            $cfg['simulator'] !== 'yes' ||  $product->price < getenv('PAGANTIS_DISPLAY_MIN_AMOUNT') ) {
+            $cfg['simulator'] !== 'yes' ||  $product->price < $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'] ) {
             return;
         }
 
         $template_fields = array(
             'total'    => is_numeric($product->price) ? $product->price : 0,
             'public_key' => $cfg['pagantis_public_key'],
-            'simulator_type' => getenv('PAGANTIS_SIMULATOR_DISPLAY_TYPE'),
-            'positionSelector' => getenv('PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'),
-            'quantitySelector' => getenv('PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'),
-            'priceSelector' => getenv('PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'),
+            'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
+            'positionSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'],
+            'quantitySelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'],
+            'priceSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'],
             'totalAmount' => is_numeric($product->price) ? $product->price : 0
         );
         wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
@@ -350,6 +351,22 @@ class WcPagantis
             ),
             true
         );
+    }
+
+    /**
+     * @return array
+     */
+    private function getExtraConfig()
+    {
+        global $wpdb;
+        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $response = array();
+        $dbResult = $wpdb->get_results("select config, value from $tableName", ARRAY_A);
+        foreach ($dbResult as $value) {
+            $response[$value['config']] = $value['value'];
+        }
+
+        return $response;
     }
 }
 

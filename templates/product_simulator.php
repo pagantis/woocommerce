@@ -3,17 +3,17 @@
 
     function loadSimulator()
     {
-        var positionSelector = '<? echo $positionSelector;?>';
+        var positionSelector = '<?php echo $positionSelector;?>';
         if (positionSelector === 'default') {
             positionSelector = '.PagantisSimulator';
         }
 
-        var priceSelector = '<? echo $priceSelector;?>';
+        var priceSelector = '<?php echo $priceSelector;?>';
         if (priceSelector === 'default') {
             priceSelector = 'div.summary.entry-summary span.woocommerce-Price-amount.amount';
         }
 
-        var quantitySelector = '<? echo $quantitySelector;?>';
+        var quantitySelector = '<?php echo $quantitySelector;?>';
         if (quantitySelector === 'default') {
             quantitySelector = 'div.quantity>input';
         }

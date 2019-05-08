@@ -1,7 +1,8 @@
 version: 2
 jobs:
   build:
-    machine: true
+    machine:
+      image: ubuntu-1604:201903-01
     working_directory: ~/repo
     steps:
       - checkout
@@ -14,13 +15,15 @@ jobs:
       - run:
           name: Composer Install
           command: |
-            sudo apt install -y python-software-properties
-            sudo add-apt-repository -y ppa:ondrej/php
-            find /etc/apt/sources.list.d -type f -name '*.list' -exec sudo apt-get update -o Dir::Etc::sourcelist="{}" ';'
-            sudo apt install -y php7.2-fpm php7.2-gd php7.2-curl php7.2-mysql php7.2-dev php7.2-cli php7.2-common php7.2-mbstring php7.2-intl php7.2-zip php7.2-bcmath php7.2-dom node
+            #sudo apt install -y python-software-properties
+            #sudo add-apt-repository -y ppa:ondrej/php
+            #sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6494C6D6997C215E
+            #sudo rm -rf /etc/apt/sources.list.d/circleci_trusty.list*
+            #find /etc/apt/sources.list.d -type f -name '*.list' -exec sudo apt-get update -o Dir::Etc::sourcelist="{}" ';'
+            sudo apt install -y php7.0-fpm php7.0-gd php7.0-curl php7.0-mysql php7.0-dev php7.0-cli php7.0-common php7.0-mbstring php7.0-intl php7.0-bcmath php7.0-zip php7.0-xml nodejs
             curl -s https://getcomposer.org/installer | php
             sudo mv composer.phar /usr/local/bin/composer
-            composer install
+            composer install --ignore-platform-reqs
       - run:
           name: Npm Install
           command: |

@@ -21,6 +21,8 @@ abstract class PagantisWoocommerceTest extends TestCase
 
     const BACKOFFICE_FOLDER = '/wp-admin';
 
+    const LANG = '';
+
     /**
      * @var array
      */
@@ -45,9 +47,7 @@ abstract class PagantisWoocommerceTest extends TestCase
         'defaultMinIns' => 3,
         'defaultMaxIns' => 12,
         'defaultSimulatorOpt' => 6,
-        'confirmationMsg'=>'Pedido recibido',
-        'checkoutDescription'=> 'Pay up to 12 comfortable installments with Pagantis',
-        'enter' => 'Haz clic aquí para acceder'
+        'checkoutDescription'=> 'Pay up to 12 comfortable installments with Pagantis'
     );
 
 

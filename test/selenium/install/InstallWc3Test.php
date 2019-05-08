@@ -71,13 +71,15 @@ class PagantisWc3InstallTest extends PagantisWoocommerceTest
         $this->assertTrue((bool) $condition);
 
         //Se abre la pagina para instalar
-        $this->findByLinkText('Añadir nuevo')->click();
+        $addPluginString = (PagantisWoocommerceTest::LANG == 'EN') ? "Add New" : "Añadir nuevo";
+        $this->findByLinkText($addPluginString)->click();
         $validatorUpload = WebDriverBy::className('upload');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($validatorUpload);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition);
 
-        $this->findByLinkText('Subir plugin')->click();
+        $uploadPluginString = (PagantisWoocommerceTest::LANG == 'EN') ? "Upload" : "Subir plugin";
+        $this->findByLinkText($uploadPluginString)->click();
         $moduleInstallBlock = WebDriverBy::className('wp-upload-form');
         $fileInputSearch = $moduleInstallBlock->name('pluginzip');
         $fileInput = $this->webDriver->findElement($fileInputSearch);
@@ -92,11 +94,14 @@ class PagantisWc3InstallTest extends PagantisWoocommerceTest
         $this->assertTrue((bool) $condition, "Don't show result message after upload");
 
         //Comprobamos que el mensaje pone que ha sido instalado con éxito
+        $installPluginString = (PagantisWoocommerceTest::LANG == 'EN') ?
+            "Plugin installed successfully" : "Plugin instalado con éxito.";
         $actualString = $this->webDriver->findElement($validatorSearch)->getText();
-        $compareString = (strpos($actualString, "Plugin instalado con éxito.")) === false ? false : true;
+        $compareString = (strpos($actualString, $installPluginString)) === false ? false : true;
         $this->assertTrue($compareString, "PR1-PR4");
 
-        $this->findByLinkText('Activar plugin')->click();
+        $activatePluginString = (PagantisWoocommerceTest::LANG == 'EN') ? "Activate Plugin" : "Activar plugin";
+        $this->findByLinkText($activatePluginString)->click();
     }
 
     /**
@@ -104,9 +109,11 @@ class PagantisWc3InstallTest extends PagantisWoocommerceTest
      */
     public function configureModule()
     {
+        $setString = (PagantisWoocommerceTest::LANG == 'EN') ? "Settings" : "Ajustes";
+        $paymentString = (PagantisWoocommerceTest::LANG == 'EN') ? "Payments" : "Pagos";
         $this->findByLinkText('WooCommerce')->click();
-        $this->findByLinkText('Ajustes')->click();
-        $this->findByLinkText('Pagos')->click();
+        $this->findByLinkText($setString)->click();
+        $this->findByLinkText($paymentString)->click();
         $this->findByLinkText('Pagantis')->click();
 
         $verify = WebDriverBy::id('woocommerce_pagantis_pagantis_public_key');
@@ -137,9 +144,11 @@ class PagantisWc3InstallTest extends PagantisWoocommerceTest
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
         $this->waitUntil($condition);
 
+        $savedString = (PagantisWoocommerceTest::LANG == 'EN') ?
+            "Your settings have been saved" : "Tus ajustes se han guardado";
         $validatorSearch = WebDriverBy::className('updated');
         $actualString = $this->webDriver->findElement($validatorSearch)->getText();
-        $compareString = (strstr($actualString, 'Tus ajustes se han guardado')) === false ? false : true;
+        $compareString = (strstr($actualString, $savedString)) === false ? false : true;
         $this->assertTrue($compareString, $actualString);
 
         $verify = WebDriverBy::id('woocommerce_pagantis_enabled');
