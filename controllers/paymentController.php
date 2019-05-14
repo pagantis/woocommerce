@@ -158,6 +158,17 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 throw new Exception(_("Order not found"));
             }
 
+            $national_id = "";
+            $tax_id = "";
+            foreach ((array)$order->get_meta_data() as $mdObject) {
+                $data = $mdObject->get_data();
+                if ($data['key'] == 'vat_number') {
+                    $national_id = $data['value'];
+                } elseif ($data['key'] == 'billing_cfpiva') {
+                    $tax_id = $data['value'];
+                }
+            }
+
             $shippingAddress = $order->get_address('shipping');
             $billingAddress = $order->get_address('billing');
             if ($shippingAddress['address_1'] == '') {
