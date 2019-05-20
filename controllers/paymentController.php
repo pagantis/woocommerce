@@ -233,7 +233,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             foreach ($items as $key => $item) {
                 $product = new \Pagantis\OrdersApiClient\Model\Order\ShoppingCart\Details\Product();
                 $productDescription = sprintf(
-                    '%s - %s - %s',
+                    '%s %s %s',
                     $item['data']->get_title(),
                     $item['data']->get_description(),
                     $item['data']->get_short_description()
