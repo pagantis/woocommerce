@@ -232,8 +232,12 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $items = $woocommerce->cart->get_cart();
             foreach ($items as $key => $item) {
                 $product = new \Pagantis\OrdersApiClient\Model\Order\ShoppingCart\Details\Product();
-                $productDescription = ($item['data']->get_description()!='') ?
-                    $item['data']->get_description() : $item['data']->get_title();
+                $productDescription = sprintf(
+                    '%s - %s - %s',
+                    $item['data']->get_title(),
+                    $item['data']->get_description(),
+                    $item['data']->get_short_description()
+                );
                 $product
                     ->setAmount(intval(100 * $item['line_total']))
                     ->setQuantity($item['quantity'])
