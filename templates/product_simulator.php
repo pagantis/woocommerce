@@ -1,6 +1,18 @@
 <script>
     var simulatorId = null;
 
+    function findPriceSelector()
+    {
+        var priceDOM = document.querySelector("div.summary.entry-summary ins span.woocommerce-Price-amount.amount");
+        if (priceDOM != null )
+            priceSelector = 'div.summary.entry-summary ins span.woocommerce-Price-amount.amount';
+        else
+            priceSelector = "div.summary.entry-summary span.woocommerce-Price-amount.amount:last-child";
+
+        return priceSelector;
+
+    }
+
     function loadSimulator()
     {
         var positionSelector = '<?php echo $positionSelector;?>';
@@ -10,7 +22,7 @@
 
         var priceSelector = '<?php echo $priceSelector;?>';
         if (priceSelector === 'default') {
-            priceSelector = 'div.summary.entry-summary span.woocommerce-Price-amount.amount';
+            priceSelector = findPriceSelector();
         }
 
         var quantitySelector = '<?php echo $quantitySelector;?>';
