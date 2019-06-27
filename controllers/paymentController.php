@@ -288,9 +288,11 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setType(Channel::ONLINE)
             ;
             $orderConfiguration = new Configuration();
+            $language = $language = strstr(get_locale(), '_', true);
             $orderConfiguration
                 ->setChannel($orderChannel)
                 ->setUrls($orderConfigurationUrls)
+                ->setPurchaseCountry($language)
             ;
             $metadataOrder = new Metadata();
             $metadata = array(
