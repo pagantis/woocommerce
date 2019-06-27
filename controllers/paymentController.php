@@ -3,6 +3,16 @@
 //namespace empty
 use Pagantis\ModuleUtils\Exception\OrderNotFoundException;
 use Pagantis\OrdersApiClient\Model\Order\User\Address;
+use Pagantis\OrdersApiClient\Model\Order\User;
+use Pagantis\OrdersApiClient\Model\Order\User\OrderHistory;
+use Pagantis\OrdersApiClient\Model\Order\ShoppingCart\Details;
+use Pagantis\OrdersApiClient\Model\Order\ShoppingCart;
+use Pagantis\OrdersApiClient\Model\Order\ShoppingCart\Details\Product;
+use Pagantis\OrdersApiClient\Model\Order\Metadata;
+use Pagantis\OrdersApiClient\Model\Order\Configuration\Urls;
+use Pagantis\OrdersApiClient\Model\Order\Configuration\Channel;
+use Pagantis\OrdersApiClient\Model\Order\Configuration;
+use Pagantis\OrdersApiClient\Client;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -192,6 +202,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setAddress($shippingAddress['address_1']." ".$shippingAddress['address_2'])
                 ->setFixPhone($shippingAddress['phone'])
                 ->setMobilePhone($shippingAddress['phone'])
+                ->setNationalId($national_id)
+                ->setTaxId($tax_id)
             ;
             $orderBillingAddress =  new Address();
             $orderBillingAddress
@@ -202,8 +214,10 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setAddress($billingAddress['address_1']." ".$billingAddress['address_2'])
                 ->setFixPhone($billingAddress['phone'])
                 ->setMobilePhone($billingAddress['phone'])
+                ->setNationalId($national_id)
+                ->setTaxId($tax_id)
             ;
-            $orderUser = new \Pagantis\OrdersApiClient\Model\Order\User();
+            $orderUser = new User();
             $orderUser
                 ->setAddress($userAddress)
                 ->setFullName($billingAddress['fist_name']." ".$billingAddress['last_name'])
@@ -212,11 +226,13 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setFixPhone($billingAddress['phone'])
                 ->setMobilePhone($billingAddress['phone'])
                 ->setShippingAddress($orderShippingAddress)
+                ->setNationalId($national_id)
+                ->setTaxId($tax_id)
             ;
 
             $previousOrders = $this->getOrders($order->get_user(), $billingAddress['email']);
             foreach ($previousOrders as $previousOrder) {
-                $orderHistory = new \Pagantis\OrdersApiClient\Model\Order\User\OrderHistory();
+                $orderHistory = new OrderHistory();
                 $orderElement = wc_get_order($previousOrder);
                 $orderCreated = $orderElement->get_date_created();
                 $orderHistory
@@ -226,12 +242,12 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 $orderUser->addOrderHistory($orderHistory);
             }
 
-            $details = new \Pagantis\OrdersApiClient\Model\Order\ShoppingCart\Details();
+            $details = new Details();
             $shippingCost = $order->shipping_total;
             $details->setShippingCost(intval(strval(100 * $shippingCost)));
             $items = $woocommerce->cart->get_cart();
             foreach ($items as $key => $item) {
-                $product = new \Pagantis\OrdersApiClient\Model\Order\ShoppingCart\Details\Product();
+                $product = new Product();
                 $productDescription = sprintf(
                     '%s %s %s',
                     $item['data']->get_title(),
@@ -245,14 +261,14 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 $details->addProduct($product);
             }
 
-            $orderShoppingCart = new \Pagantis\OrdersApiClient\Model\Order\ShoppingCart();
+            $orderShoppingCart = new ShoppingCart();
             $orderShoppingCart
                 ->setDetails($details)
                 ->setOrderReference($order->get_id())
                 ->setPromotedAmount(0)
                 ->setTotalAmount(intval(strval(100 * $order->total)))
             ;
-            $orderConfigurationUrls = new \Pagantis\OrdersApiClient\Model\Order\Configuration\Urls();
+            $orderConfigurationUrls = new Urls();
             $cancelUrl = $this->getKoUrl($order);
             $callback_arg = array(
                 'wc-api'=>'wcpagantisgateway',
@@ -266,17 +282,17 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setRejectedNotificationCallback($callback_url)
                 ->setOk($callback_url)
             ;
-            $orderChannel = new \Pagantis\OrdersApiClient\Model\Order\Configuration\Channel();
+            $orderChannel = new Channel();
             $orderChannel
                 ->setAssistedSale(false)
-                ->setType(\Pagantis\OrdersApiClient\Model\Order\Configuration\Channel::ONLINE)
+                ->setType(Channel::ONLINE)
             ;
-            $orderConfiguration = new \Pagantis\OrdersApiClient\Model\Order\Configuration();
+            $orderConfiguration = new Configuration();
             $orderConfiguration
                 ->setChannel($orderChannel)
                 ->setUrls($orderConfigurationUrls)
             ;
-            $metadataOrder = new \Pagantis\OrdersApiClient\Model\Order\Metadata();
+            $metadataOrder = new Metadata();
             $metadata = array(
                 'woocommerce' => WC()->version,
                 'pagantis'         => $this->plugin_info['Version'],
@@ -285,7 +301,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             foreach ($metadata as $key => $metadatum) {
                 $metadataOrder->addMetadata($key, $metadatum);
             }
-            $orderApiClient = new \Pagantis\OrdersApiClient\Model\Order();
+            $orderApiClient = new Order();
             $orderApiClient
                 ->setConfiguration($orderConfiguration)
                 ->setMetadata($metadataOrder)
@@ -296,7 +312,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             if ($this->pagantis_public_key=='' || $this->pagantis_private_key=='') {
                 throw new \Exception('Public and Secret Key not found');
             }
-            $orderClient = new \Pagantis\OrdersApiClient\Client($this->pagantis_public_key, $this->pagantis_private_key);
+            $orderClient = new Client($this->pagantis_public_key, $this->pagantis_private_key);
             $pagantisOrder = $orderClient->createOrder($orderApiClient);
             if ($pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
                 $url = $pagantisOrder->getActionUrls()->getForm();
