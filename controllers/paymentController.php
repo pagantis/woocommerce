@@ -168,22 +168,14 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 throw new Exception(_("Order not found"));
             }
 
-            $national_id = "";
-            $tax_id = "";
-            foreach ((array)$order->get_meta_data() as $mdObject) {
-                $data = $mdObject->get_data();
-                if ($data['key'] == 'vat_number') {
-                    $national_id = $data['value'];
-                } elseif ($data['key'] == 'billing_cfpiva') {
-                    $tax_id = $data['value'];
-                }
-            }
-
             $shippingAddress = $order->get_address('shipping');
             $billingAddress = $order->get_address('billing');
             if ($shippingAddress['address_1'] == '') {
                 $shippingAddress = $billingAddress;
             }
+
+            $national_id = $this->getNationalId($order);
+            $tax_id = $this->getTaxId($order);
 
             $userAddress = new Address();
             $userAddress
@@ -743,5 +735,42 @@ class WcPagantisGateway extends WC_Payment_Gateway
         }
 
         return $response;
+    }
+
+    /**
+     * @param $order
+     *
+     * @return null
+     */
+    private function getNationalId($order)
+    {
+        foreach ((array)$order->get_meta_data() as $mdObject) {
+            $data = $mdObject->get_data();
+            if ($data['key'] == 'vat_number') {
+                return $data['value'];
+            }
+        }
+
+        /*$billingObject = $order->get_address('billing');
+        if ($billingObject['myfield5']!='') {
+            return $billingObject['myfield5'];
+        }*/
+
+        return null;
+    }
+
+    /**
+     * @param $order
+     *
+     * @return mixed
+     */
+    private function getTaxId($order)
+    {
+        foreach ((array)$order->get_meta_data() as $mdObject) {
+            $data = $mdObject->get_data();
+            if ($data['key'] == 'billing_cfpiva') {
+                return $data['value'];
+            }
+        }
     }
 }
