@@ -188,7 +188,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $userAddress = new Address();
             $userAddress
                 ->setZipCode($shippingAddress['postcode'])
-                ->setFullName($shippingAddress['fist_name']." ".$shippingAddress['last_name'])
+                ->setFullName($shippingAddress['first_name']." ".$shippingAddress['last_name'])
                 ->setCountryCode('ES')
                 ->setCity($shippingAddress['city'])
                 ->setAddress($shippingAddress['address_1']." ".$shippingAddress['address_2'])
@@ -196,7 +196,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $orderShippingAddress = new Address();
             $orderShippingAddress
                 ->setZipCode($shippingAddress['postcode'])
-                ->setFullName($shippingAddress['fist_name']." ".$shippingAddress['last_name'])
+                ->setFullName($shippingAddress['first_name']." ".$shippingAddress['last_name'])
                 ->setCountryCode('ES')
                 ->setCity($shippingAddress['city'])
                 ->setAddress($shippingAddress['address_1']." ".$shippingAddress['address_2'])
@@ -208,7 +208,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $orderBillingAddress =  new Address();
             $orderBillingAddress
                 ->setZipCode($billingAddress['postcode'])
-                ->setFullName($billingAddress['fist_name']." ".$billingAddress['last_name'])
+                ->setFullName($billingAddress['first_name']." ".$billingAddress['last_name'])
                 ->setCountryCode('ES')
                 ->setCity($billingAddress['city'])
                 ->setAddress($billingAddress['address_1']." ".$billingAddress['address_2'])
@@ -220,7 +220,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $orderUser = new User();
             $orderUser
                 ->setAddress($userAddress)
-                ->setFullName($billingAddress['fist_name']." ".$billingAddress['last_name'])
+                ->setFullName($billingAddress['first_name']." ".$billingAddress['last_name'])
                 ->setBillingAddress($orderBillingAddress)
                 ->setEmail($billingAddress['email'])
                 ->setFixPhone($billingAddress['phone'])
@@ -288,7 +288,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setType(Channel::ONLINE)
             ;
             $orderConfiguration = new Configuration();
-            $language = $language = strstr(get_locale(), '_', true);
+            $language = strstr(get_locale(), '_', true);
             $orderConfiguration
                 ->setChannel($orderChannel)
                 ->setUrls($orderConfigurationUrls)
@@ -411,8 +411,11 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function is_available()
     {
+        $locale = strtolower(strstr(get_locale(), '_', true));
+        $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
+        $allowedCountry = (in_array(strtolower($locale), $allowedCountries));
         if ($this->enabled==='yes' && $this->pagantis_public_key!='' && $this->pagantis_private_key!='' &&
-            (int)$this->get_order_total()>$this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT']) {
+            (int)$this->get_order_total()>$this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'] && $allowedCountry) {
             return true;
         }
 
@@ -459,12 +462,20 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function payment_fields()
     {
+        $locale = strtolower(strstr(get_locale(), '_', true));
+        $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
+        $allowedCountry = (in_array(strtolower($locale), $allowedCountries));
+
         $template_fields = array(
             'public_key' => $this->pagantis_public_key,
             'total' => WC()->session->cart_totals['total'],
             'enabled' =>  $this->settings['enabled'],
             'min_installments' => $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'],
-            'message' => __($this->extraConfig['PAGANTIS_TITLE_EXTRA'])
+            'message' => __($this->extraConfig['PAGANTIS_TITLE_EXTRA']),
+            'simulator_enabled' => $this->settings['pagantis_simulator'],
+            'locale' => $locale,
+            'allowedCountry' => $allowedCountry,
+            'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']
         );
         wc_get_template('checkout_description.php', $template_fields, '', $this->template_path);
     }

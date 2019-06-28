@@ -15,6 +15,7 @@
 
     function loadSimulator()
     {
+        var locale = '<?php echo $locale; ?>';
         var positionSelector = '<?php echo $positionSelector;?>';
         if (positionSelector === 'default') {
             positionSelector = '.PagantisSimulator';
@@ -36,7 +37,8 @@
                 type: <?php echo $simulator_type; ?>,
                 selector: positionSelector,
                 itemQuantitySelector: quantitySelector,
-                itemAmountSelector: priceSelector
+                itemAmountSelector: priceSelector,
+                locale: locale
             });
             clearInterval(simulatorId);
         }
