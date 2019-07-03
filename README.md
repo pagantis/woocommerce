@@ -1,4 +1,4 @@
-# Module installation <img src="https://pagantis.com/img/icons/logo.svg" width="100" align="right">
+# Module installation <img src="https://www.pagantis.com/wp-content/uploads/2019/02/cropped-pagantis_logo-1.png" width="100" align="right">
 
 CircleCI: [![CircleCI](https://circleci.com/gh/pagantis/woocommerce/tree/master.svg?style=svg)](https://circleci.com/gh/pagantis/woocommerce/tree/master)
 
@@ -12,16 +12,9 @@ Wordpress and Woocommerce plugin enabled.
 ## :floppy_disk: Installation
 To install the plugin of Pagantis in your Woocommerce shop
 
-#### Common steps
+#### Installation using zip file
 1. Navigate to plugins dashboard
 2. Click on "Add new"
-
-#### Installation using marketplace
-3. Search for 'Pagantis'
-4. Click 'Install Now'
-5. Click 'Activate'
-
-#### Installation using zip file
 3. Download the zip file from [here](https://github.com/pagantis/woocommerce/releases/latest)
 4. Click 'Upload plugin'
 5. Select the downloaded file and click 'Open'.
