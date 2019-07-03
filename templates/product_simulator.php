@@ -3,19 +3,43 @@
 
     function findPriceSelector()
     {
-        var priceDOM = document.querySelector("div.summary.entry-summary ins span.woocommerce-Price-amount.amount");
+        var priceDOM = document.querySelector("*:not(del)>.woocommerce-Price-amount");
         if (priceDOM != null )
-            priceSelector = 'div.summary.entry-summary ins span.woocommerce-Price-amount.amount';
+            var priceSelector = '*:not(del)>.woocommerce-Price-amount';
         else
-            priceSelector = "div.summary.entry-summary span.woocommerce-Price-amount.amount:last-child";
+            var priceSelector = 'div.summary.entry-summary ins span.woocommerce-Price-amount.amount';
 
         return priceSelector;
 
     }
 
+
     function loadSimulator()
     {
+        window.attempts = window.attempts + 1;
+        if (window.attempts > 4 )
+        {
+            clearInterval(loadingSimulator);
+            return true;
+        }
+
+        var pmtDiv = document.getElementsByClassName("PagantisSimulator");
+        if(pmtDiv.length > 0) {
+            var pmtElement = pmtDiv[0];
+            if(pmtElement.innerHTML != '' )
+            {
+                clearInterval(loadingSimulator);
+                return true;
+            }
+        }
+
         var locale = '<?php echo $locale; ?>';
+        if (locale == 'es' || locale == '') {
+            var sdk = pmtSDK;
+        } else {
+            var sdk = pgSDK;
+        }
+
         var positionSelector = '<?php echo $positionSelector;?>';
         if (positionSelector === 'default') {
             positionSelector = '.PagantisSimulator';
@@ -31,8 +55,8 @@
             quantitySelector = 'div.quantity>input';
         }
 
-        if (typeof pgSDK != 'undefined') {
-            pgSDK.simulator.init({
+        if (typeof sdk != 'undefined') {
+            window.WCSimulatorId = sdk.simulator.init({
                 publicKey: '<?php echo $public_key; ?>',
                 type: <?php echo $simulator_type; ?>,
                 selector: positionSelector,
@@ -40,11 +64,12 @@
                 itemAmountSelector: priceSelector,
                 locale: locale
             });
-            clearInterval(simulatorId);
+            return false;
         }
     }
 
-    simulatorId = setInterval(function () {
+    window.attempts = 0;
+    loadingSimulator = setInterval(function () {
         loadSimulator();
     }, 2000);
 </script>
