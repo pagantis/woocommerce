@@ -751,11 +751,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
             }
         }
 
-        /*$billingObject = $order->get_address('billing');
-        if ($billingObject['myfield5']!='') {
-            return $billingObject['myfield5'];
-        }*/
-
         return null;
     }
 
