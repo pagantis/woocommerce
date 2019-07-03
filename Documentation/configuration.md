@@ -4,10 +4,10 @@
 
 To access to Pagantis admin panel, we need to open the Woocommerce admin panel and follow the next steps:
 
-1 – Woocommerce => Settings
+1 – Woocommerce => Ajustes/Settings
 ![Step 1](./woocommerce_configuration_1.png?raw=true "Step 1")
 
-2 – Checkout => Pagantis
+2 – Finalizar compra/Checkout => Pagantis
 ![Step 2](./woocommerce_configuration_2.png?raw=true "Step 2")
 
 3 – Pagantis
