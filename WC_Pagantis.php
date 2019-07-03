@@ -28,7 +28,6 @@ class WcPagantis
                             'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'pgSDK.simulator.types.SIMPLE',
                             'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'pgSDK.simulator.skins.BLUE',
                             'PAGANTIS_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
-
                             'PAGANTIS_SIMULATOR_START_INSTALLMENTS'=>3,
                             'PAGANTIS_SIMULATOR_MAX_INSTALLMENTS'=>12,
                             'PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'=>'default',
