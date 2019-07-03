@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.0.0
+ * Version: 8.1.0
  * Author: Pagantis
  */
 
@@ -39,7 +39,8 @@ class WcPagantis
                             'PAGANTIS_DISPLAY_MIN_AMOUNT'=>1,
                             'PAGANTIS_URL_OK'=>'',
                             'PAGANTIS_URL_KO'=>'',
-                            'PAGANTIS_TITLE_EXTRA' => 'Pay up to 12 comfortable installments with Pagantis. Completely online and sympathetic request, and the answer is immediate!'
+                            'PAGANTIS_TITLE_EXTRA' => 'Pay up to 12 comfortable installments with Pagantis. Completely online and sympathetic request, and the answer is immediate!',
+                            'PAGANTIS_ALLOWED_COUNTRIES' => 'a:2:{i:0;s:2:"es";i:1;s:2:"it";}'
     );
 
     /** @var Array $extraConfig */
@@ -142,8 +143,12 @@ class WcPagantis
         global $product;
 
         $cfg = get_option('woocommerce_pagantis_settings');
+        $locale = strtolower(strstr(get_locale(), '_', true));
+        $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
+        $allowedCountry = (in_array(strtolower($locale), $allowedCountries));
         if ($cfg['enabled'] !== 'yes' || $cfg['pagantis_public_key'] == '' || $cfg['pagantis_private_key'] == '' ||
-            $cfg['simulator'] !== 'yes' ||  $product->price < $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'] ) {
+            $cfg['simulator'] !== 'yes' ||  $product->price < $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'] ||
+            !$allowedCountry ) {
             return;
         }
 
@@ -154,7 +159,8 @@ class WcPagantis
             'positionSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'],
             'quantitySelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'],
             'priceSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'],
-            'totalAmount' => is_numeric($product->price) ? $product->price : 0
+            'totalAmount' => is_numeric($product->price) ? $product->price : 0,
+            'locale' => $locale
         );
         wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
     }
@@ -376,6 +382,7 @@ class WcPagantis
 function add_widget_js()
 {
     wp_enqueue_script('pgSDK', 'https://cdn.pagantis.com/js/pg-v2/sdk.js', '', '', true);
+    wp_enqueue_script('pmtSDK', 'https://cdn.pagamastarde.com/js/pmt-v2/sdk.js', '', '', true);
 }
 
 $WcPagantis = new WcPagantis();

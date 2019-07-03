@@ -3,6 +3,17 @@
 //namespace empty
 use Pagantis\ModuleUtils\Exception\OrderNotFoundException;
 use Pagantis\OrdersApiClient\Model\Order\User\Address;
+use Pagantis\OrdersApiClient\Model\Order\User;
+use Pagantis\OrdersApiClient\Model\Order\User\OrderHistory;
+use Pagantis\OrdersApiClient\Model\Order\ShoppingCart\Details;
+use Pagantis\OrdersApiClient\Model\Order\ShoppingCart;
+use Pagantis\OrdersApiClient\Model\Order\ShoppingCart\Details\Product;
+use Pagantis\OrdersApiClient\Model\Order\Metadata;
+use Pagantis\OrdersApiClient\Model\Order\Configuration\Urls;
+use Pagantis\OrdersApiClient\Model\Order\Configuration\Channel;
+use Pagantis\OrdersApiClient\Model\Order\Configuration;
+use Pagantis\OrdersApiClient\Client;
+use Pagantis\OrdersApiClient\Model\Order;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -164,10 +175,13 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 $shippingAddress = $billingAddress;
             }
 
+            $national_id = $this->getNationalId($order);
+            $tax_id = $this->getTaxId($order);
+
             $userAddress = new Address();
             $userAddress
                 ->setZipCode($shippingAddress['postcode'])
-                ->setFullName($shippingAddress['fist_name']." ".$shippingAddress['last_name'])
+                ->setFullName($shippingAddress['first_name']." ".$shippingAddress['last_name'])
                 ->setCountryCode('ES')
                 ->setCity($shippingAddress['city'])
                 ->setAddress($shippingAddress['address_1']." ".$shippingAddress['address_2'])
@@ -175,37 +189,43 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $orderShippingAddress = new Address();
             $orderShippingAddress
                 ->setZipCode($shippingAddress['postcode'])
-                ->setFullName($shippingAddress['fist_name']." ".$shippingAddress['last_name'])
+                ->setFullName($shippingAddress['first_name']." ".$shippingAddress['last_name'])
                 ->setCountryCode('ES')
                 ->setCity($shippingAddress['city'])
                 ->setAddress($shippingAddress['address_1']." ".$shippingAddress['address_2'])
                 ->setFixPhone($shippingAddress['phone'])
                 ->setMobilePhone($shippingAddress['phone'])
+                ->setNationalId($national_id)
+                ->setTaxId($tax_id)
             ;
             $orderBillingAddress =  new Address();
             $orderBillingAddress
                 ->setZipCode($billingAddress['postcode'])
-                ->setFullName($billingAddress['fist_name']." ".$billingAddress['last_name'])
+                ->setFullName($billingAddress['first_name']." ".$billingAddress['last_name'])
                 ->setCountryCode('ES')
                 ->setCity($billingAddress['city'])
                 ->setAddress($billingAddress['address_1']." ".$billingAddress['address_2'])
                 ->setFixPhone($billingAddress['phone'])
                 ->setMobilePhone($billingAddress['phone'])
+                ->setNationalId($national_id)
+                ->setTaxId($tax_id)
             ;
-            $orderUser = new \Pagantis\OrdersApiClient\Model\Order\User();
+            $orderUser = new User();
             $orderUser
                 ->setAddress($userAddress)
-                ->setFullName($billingAddress['fist_name']." ".$billingAddress['last_name'])
+                ->setFullName($billingAddress['first_name']." ".$billingAddress['last_name'])
                 ->setBillingAddress($orderBillingAddress)
                 ->setEmail($billingAddress['email'])
                 ->setFixPhone($billingAddress['phone'])
                 ->setMobilePhone($billingAddress['phone'])
                 ->setShippingAddress($orderShippingAddress)
+                ->setNationalId($national_id)
+                ->setTaxId($tax_id)
             ;
 
             $previousOrders = $this->getOrders($order->get_user(), $billingAddress['email']);
             foreach ($previousOrders as $previousOrder) {
-                $orderHistory = new \Pagantis\OrdersApiClient\Model\Order\User\OrderHistory();
+                $orderHistory = new OrderHistory();
                 $orderElement = wc_get_order($previousOrder);
                 $orderCreated = $orderElement->get_date_created();
                 $orderHistory
@@ -215,27 +235,33 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 $orderUser->addOrderHistory($orderHistory);
             }
 
-            $details = new \Pagantis\OrdersApiClient\Model\Order\ShoppingCart\Details();
+            $details = new Details();
             $shippingCost = $order->shipping_total;
             $details->setShippingCost(intval(strval(100 * $shippingCost)));
             $items = $woocommerce->cart->get_cart();
             foreach ($items as $key => $item) {
-                $product = new \Pagantis\OrdersApiClient\Model\Order\ShoppingCart\Details\Product();
+                $product = new Product();
+                $productDescription = sprintf(
+                    '%s %s %s',
+                    $item['data']->get_title(),
+                    $item['data']->get_description(),
+                    $item['data']->get_short_description()
+                );
                 $product
                     ->setAmount(intval(100 * $item['line_total']))
                     ->setQuantity($item['quantity'])
-                    ->setDescription($item['data']->get_description());
+                    ->setDescription($productDescription);
                 $details->addProduct($product);
             }
 
-            $orderShoppingCart = new \Pagantis\OrdersApiClient\Model\Order\ShoppingCart();
+            $orderShoppingCart = new ShoppingCart();
             $orderShoppingCart
                 ->setDetails($details)
                 ->setOrderReference($order->get_id())
                 ->setPromotedAmount(0)
                 ->setTotalAmount(intval(strval(100 * $order->total)))
             ;
-            $orderConfigurationUrls = new \Pagantis\OrdersApiClient\Model\Order\Configuration\Urls();
+            $orderConfigurationUrls = new Urls();
             $cancelUrl = $this->getKoUrl($order);
             $callback_arg = array(
                 'wc-api'=>'wcpagantisgateway',
@@ -249,17 +275,19 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setRejectedNotificationCallback($callback_url)
                 ->setOk($callback_url)
             ;
-            $orderChannel = new \Pagantis\OrdersApiClient\Model\Order\Configuration\Channel();
+            $orderChannel = new Channel();
             $orderChannel
                 ->setAssistedSale(false)
-                ->setType(\Pagantis\OrdersApiClient\Model\Order\Configuration\Channel::ONLINE)
+                ->setType(Channel::ONLINE)
             ;
-            $orderConfiguration = new \Pagantis\OrdersApiClient\Model\Order\Configuration();
+            $orderConfiguration = new Configuration();
+            $language = strstr(get_locale(), '_', true);
             $orderConfiguration
                 ->setChannel($orderChannel)
                 ->setUrls($orderConfigurationUrls)
+                ->setPurchaseCountry($language)
             ;
-            $metadataOrder = new \Pagantis\OrdersApiClient\Model\Order\Metadata();
+            $metadataOrder = new Metadata();
             $metadata = array(
                 'woocommerce' => WC()->version,
                 'pagantis'         => $this->plugin_info['Version'],
@@ -268,7 +296,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             foreach ($metadata as $key => $metadatum) {
                 $metadataOrder->addMetadata($key, $metadatum);
             }
-            $orderApiClient = new \Pagantis\OrdersApiClient\Model\Order();
+            $orderApiClient = new Order();
             $orderApiClient
                 ->setConfiguration($orderConfiguration)
                 ->setMetadata($metadataOrder)
@@ -279,7 +307,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             if ($this->pagantis_public_key=='' || $this->pagantis_private_key=='') {
                 throw new \Exception('Public and Secret Key not found');
             }
-            $orderClient = new \Pagantis\OrdersApiClient\Client($this->pagantis_public_key, $this->pagantis_private_key);
+            $orderClient = new Client($this->pagantis_public_key, $this->pagantis_private_key);
             $pagantisOrder = $orderClient->createOrder($orderApiClient);
             if ($pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
                 $url = $pagantisOrder->getActionUrls()->getForm();
@@ -376,8 +404,11 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function is_available()
     {
+        $locale = strtolower(strstr(get_locale(), '_', true));
+        $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
+        $allowedCountry = (in_array(strtolower($locale), $allowedCountries));
         if ($this->enabled==='yes' && $this->pagantis_public_key!='' && $this->pagantis_private_key!='' &&
-            (int)$this->get_order_total()>$this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT']) {
+            (int)$this->get_order_total()>$this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'] && $allowedCountry) {
             return true;
         }
 
@@ -424,12 +455,20 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function payment_fields()
     {
+        $locale = strtolower(strstr(get_locale(), '_', true));
+        $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
+        $allowedCountry = (in_array(strtolower($locale), $allowedCountries));
+
         $template_fields = array(
             'public_key' => $this->pagantis_public_key,
             'total' => WC()->session->cart_totals['total'],
             'enabled' =>  $this->settings['enabled'],
             'min_installments' => $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'],
-            'message' => __($this->extraConfig['PAGANTIS_TITLE_EXTRA'])
+            'message' => __($this->extraConfig['PAGANTIS_TITLE_EXTRA']),
+            'simulator_enabled' => $this->settings['pagantis_simulator'],
+            'locale' => $locale,
+            'allowedCountry' => $allowedCountry,
+            'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']
         );
         wc_get_template('checkout_description.php', $template_fields, '', $this->template_path);
     }
@@ -697,5 +736,37 @@ class WcPagantisGateway extends WC_Payment_Gateway
         }
 
         return $response;
+    }
+
+    /**
+     * @param $order
+     *
+     * @return null
+     */
+    private function getNationalId($order)
+    {
+        foreach ((array)$order->get_meta_data() as $mdObject) {
+            $data = $mdObject->get_data();
+            if ($data['key'] == 'vat_number') {
+                return $data['value'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $order
+     *
+     * @return mixed
+     */
+    private function getTaxId($order)
+    {
+        foreach ((array)$order->get_meta_data() as $mdObject) {
+            $data = $mdObject->get_data();
+            if ($data['key'] == 'billing_cfpiva') {
+                return $data['value'];
+            }
+        }
     }
 }

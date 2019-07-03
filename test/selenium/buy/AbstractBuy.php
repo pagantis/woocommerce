@@ -205,7 +205,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $compareString = (strstr($actualString, $this->configuration['methodName'])) === false ? false : true;
         $this->assertTrue($compareString, $actualString, "PR25,PR26");
 
-        //$this->checkSimulator();
+        $this->checkSimulator();
 
         $cssSelector = "div#payment.woocommerce-checkout-payment > ul.wc_payment_methods > li.payment_method_pagantis > div.payment_method_pagantis";
         $descriptionSearch = WebDriverBy::cssSelector($cssSelector);
@@ -234,7 +234,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
      */
     private function checkSimulator()
     {
-        $simulatorElementSearch = WebDriverBy::className('PagantisSimulator');
+        $simulatorElementSearch = WebDriverBy::className('pagantisSimulator');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($simulatorElementSearch);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR19");

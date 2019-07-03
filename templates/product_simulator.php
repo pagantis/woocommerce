@@ -1,16 +1,58 @@
 <script>
     var simulatorId = null;
 
+    function findPriceSelector()
+    {
+        var priceDOM = document.querySelector("*:not(del)>.woocommerce-Price-amount");
+        if (priceDOM != null )
+            var priceSelector = '*:not(del)>.woocommerce-Price-amount';
+        else
+            var priceSelector = 'div.summary.entry-summary ins span.woocommerce-Price-amount.amount';
+
+        return priceSelector;
+
+    }
+
+
     function loadSimulator()
     {
+        if(typeof pmtSDK == 'undefined' || typeof pgSDK == 'undefined')
+        {
+            return false;
+        }
+
+        window.attempts = window.attempts + 1;
+        if (window.attempts > 4 )
+        {
+            clearInterval(loadingSimulator);
+            return true;
+        }
+
+        var pmtDiv = document.getElementsByClassName("pagantisSimulator");
+        if(pmtDiv.length > 0) {
+            var pmtElement = pmtDiv[0];
+            if(pmtElement.innerHTML != '' )
+            {
+                clearInterval(loadingSimulator);
+                return true;
+            }
+        }
+
+        var locale = '<?php echo $locale; ?>';
+        if (locale == 'es' || locale == '') {
+            var sdk = pmtSDK;
+        } else {
+            var sdk = pgSDK;
+        }
+
         var positionSelector = '<?php echo $positionSelector;?>';
         if (positionSelector === 'default') {
-            positionSelector = '.PagantisSimulator';
+            positionSelector = '.pagantisSimulator';
         }
 
         var priceSelector = '<?php echo $priceSelector;?>';
         if (priceSelector === 'default') {
-            priceSelector = 'div.summary.entry-summary span.woocommerce-Price-amount.amount';
+            priceSelector = findPriceSelector();
         }
 
         var quantitySelector = '<?php echo $quantitySelector;?>';
@@ -18,20 +60,22 @@
             quantitySelector = 'div.quantity>input';
         }
 
-        if (typeof pgSDK != 'undefined') {
-            pgSDK.simulator.init({
+        if (typeof sdk != 'undefined') {
+            window.WCSimulatorId = sdk.simulator.init({
                 publicKey: '<?php echo $public_key; ?>',
                 type: <?php echo $simulator_type; ?>,
                 selector: positionSelector,
                 itemQuantitySelector: quantitySelector,
-                itemAmountSelector: priceSelector
+                itemAmountSelector: priceSelector,
+                locale: locale
             });
-            clearInterval(simulatorId);
+            return false;
         }
     }
 
-    simulatorId = setInterval(function () {
+    window.attempts = 0;
+    loadingSimulator = setInterval(function () {
         loadSimulator();
     }, 2000);
 </script>
-<div class="PagantisSimulator"></div>
+<div class="pagantisSimulator"></div>
