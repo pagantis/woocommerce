@@ -16,6 +16,11 @@
 
     function loadSimulator()
     {
+        if(typeof pmtSDK == 'undefined' || typeof pgSDK == 'undefined')
+        {
+            return false;
+        }
+
         window.attempts = window.attempts + 1;
         if (window.attempts > 4 )
         {

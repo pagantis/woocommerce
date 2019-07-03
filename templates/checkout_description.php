@@ -7,18 +7,25 @@
     <script>
         window.WCsimulatorId = null;
 
-        function loadSimulator() {
+        function loadSimulator()
+        {
             if(typeof pmtSDK == 'undefined' || typeof pgSDK == 'undefined')
             {
                 return false;
             }
 
+            window.attempts = window.attempts + 1;
+            if (window.attempts > 4 )
+            {
+                clearInterval(loadingSimulator);
+                return true;
+            }
             var pmtDiv = document.getElementsByClassName("pagantisSimulator");
             if(pmtDiv.length > 0) {
                 var pmtElement = pmtDiv[0];
                 if(pmtElement.innerHTML != '' )
                 {
-                    clearInterval(window.WCsimulatorId);
+                    clearInterval(loadingSimulator);
                     return true;
                 }
             }
@@ -31,7 +38,7 @@
             }
 
             if (typeof sdk != 'undefined') {
-                sdk.simulator.init({
+                window.WCSimulatorId = sdk.simulator.init({
                     publicKey: '<?php echo $public_key; ?>',
                     selector: '.pagantisSimulator',
                     totalAmount: '<?php echo $total; ?>',
@@ -41,7 +48,8 @@
             }
         }
 
-        window.WCsimulatorId = setInterval(function () {
+        window.attempts = 0;
+        loadingSimulator = setInterval(function () {
             loadSimulator();
         }, 2000);
 
