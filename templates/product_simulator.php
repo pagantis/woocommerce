@@ -23,7 +23,7 @@
             return true;
         }
 
-        var pmtDiv = document.getElementsByClassName("PagantisSimulator");
+        var pmtDiv = document.getElementsByClassName("pagantisSimulator");
         if(pmtDiv.length > 0) {
             var pmtElement = pmtDiv[0];
             if(pmtElement.innerHTML != '' )
@@ -42,7 +42,7 @@
 
         var positionSelector = '<?php echo $positionSelector;?>';
         if (positionSelector === 'default') {
-            positionSelector = '.PagantisSimulator';
+            positionSelector = '.pagantisSimulator';
         }
 
         var priceSelector = '<?php echo $priceSelector;?>';
@@ -73,4 +73,4 @@
         loadSimulator();
     }, 2000);
 </script>
-<div class="PagantisSimulator"></div>
+<div class="pagantisSimulator"></div>
