@@ -13,6 +13,7 @@ use Pagantis\OrdersApiClient\Model\Order\Configuration\Urls;
 use Pagantis\OrdersApiClient\Model\Order\Configuration\Channel;
 use Pagantis\OrdersApiClient\Model\Order\Configuration;
 use Pagantis\OrdersApiClient\Client;
+use Pagantis\OrdersApiClient\Model\Order;
 
 if (!defined('ABSPATH')) {
     exit;
