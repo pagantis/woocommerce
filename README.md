@@ -1,9 +1,10 @@
 # Module installation <img src="https://www.pagantis.com/wp-content/uploads/2019/02/cropped-pagantis_logo-1.png" width="100" align="right">
 
 CircleCI: [![CircleCI](https://circleci.com/gh/pagantis/woocommerce/tree/master.svg?style=svg)](https://circleci.com/gh/pagantis/woocommerce/tree/master)
-
+<!---
 [![Latest Stable Version](https://poser.pugx.org/pagantis/woocommerce/v/stable)](https://packagist.org/packages/pagantis/woocommerce)
 [![composer.lock](https://poser.pugx.org/pagantis/woocommerce/composerlock)](https://packagist.org/packages/pagantis/woocommerce)
+-->
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pagantis/woocommerce/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/pagantis/woocommerce/?branch=master)
 
 ## :hand: Requirements
