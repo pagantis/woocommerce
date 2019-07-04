@@ -98,3 +98,6 @@ Sending in the form data the key of the config you want to change and the new va
 
 5 - If everything works fine, you could see the config 
 ![Step 5](./postman_step5.png?raw=true "Step 5")
+
+6 - Finally you can see the change in checkout page
+![Step 6](./sql_step7.png?raw=true "Step 6")
