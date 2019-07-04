@@ -7,7 +7,7 @@ To access to Pagantis admin panel, we need to open the Woocommerce admin panel a
 1 – Woocommerce => Ajustes/Settings
 ![Step 1](./woocommerce_configuration_1.png?raw=true "Step 1")
 
-2 – Finalizar compra/Checkout => Pagantis
+2 – Pagos/Payments => Pagantis
 ![Step 2](./woocommerce_configuration_2.png?raw=true "Step 2")
 
 3 – Pagantis
@@ -27,11 +27,7 @@ In Pagantis admin panel, we can set the following options:
 ## :clipboard: Advanced configuration:
 The module has many configuration options you can set, but we recommend use it as is.
 
-If you want to manage it, you have a way to update the values via HTTP, you only need to make a post to:
-
-<strong>{your-domain-url}/?rest_route=/pagantis/v1/configController/{your-secret-key}</strong>
-
-Sending in the form data the key of the config you want to change and the new value.
+If you want to manage it, you have 2 ways to update the values [using database](./configuration.md#edit-using-database) or [via HTTP](./configuration.md#edit-using-postman), see below.
 
 Here you have a complete list of configurations you can change and it's explanation. 
 
@@ -75,6 +71,12 @@ Here you have a complete list of configurations you can change and it's explanat
 ![Step 7](./sql_step7.png?raw=true "Step 7")
 
 ##### Edit using postman
+
+To modify the configuration you only need to make a post to:
+
+<strong>{your-domain-url}/?rest_route=/pagantis/v1/configController/{your-secret-key}</strong>
+
+Sending in the form data the key of the config you want to change and the new value.
 
 1 - Open the application
 ![Step 1](./postman_step1.png?raw=true "Step 1")
