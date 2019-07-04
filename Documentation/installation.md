@@ -21,4 +21,4 @@ To install the plugin of Pagantis in your Woocommerce shop, we need to open the 
 ![Step 5](./woocommerce_installation_6b.png?raw=true "Step 5")
 
 6. Enable the plugin on the plugins dashboard
-![Step 6](./woocommerce_installation_7b.png?raw=true "Step 6")
+![Step 6](./woocommerce_installation_7c.png?raw=true "Step 6")
