@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.1.0
+ * Version: 8.1.1
  * Author: Pagantis
  */
 
@@ -32,8 +32,8 @@ class WcPagantis
                             'PAGANTIS_SIMULATOR_MAX_INSTALLMENTS'=>12,
                             'PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'=>'default',
                             'PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'=>'pgSDK.simulator.positions.INNER',
-                            'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'=>'default',
-                            'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'=>'default',
+                            'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'=>'a:3:{i:0;s:48:"div.summary *:not(del)>.woocommerce-Price-amount";i:1;s:54:"div.entry-summary *:not(del)>.woocommerce-Price-amount";i:2;s:36:"*:not(del)>.woocommerce-Price-amount";}',
+                            'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'=>'a:2:{i:0;s:22:"div.quantity input.qty";i:1;s:18:"div.quantity>input";}',
                             'PAGANTIS_FORM_DISPLAY_TYPE'=>0,
                             'PAGANTIS_DISPLAY_MIN_AMOUNT'=>1,
                             'PAGANTIS_URL_OK'=>'',
@@ -156,8 +156,8 @@ class WcPagantis
             'public_key' => $cfg['pagantis_public_key'],
             'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
             'positionSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'],
-            'quantitySelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'],
-            'priceSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'],
+            'quantitySelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR']),
+            'priceSelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR']),
             'totalAmount' => is_numeric($product->price) ? $product->price : 0,
             'locale' => $locale
         );

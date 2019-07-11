@@ -1,18 +1,43 @@
 <script>
-    var simulatorId = null;
-
     function findPriceSelector()
     {
-        var priceDOM = document.querySelector("*:not(del)>.woocommerce-Price-amount");
-        if (priceDOM != null )
-            var priceSelector = '*:not(del)>.woocommerce-Price-amount';
-        else
-            var priceSelector = 'div.summary.entry-summary ins span.woocommerce-Price-amount.amount';
-
-        return priceSelector;
+        var priceSelectors = <?php echo json_encode($priceSelector);?>;
+        return priceSelectors.find(function(candidateSelector) {
+            var priceDOM = document.querySelector(candidateSelector);
+            return (priceDOM != null );
+        });
 
     }
 
+    function findQuantitySelector()
+    {
+        var quantitySelectors = <?php echo json_encode($quantitySelector);?>;
+        return quantitySelectors.find(function(candidateSelector) {
+            var priceDOM = document.querySelector(candidateSelector);
+            return (priceDOM != null );
+        });
+    }
+    function finishInterval() {
+        clearInterval(window.loadingSimulator);
+        return true;
+    }
+    function checkSimulatorContent() {
+        var simulatorLoaded = false;
+        var pmtDiv = document.getElementsByClassName("pagantisSimulator");
+        if (pmtDiv.length > 0) {
+            var pmtElement = pmtDiv[0];
+            if (pmtElement.innerHTML != '') {
+                simulatorLoaded = true;
+            }
+        }
+
+        return simulatorLoaded;
+    }
+
+    function checkAttempts() {
+        window.attempts = window.attempts + 1;
+        return (window.attempts > 4)
+    }
 
     function loadSimulator()
     {
@@ -21,22 +46,12 @@
             return false;
         }
 
-        window.attempts = window.attempts + 1;
-        if (window.attempts > 4 )
+        if (checkAttempts() || checkSimulatorContent())
         {
-            clearInterval(loadingSimulator);
-            return true;
+            return finishInterval();
         }
 
-        var pmtDiv = document.getElementsByClassName("pagantisSimulator");
-        if(pmtDiv.length > 0) {
-            var pmtElement = pmtDiv[0];
-            if(pmtElement.innerHTML != '' )
-            {
-                clearInterval(loadingSimulator);
-                return true;
-            }
-        }
+        var price = '<?php echo $total;?>';
 
         var locale = '<?php echo $locale; ?>';
         if (locale == 'es' || locale == '') {
@@ -50,15 +65,9 @@
             positionSelector = '.pagantisSimulator';
         }
 
-        var priceSelector = '<?php echo $priceSelector;?>';
-        if (priceSelector === 'default') {
-            priceSelector = findPriceSelector();
-        }
+        var priceSelector = findPriceSelector();
 
-        var quantitySelector = '<?php echo $quantitySelector;?>';
-        if (quantitySelector === 'default') {
-            quantitySelector = 'div.quantity>input';
-        }
+        var quantitySelector = findQuantitySelector();
 
         if (typeof sdk != 'undefined') {
             window.WCSimulatorId = sdk.simulator.init({
@@ -74,7 +83,7 @@
     }
 
     window.attempts = 0;
-    loadingSimulator = setInterval(function () {
+    window.loadingSimulator = setInterval(function () {
         loadSimulator();
     }, 2000);
 </script>
