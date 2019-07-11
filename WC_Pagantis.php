@@ -156,8 +156,8 @@ class WcPagantis
             'public_key' => $cfg['pagantis_public_key'],
             'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
             'positionSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'],
-            'quantitySelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'],
-            'priceSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'],
+            'quantitySelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR']),
+            'priceSelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR']),
             'totalAmount' => is_numeric($product->price) ? $product->price : 0,
             'locale' => $locale
         );
