@@ -23,7 +23,7 @@
     }
     function checkSimulatorContent() {
         var simulatorLoaded = false;
-        var pmtDiv = document.getElementsByClassName("PmtSimulator");
+        var pmtDiv = document.getElementsByClassName("pagantisSimulator");
         if (pmtDiv.length > 0) {
             var pmtElement = pmtDiv[0];
             if (pmtElement.innerHTML != '') {
