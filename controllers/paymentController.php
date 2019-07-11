@@ -330,6 +330,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             }
         } catch (\Exception $exception) {
             wc_add_notice(__('Payment error ', 'pagantis') . $exception->getMessage(), 'error');
+            $this->insertLog($exception);
             $checkout_url = get_permalink(wc_get_page_id('checkout'));
             wp_redirect($checkout_url);
             exit;
@@ -768,5 +769,39 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 return $data['value'];
             }
         }
+    }
+
+    /**
+     * @param null $exception
+     * @param null $message
+     */
+    private function insertLog($exception = null, $message = null)
+    {
+        global $wpdb;
+        $this->checkDbLogTable();
+        $logEntry     = new LogEntry();
+        if ($exception instanceof \Exception) {
+            $logEntry = $logEntry->error($exception);
+        } else {
+            $logEntry = $logEntry->info($message);
+        }
+        $tableName = $wpdb->prefix.self::LOGS_TABLE;
+        $wpdb->insert($tableName, array('log' => $logEntry->toJson()));
+    }
+    /**
+     * Check if logs table exists
+     */
+    private function checkDbLogTable()
+    {
+        global $wpdb;
+        $tableName = $wpdb->prefix.self::LOGS_TABLE;
+        if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
+            $charset_collate = $wpdb->get_charset_collate();
+            $sql = "CREATE TABLE $tableName ( id int NOT NULL AUTO_INCREMENT, log text NOT NULL, 
+                    createdAt timestamp DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY id (id)) $charset_collate";
+            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
+            dbDelta($sql);
+        }
+        return;
     }
 }
