@@ -51,7 +51,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $this->id = WcPagantisGateway::METHOD_ID;
         $this->has_fields = true;
         $this->method_title = ucfirst($this->id);
-        $this->title = $this->extraConfig['PAGANTIS_TITLE'];
 
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
@@ -71,6 +70,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $this->init_settings();
 
         $this->extraConfig = $this->getExtraConfig();
+        $this->title = __($this->extraConfig['PAGANTIS_TITLE'], 'pagantis');
 
         $this->settings['ok_url'] = ($this->extraConfig['PAGANTIS_URL_OK']!='')?$this->extraConfig['PAGANTIS_URL_OK']:$this->generateOkUrl();
         $this->settings['ko_url'] = ($this->extraConfig['PAGANTIS_URL_KO']!='')?$this->extraConfig['PAGANTIS_URL_KO']:$this->generateKoUrl();
@@ -431,7 +431,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function get_title()
     {
-        return $this->extraConfig['PAGANTIS_TITLE'];
+        return __($this->extraConfig['PAGANTIS_TITLE'], 'pagantis');
     }
 
     /**
@@ -474,7 +474,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
             'total' => WC()->session->cart_totals['total'],
             'enabled' =>  $this->settings['enabled'],
             'min_installments' => $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'],
-            'message' => __($this->extraConfig['PAGANTIS_TITLE_EXTRA']),
             'simulator_enabled' => $this->settings['pagantis_simulator'],
             'locale' => $locale,
             'allowedCountry' => $allowedCountry,
