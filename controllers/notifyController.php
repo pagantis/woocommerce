@@ -115,6 +115,8 @@ class WcPagantisNotify extends WcPagantisGateway
     {
         try {
             $this->woocommerceOrder = new WC_Order($this->woocommerceOrderId);
+            $this->woocommerceOrder->set_payment_method_title(Ucfirst(WcPagantisGateway::METHOD_ID));
+
         } catch (\Exception $e) {
             throw new MerchantOrderNotFoundException();
         }

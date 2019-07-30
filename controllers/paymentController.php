@@ -113,7 +113,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
     public function admin_options()
     {
         $template_fields = array(
-            'panel_header' => $this->title,
             'panel_description' => $this->method_description,
             'button1_label' => __('Login to your panel', 'pagantis'),
             'button2_label' => __('Documentation', 'pagantis'),
@@ -171,8 +170,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
             require_once(__ROOT__.'/vendor/autoload.php');
             global $woocommerce;
             $order = new WC_Order($order_id);
-            $order->set_payment_method(ucfirst($this->id)); //Method showed in confirmation page.
-            $order->save();
 
             if (!isset($order)) {
                 throw new Exception(_("Order not found"));
