@@ -39,6 +39,9 @@ class WcPagantisGateway extends WC_Payment_Gateway
     /** @var Array $extraConfig */
     public $extraConfig;
 
+    /** @var string $language */
+    public $language;
+
     /**
      * WcPagantisGateway constructor.
      */
@@ -46,7 +49,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
     {
         //Mandatory vars for plugin
         $this->id = WcPagantisGateway::METHOD_ID;
-        $this->icon = esc_url(plugins_url('../assets/images/logo.png', __FILE__));
         $this->has_fields = true;
         $this->method_title = ucfirst($this->id);
         $this->title = $this->extraConfig['PAGANTIS_TITLE'];
@@ -56,6 +58,13 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $this->allowed_currencies = array("EUR");
         $this->mainFileLocation = dirname(plugin_dir_path(__FILE__)) . '/WC_Pagantis.php';
         $this->plugin_info = get_file_data($this->mainFileLocation, array('Version' => 'Version'), false);
+        $this->language = strstr(get_locale(), '_', true);
+
+        if ($this->language == 'es' || $this->language == '') {
+            $this->icon = esc_url(plugins_url('../assets/images/logopagamastarde.png', __FILE__));
+        } else {
+            $this->icon = esc_url(plugins_url('../assets/images/logo.png', __FILE__));
+        }
 
         //Panel form fields
         $this->form_fields = include(plugin_dir_path(__FILE__).'../includes/settings-pagantis.php');//Panel options
@@ -281,11 +290,11 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setType(Channel::ONLINE)
             ;
             $orderConfiguration = new Configuration();
-            $language = strstr(get_locale(), '_', true);
+
             $orderConfiguration
                 ->setChannel($orderChannel)
                 ->setUrls($orderConfigurationUrls)
-                ->setPurchaseCountry($language)
+                ->setPurchaseCountry($this->language)
             ;
             $metadataOrder = new Metadata();
             $metadata = array(
