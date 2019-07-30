@@ -115,7 +115,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $template_fields = array(
             'panel_header' => $this->title,
             'panel_description' => $this->method_description,
-            'button1_label' => __('Login to panel of ', 'pagantis') . ucfirst(WcPagantisGateway::METHOD_ID),
+            'button1_label' => __('Login to your panel', 'pagantis'),
             'button2_label' => __('Documentation', 'pagantis'),
             'logo' => $this->icon,
             'settings' => $this->generate_settings_html($this->form_fields, false)
