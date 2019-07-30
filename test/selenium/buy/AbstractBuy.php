@@ -203,7 +203,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $validatorSearch = WebDriverBy::className('payment_method_pagantis');
         $actualString = $this->webDriver->findElement($validatorSearch)->getText();
         $compareString = (strstr($actualString, $this->configuration['methodName'])) === false ? false : true;
-        $this->assertTrue($compareString, "PR25,PR26 - $compareString -> $actualString");
+        $this->assertTrue($compareString, "PR25,PR26 - $this->configuration['methodName'] -> $actualString");
 
         $this->checkSimulator();
 

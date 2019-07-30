@@ -42,7 +42,7 @@ abstract class PagantisWoocommerceTest extends TestCase
         'dni'           => '09422447Z',
         'extra'         => 'Free Finance',
         'address'       => 'Av.Diagonal 579',
-        'methodName'    => 'Pagantis',
+        'methodName'    => 'Financiación Instantánea',
         'checkoutTitle' => 'Financiación Instantánea',
         'defaultMinIns' => 3,
         'defaultMaxIns' => 12,
