@@ -83,14 +83,12 @@ class PagantisWc3InstallTest extends PagantisWoocommerceTest
         $this->assertTrue((bool) $condition);
 
         //Se abre la pagina para instalar
-        $addPluginString = ($this->woocommerceLanguage == 'EN') ? "Add New" : "Añadir nuevo";
         $this->findByLinkText("Añadir nuevo")->click();
         $validatorUpload = WebDriverBy::className('upload');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($validatorUpload);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition);
 
-        $uploadPluginString = ($this->woocommerceLanguage == 'EN') ? "Upload" : "Subir plugin";
         $this->findByLinkText("Subir plugin")->click();
         $moduleInstallBlock = WebDriverBy::className('wp-upload-form');
         $fileInputSearch = $moduleInstallBlock->name('pluginzip');
@@ -106,13 +104,10 @@ class PagantisWc3InstallTest extends PagantisWoocommerceTest
         $this->assertTrue((bool) $condition, "Don't show result message after upload");
 
         //Comprobamos que el mensaje pone que ha sido instalado con éxito
-        $installPluginString = ($this->woocommerceLanguage == 'EN') ?
-            "Plugin installed successfully" : "Plugin instalado con éxito.";
         $actualString = $this->webDriver->findElement($validatorSearch)->getText();
         $compareString = (strpos($actualString, "Plugin instalado con éxito.")) === false ? false : true;
         $this->assertTrue($compareString, "PR1-PR4 => $actualString");
 
-        $activatePluginString = ($this->woocommerceLanguage == 'EN') ? "Activate Plugin" : "Activar plugin";
         $this->findByLinkText("Activar plugin")->click();
     }
 
