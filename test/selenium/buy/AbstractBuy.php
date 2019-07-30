@@ -158,7 +158,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
      */
     public function goToProductPage()
     {
-        $this->webDriver->get(self::WC3URL);
+        $this->webDriver->get($this->woocommerceUrl);
         $this->findByLinkText(self::PRODUCT_NAME)->click();
         $condition = WebDriverExpectedCondition::titleContains(self::PRODUCT_NAME);
         $this->webDriver->wait()->until($condition);
@@ -286,7 +286,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $this->waitUntil($condition);
         $actualString = $this->webDriver->findElement($messageElementSearch)->getText();
         $this->assertNotEmpty($actualString, "PR45");
-        $confString = (PagantisWoocommerceTest::LANG == 'EN') ? "Order received" : "Pedido recibido";
+        $confString = ($this->woocommerceLanguage == 'EN') ? "Order received" : "Pedido recibido";
         $this->assertNotEmpty($confString, "PR45");
         $compareString = (strstr($actualString, $confString)) === false ? false : true;
         $this->assertTrue($compareString, $actualString." PR45");
@@ -325,7 +325,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
 
         $this->notifyUrl =  sprintf(
             "%s%s%s%s%s%s%s%s%s",
-            self::WC3URL,
+            $this->woocommerceUrl,
             self::NOTIFICATION_FOLDER,
             '&',
             self::NOTIFICATION_PARAMETER1,

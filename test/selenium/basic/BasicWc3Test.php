@@ -23,7 +23,7 @@ class BasicWc3Test extends PagantisWoocommerceTest
      */
     public function testTitleWoocommerce3()
     {
-        $this->webDriver->get(self::WC3URL);
+        $this->webDriver->get($this->woocommerceUrl);
         $condition = WebDriverExpectedCondition::titleContains(self::TITLE);
         $this->webDriver->wait()->until($condition);
         $this->assertTrue((bool) $condition);
@@ -35,7 +35,7 @@ class BasicWc3Test extends PagantisWoocommerceTest
      */
     public function testBackOfficeTitleWoocommerce3()
     {
-        $this->webDriver->get(self::WC3URL.self::BACKOFFICE_FOLDER);
+        $this->webDriver->get($this->woocommerceUrl.self::BACKOFFICE_FOLDER);
         $condition = WebDriverExpectedCondition::titleContains(self::TITLE);
         $this->webDriver->wait()->until($condition);
         $this->assertTrue((bool) $condition);
