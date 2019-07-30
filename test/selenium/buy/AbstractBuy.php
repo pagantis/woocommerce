@@ -207,12 +207,6 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
 
         $this->checkSimulator();
 
-        $cssSelector = "div#payment.woocommerce-checkout-payment > ul.wc_payment_methods > li.payment_method_pagantis > div.payment_method_pagantis";
-        $descriptionSearch = WebDriverBy::cssSelector($cssSelector);
-        $descriptionElement = $this->webDriver->findElement($descriptionSearch);
-        $actualString = $descriptionElement->getText();
-        $this->assertContains($this->configuration['checkoutDescription'], $actualString, "PR54");
-
         $priceSearch = WebDriverBy::className('woocommerce-Price-amount');
         $priceElements = $this->webDriver->findElements($priceSearch);
 
