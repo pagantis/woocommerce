@@ -93,3 +93,6 @@ msgstr "Finanza con Pagantis"
 #. URI of the plugin
 msgid "http://www.pagantis.com/"
 msgstr "http://www.pagantis.com/"
+
+msgid "Instant Financing"
+msgstr "Finanziamento istantaneo"
