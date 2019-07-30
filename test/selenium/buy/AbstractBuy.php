@@ -215,8 +215,6 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
 
     /**
      * Send ckeckout form
-     * @throws \Facebook\WebDriver\Exception\NoSuchElementException
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
      */
     public function goToPagantis()
     {
