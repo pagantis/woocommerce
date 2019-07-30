@@ -1,96 +1,98 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Pagantis WooCommerce V2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-30 13:16+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: \n"
-"Language: \n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"POT-Creation-Date: 2019-07-30 12:43+0000\n"
+"PO-Revision-Date: 2019-07-30 13:17+0000\n"
+"Last-Translator: admin <demo@woocommerceshop.com>\n"
+"Language-Team: Portuguese (Portugal)\n"
+"Language: pt-PT\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Loco https://localise.biz/"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.3.0; wp-5.1"
 
 #: WC_Pagantis.php:214
 msgid "Settings"
-msgstr ""
+msgstr "Configurações"
 
 #: WC_Pagantis.php:232 controllers/paymentController.php:119
 msgid "Documentation"
-msgstr ""
+msgstr "Documentação"
 
 #: WC_Pagantis.php:234
 msgid "API documentation"
-msgstr ""
+msgstr "Documentação da API"
 
 #: WC_Pagantis.php:235
 msgid "Support"
-msgstr ""
+msgstr "Suporte"
 
 #: includes/settings-pagantis.php:12
 msgid "Activate the module"
-msgstr ""
+msgstr "Ative o módulo"
 
 #: includes/settings-pagantis.php:17
 msgid "Public Key"
-msgstr ""
+msgstr "Chave pública"
 
 #: includes/settings-pagantis.php:19 includes/settings-pagantis.php:24
 msgid "MANDATORY. You can get in your pagantis profile"
-msgstr ""
+msgstr "OBRIGATÓRIO Você pode entrar no seu perfil paymastar"
 
 #: includes/settings-pagantis.php:22
 msgid "Secret Key"
-msgstr ""
+msgstr "Chave Secreta"
 
 #: includes/settings-pagantis.php:27
 msgid "Product simulator"
-msgstr ""
+msgstr "Simulador de produtos"
 
 #: controllers/paymentController.php:118
 msgid "Login to your panel"
-msgstr ""
+msgstr "Entre no seu painel"
 
 #: controllers/paymentController.php:135
 msgid " is not compatible with your php and/or curl version"
-msgstr ""
+msgstr "não é compatível com sua versão php e / ou curl"
 
 #: controllers/paymentController.php:138
 msgid ""
 " is not configured correctly, the fields Public Key and Secret Key are "
 "mandatory for use this plugin"
 msgstr ""
+" não está configurado corretamente, os campos Public Key e Secret Key são "
+"obrigatórios para usar este plugin"
 
 #: controllers/paymentController.php:141
 msgid " only can be used in Euros"
-msgstr ""
+msgstr " só pode ser usado em euros"
 
 #: controllers/paymentController.php:145 controllers/paymentController.php:148
 msgid " only can be payed from 2 to 12 installments"
-msgstr ""
+msgstr " só pode ser pago de 2 a 12 parcelas"
 
 #: controllers/paymentController.php:150
 msgid " can not have a minimum amount less than 0"
-msgstr ""
+msgstr " não pode ter um valor mínimo menor que 0"
 
 #: controllers/paymentController.php:341 controllers/paymentController.php:458
 msgid "Payment error "
-msgstr ""
+msgstr "Erro de pagamento"
 
 #. Author of the plugin
 msgid "Pagantis"
-msgstr ""
+msgstr "Pagantis"
 
 #. Description of the plugin
 msgid "Financiar con Pagantis"
-msgstr ""
+msgstr "Finanças com Pagantis"
 
 #. URI of the plugin
 msgid "http://www.pagantis.com/"
-msgstr ""
+msgstr "http://www.pagantis.com/"
 
 msgid "Instant Financing"
-msgstr ""
+msgstr "Financiamento instantâneo"
