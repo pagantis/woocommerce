@@ -105,7 +105,7 @@ class PagantisWc3InstallTest extends PagantisWoocommerceTest
 
         //Comprobamos que el mensaje pone que ha sido instalado con éxito
         $actualString = $this->webDriver->findElement($validatorSearch)->getText();
-        $compareString = (strpos($actualString, "Plugin instalado con éxito.")) === false ? false : true;
+        $compareString = (strpos($actualString, "Plugin instalado correctamente.")) === false ? false : true;
         $this->assertTrue($compareString, "PR1-PR4 => $actualString");
 
         $this->findByLinkText("Activar plugin")->click();
