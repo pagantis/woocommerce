@@ -207,8 +207,8 @@ class WcPagantis
     public function pagantisFilterGateways($methods)
     {
         $pagantis = new WcPagantisGateway();
-        if ($pagantis->is_available()) {
-            $methods['pagantis'] = $pagantis;
+        if (!$pagantis->is_available()) {
+            unset($methods['pagantis']);
         }
 
         return $methods;
