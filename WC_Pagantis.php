@@ -165,13 +165,15 @@ class WcPagantis
             return;
         }
 
+        $css_quantity_selector = $this->prepareQuantitySelector();
+        $css_price_selector = $this->preparePriceSelector();
         $template_fields = array(
             'total'    => is_numeric($product->price) ? $product->price : 0,
             'public_key' => $cfg['pagantis_public_key'],
             'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
             'positionSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'],
-            'quantitySelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR']),
-            'priceSelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR']),
+            'quantitySelector' => unserialize($css_quantity_selector),
+            'priceSelector' => unserialize($css_price_selector),
             'totalAmount' => is_numeric($product->price) ? $product->price : 0,
             'locale' => $locale
         );
@@ -386,6 +388,36 @@ class WcPagantis
         }
 
         return $response;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    private function prepareQuantitySelector()
+    {
+        $css_quantity_selector = $this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'];
+        if ($css_quantity_selector == 'default' || $css_quantity_selector == '') {
+            $css_quantity_selector = $this->defaultConfigs['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'];
+        } elseif (!unserialize($css_quantity_selector)) { //in the case of a custom string selector, we keep it
+            $css_quantity_selector = serialize(array($css_quantity_selector));
+        }
+
+        return $css_quantity_selector;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    private function preparePriceSelector()
+    {
+        $css_price_selector = $this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'];
+        if ($css_price_selector == 'default' || $css_price_selector == '') {
+            $css_price_selector = $this->defaultConfigs['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'];
+        } elseif (!unserialize($css_price_selector)) { //in the case of a custom string selector, we keep it
+            $css_price_selector = serialize(array($css_price_selector));
+        }
+
+        return $css_price_selector;
     }
 }
 
