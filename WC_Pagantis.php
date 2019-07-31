@@ -19,10 +19,15 @@ class WcPagantis
     const GIT_HUB_URL = 'https://github.com/pagantis/woocommerce';
     const PAGANTIS_DOC_URL = 'https://developer.pagantis.com';
     const SUPPORT_EML = 'mailto:integrations@pagantis.com?Subject=woocommerce_plugin';
+
     /** Concurrency tablename */
     const LOGS_TABLE = 'pagantis_logs';
+
     /** Config tablename */
     const CONFIG_TABLE = 'pagantis_config';
+
+    /** Concurrency tablename  */
+    const CONCURRENCY_TABLE = 'pagantis_concurrency';
 
     public $defaultConfigs = array('PAGANTIS_TITLE'=>'Instant Financing',
                             'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'pgSDK.simulator.types.SIMPLE',
@@ -87,6 +92,16 @@ class WcPagantis
     public function pagantisActivation()
     {
         global $wpdb;
+
+        $tableName = $wpdb->prefix.self::CONCURRENCY_TABLE;
+        if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
+            $charset_collate = $wpdb->get_charset_collate();
+            $sql = "CREATE TABLE $tableName ( order_id int NOT NULL,  
+                    createdAt timestamp DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY id (order_id)) $charset_collate";
+            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
+            dbDelta($sql);
+        }
+
         $tableName = $wpdb->prefix.self::CONFIG_TABLE;
 
         //Check if table exists
