@@ -7,6 +7,7 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use Pagantis\ModuleUtils\Exception\AlreadyProcessedException;
 use Pagantis\ModuleUtils\Exception\NoIdentificationException;
 use Pagantis\ModuleUtils\Exception\QuoteNotFoundException;
+use Pagantis\ModuleUtils\Model\Response\JsonSuccessResponse;
 use Test\Selenium\PagantisWoocommerceTest;
 use Pagantis\SeleniumFormUtils\SeleniumHelper;
 use Httpful\Request;
@@ -352,7 +353,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
      */
     protected function checkPagantisOrderId()
     {
-        $notifyUrl = $this->notifyUrl.'=0';
+        $notifyUrl = $this->notifyUrl.'0';
         $this->assertNotEmpty($notifyUrl, $notifyUrl);
         $response = Request::post($notifyUrl)->expects('json')->send();
         $this->assertNotEmpty($response->body->result);
@@ -370,6 +371,6 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $this->assertNotEmpty($notifyUrl, $notifyUrl);
         $response = Request::post($notifyUrl)->expects('json')->send();
         $this->assertNotEmpty($response->body->result);
-        $this->assertContains(AlreadyProcessedException::ERROR_MESSAGE, $response->body->result, "PR51=>".$response->body->result);
+        $this->assertContains(JsonSuccessResponse::RESULT, $response->body->result, "PR51=>".$response->body->result);
     }
 }

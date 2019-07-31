@@ -70,7 +70,6 @@ abstract class PagantisWoocommerceTest extends TestCase
     public function __construct($name = null, array $data = array(), $dataName = '')
     {
         $this->woocommerceUrl = $this->getUrl();
-        $this->woocommerceLanguage = getenv('WOOCOMMERCE_LANG');
         $faker = Factory::create();
         $this->configuration['dni'] = $this->getDNI();
         $this->configuration['birthdate'] =
@@ -229,6 +228,7 @@ abstract class PagantisWoocommerceTest extends TestCase
     {
         $env = getenv('WOOCOMMERCE_TEST_ENV');
         if ($env == 'dev') {
+            $this->woocommerceLanguage = "EN";
             return self::WOOCOMMERCE_URL_DEV;
         }
         return self::WOOCOMMERCE_URL_TEST;
