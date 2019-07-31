@@ -32,15 +32,16 @@ set -e
 
 export WOOCOMMERCE_TEST_ENV=${devtest}
 while true; do
-    read -p "Do you want to run full tests battery or only configure the module [full/configure]? " tests
+    read -p "Do you want to run full tests battery or only configure the module [full/configure/none]? " tests
     case $tests in
         [full]* ) break;;
         [configure]* ) break;;
-        * ) echo "Please answer full or configure."; exit;;
+        [none]* ) break;;
+        * ) echo "Please answer full, configure or none."; exit;;
     esac
 done
 
-if [ ! -z "$tests" ];
+if [ ! -z "$tests" ] && [ "$tests" != "none" ];
 then
     vendor/bin/phpunit --group woocommerce3-basic
 
