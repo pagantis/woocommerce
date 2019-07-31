@@ -68,7 +68,7 @@ class WcPagantis
         add_filter('plugin_row_meta', array($this, 'pagantisRowMeta'), 10, 2);
         add_filter('plugin_action_links_'.plugin_basename(__FILE__), array($this, 'pagantisActionLinks'));
         add_action('woocommerce_after_add_to_cart_form', array($this, 'pagantisAddProductSimulator'));
-        add_action('wp_enqueue_scripts', 'add_widget_js');
+        add_action('wp_enqueue_scripts', 'add_pagantis_widget_js');
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
     }
@@ -392,7 +392,7 @@ class WcPagantis
 /**
  * Add widget Js
  **/
-function add_widget_js()
+function add_pagantis_widget_js()
 {
     wp_enqueue_script('pgSDK', 'https://cdn.pagantis.com/js/pg-v2/sdk.js', '', '', true);
     wp_enqueue_script('pmtSDK', 'https://cdn.pagamastarde.com/js/pmt-v2/sdk.js', '', '', true);
