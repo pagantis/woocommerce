@@ -170,6 +170,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
             require_once(__ROOT__.'/vendor/autoload.php');
             global $woocommerce;
             $order = new WC_Order($order_id);
+            $order->set_payment_method(ucfirst($this->id));
+            $order->save();
 
             if (!isset($order)) {
                 throw new Exception(_("Order not found"));
