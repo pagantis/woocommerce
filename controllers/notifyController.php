@@ -53,7 +53,9 @@ class WcPagantisNotify extends WcPagantisGateway
 
     /**
      * Validation vs PagantisClient
+     *
      * @return JsonExceptionResponse|JsonSuccessResponse
+     * @throws ConcurrencyException
      */
     public function processInformation()
     {
@@ -99,6 +101,7 @@ class WcPagantisNotify extends WcPagantisGateway
      */
 
     /**
+     * @throws ConcurrencyException
      * @throws QuoteNotFoundException
      */
     private function checkConcurrency()
@@ -156,7 +159,7 @@ class WcPagantisNotify extends WcPagantisGateway
     }
 
     /**
-     * @throws AlreadyProcessedException
+     * @return bool
      * @throws WrongStatusException
      */
     private function checkOrderStatus()
@@ -392,7 +395,6 @@ class WcPagantisNotify extends WcPagantisGateway
     /**
      * @param null $orderId
      *
-     * @return bool
      * @throws ConcurrencyException
      */
     private function unblockConcurrency($orderId = null)
@@ -411,6 +413,8 @@ class WcPagantisNotify extends WcPagantisGateway
     }
 
     /**
+     * @param $orderId
+     *
      * @throws ConcurrencyException
      */
     private function blockConcurrency($orderId)
