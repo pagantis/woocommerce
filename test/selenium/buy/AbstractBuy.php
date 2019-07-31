@@ -7,6 +7,7 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use Pagantis\ModuleUtils\Exception\AlreadyProcessedException;
 use Pagantis\ModuleUtils\Exception\NoIdentificationException;
 use Pagantis\ModuleUtils\Exception\QuoteNotFoundException;
+use Pagantis\ModuleUtils\Model\Response\JsonSuccessResponse;
 use Test\Selenium\PagantisWoocommerceTest;
 use Pagantis\SeleniumFormUtils\SeleniumHelper;
 use Httpful\Request;
@@ -158,7 +159,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
      */
     public function goToProductPage()
     {
-        $this->webDriver->get(self::WC3URL);
+        $this->webDriver->get($this->woocommerceUrl);
         $this->findByLinkText(self::PRODUCT_NAME)->click();
         $condition = WebDriverExpectedCondition::titleContains(self::PRODUCT_NAME);
         $this->webDriver->wait()->until($condition);
@@ -202,16 +203,10 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     {
         $validatorSearch = WebDriverBy::className('payment_method_pagantis');
         $actualString = $this->webDriver->findElement($validatorSearch)->getText();
-        $compareString = (strstr($actualString, $this->configuration['methodName'])) === false ? false : true;
-        $this->assertTrue($compareString, $actualString, "PR25,PR26");
+        $compareString = (strstr($actualString, $this->configuration['checkoutTitle'])) === false ? false : true;
+        $this->assertTrue($compareString, "PR25,PR26 - $actualString");
 
         $this->checkSimulator();
-
-        $cssSelector = "div#payment.woocommerce-checkout-payment > ul.wc_payment_methods > li.payment_method_pagantis > div.payment_method_pagantis";
-        $descriptionSearch = WebDriverBy::cssSelector($cssSelector);
-        $descriptionElement = $this->webDriver->findElement($descriptionSearch);
-        $actualString = $descriptionElement->getText();
-        $this->assertContains($this->configuration['checkoutDescription'], $actualString, "PR54");
 
         $priceSearch = WebDriverBy::className('woocommerce-Price-amount');
         $priceElements = $this->webDriver->findElements($priceSearch);
@@ -221,8 +216,6 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
 
     /**
      * Send ckeckout form
-     * @throws \Facebook\WebDriver\Exception\NoSuchElementException
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
      */
     public function goToPagantis()
     {
@@ -286,7 +279,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $this->waitUntil($condition);
         $actualString = $this->webDriver->findElement($messageElementSearch)->getText();
         $this->assertNotEmpty($actualString, "PR45");
-        $confString = (PagantisWoocommerceTest::LANG == 'EN') ? "Order received" : "Pedido recibido";
+        $confString = ($this->woocommerceLanguage == 'EN') ? "Order received" : "Pedido recibido";
         $this->assertNotEmpty($confString, "PR45");
         $compareString = (strstr($actualString, $confString)) === false ? false : true;
         $this->assertTrue($compareString, $actualString." PR45");
@@ -301,7 +294,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
 
         $validatorSearch = WebDriverBy::className('woocommerce-order-overview__payment-method');
         $actualString = $this->webDriver->findElement($validatorSearch)->getText();
-        $compareString = (strstr($actualString, $this->configuration['checkoutTitle'])) === false ? false : true;
+        $compareString = (strstr($actualString, $this->configuration['methodName'])) === false ? false : true;
         $this->assertTrue($compareString, $actualString, "PR49");
     }
 
@@ -325,7 +318,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
 
         $this->notifyUrl =  sprintf(
             "%s%s%s%s%s%s%s%s%s",
-            self::WC3URL,
+            $this->woocommerceUrl,
             self::NOTIFICATION_FOLDER,
             '&',
             self::NOTIFICATION_PARAMETER1,
@@ -360,7 +353,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
      */
     protected function checkPagantisOrderId()
     {
-        $notifyUrl = $this->notifyUrl.'=0';
+        $notifyUrl = $this->notifyUrl.'0';
         $this->assertNotEmpty($notifyUrl, $notifyUrl);
         $response = Request::post($notifyUrl)->expects('json')->send();
         $this->assertNotEmpty($response->body->result);
@@ -378,6 +371,6 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $this->assertNotEmpty($notifyUrl, $notifyUrl);
         $response = Request::post($notifyUrl)->expects('json')->send();
         $this->assertNotEmpty($response->body->result);
-        $this->assertContains(AlreadyProcessedException::ERROR_MESSAGE, $response->body->result, "PR51=>".$response->body->result);
+        $this->assertContains(JsonSuccessResponse::RESULT, $response->body->result, "PR51=>".$response->body->result);
     }
 }

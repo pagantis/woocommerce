@@ -1,6 +1,6 @@
 FROM php:7.2-apache
 
-ENV WORDPRESS_VERSION=5.1
+ENV WORDPRESS_VERSION=5.2.2
 ENV WOOCOMMERCE_VERSION=3.6.2
 
 RUN cd /tmp \
@@ -20,12 +20,21 @@ RUN buildDeps="libxml2-dev" \
         unzip \
         $buildDeps \
         less \
-        mysql-client \
+        mariadb-client \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
         libmcrypt-dev \
-        --no-install-recommends && rm -rf /var/lib/apt/lists/* \
-    && docker-php-ext-install -j$(nproc) pdo_mysql soap mysqli pdo mbstring zip \
+        pkg-config \
+        patch \
+        --no-install-recommends && rm -rf /var/lib/apt/lists/*
+
+ADD "https://git.archlinux.org/svntogit/packages.git/plain/trunk/freetype.patch?h=packages/php" /tmp/freetype.patch
+RUN docker-php-source extract; \
+    cd /usr/src/php; \
+    patch -p1 -i /tmp/freetype.patch; \
+    rm /tmp/freetype.patch
+
+RUN docker-php-ext-install -j$(nproc) pdo_mysql soap mysqli pdo mbstring zip \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false $buildDeps

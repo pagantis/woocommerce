@@ -39,6 +39,9 @@ class WcPagantisGateway extends WC_Payment_Gateway
     /** @var Array $extraConfig */
     public $extraConfig;
 
+    /** @var string $language */
+    public $language;
+
     /**
      * WcPagantisGateway constructor.
      */
@@ -46,22 +49,28 @@ class WcPagantisGateway extends WC_Payment_Gateway
     {
         //Mandatory vars for plugin
         $this->id = WcPagantisGateway::METHOD_ID;
-        $this->icon = esc_url(plugins_url('../assets/images/logo.png', __FILE__));
         $this->has_fields = true;
         $this->method_title = ucfirst($this->id);
-        $this->title = $this->extraConfig['PAGANTIS_TITLE'];
 
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
         $this->allowed_currencies = array("EUR");
         $this->mainFileLocation = dirname(plugin_dir_path(__FILE__)) . '/WC_Pagantis.php';
         $this->plugin_info = get_file_data($this->mainFileLocation, array('Version' => 'Version'), false);
+        $this->language = strstr(get_locale(), '_', true);
+
+        if ($this->language == 'es' || $this->language == '') {
+            $this->icon = esc_url(plugins_url('../assets/images/logopagamastarde.png', __FILE__));
+        } else {
+            $this->icon = esc_url(plugins_url('../assets/images/logo.png', __FILE__));
+        }
 
         //Panel form fields
         $this->form_fields = include(plugin_dir_path(__FILE__).'../includes/settings-pagantis.php');//Panel options
         $this->init_settings();
 
         $this->extraConfig = $this->getExtraConfig();
+        $this->title = __($this->extraConfig['PAGANTIS_TITLE'], 'pagantis');
 
         $this->settings['ok_url'] = ($this->extraConfig['PAGANTIS_URL_OK']!='')?$this->extraConfig['PAGANTIS_URL_OK']:$this->generateOkUrl();
         $this->settings['ko_url'] = ($this->extraConfig['PAGANTIS_URL_KO']!='')?$this->extraConfig['PAGANTIS_URL_KO']:$this->generateKoUrl();
@@ -104,9 +113,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
     public function admin_options()
     {
         $template_fields = array(
-            'panel_header' => $this->title,
             'panel_description' => $this->method_description,
-            'button1_label' => __('Login to panel of ', 'pagantis') . ucfirst(WcPagantisGateway::METHOD_ID),
+            'button1_label' => __('Login to your panel', 'pagantis'),
             'button2_label' => __('Documentation', 'pagantis'),
             'logo' => $this->icon,
             'settings' => $this->generate_settings_html($this->form_fields, false)
@@ -162,7 +170,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             require_once(__ROOT__.'/vendor/autoload.php');
             global $woocommerce;
             $order = new WC_Order($order_id);
-            $order->set_payment_method(ucfirst($this->id)); //Method showed in confirmation page.
+            $order->set_payment_method(ucfirst($this->id));
             $order->save();
 
             if (!isset($order)) {
@@ -281,11 +289,11 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setType(Channel::ONLINE)
             ;
             $orderConfiguration = new Configuration();
-            $language = strstr(get_locale(), '_', true);
+
             $orderConfiguration
                 ->setChannel($orderChannel)
                 ->setUrls($orderConfigurationUrls)
-                ->setPurchaseCountry($language)
+                ->setPurchaseCountry($this->language)
             ;
             $metadataOrder = new Metadata();
             $metadata = array(
@@ -422,7 +430,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function get_title()
     {
-        return $this->extraConfig['PAGANTIS_TITLE'];
+        return __($this->extraConfig['PAGANTIS_TITLE'], 'pagantis');
     }
 
     /**
@@ -465,7 +473,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
             'total' => WC()->session->cart_totals['total'],
             'enabled' =>  $this->settings['enabled'],
             'min_installments' => $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'],
-            'message' => __($this->extraConfig['PAGANTIS_TITLE_EXTRA']),
             'simulator_enabled' => $this->settings['pagantis_simulator'],
             'locale' => $locale,
             'allowedCountry' => $allowedCountry,

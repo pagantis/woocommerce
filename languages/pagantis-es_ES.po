@@ -2,31 +2,31 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pagantis WooCommerce V2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-19 10:41+0000\n"
-"PO-Revision-Date: 2019-03-19 11:59+0000\n"
+"POT-Creation-Date: 2019-07-30 12:43+0000\n"
+"PO-Revision-Date: 2019-07-30 13:17+0000\n"
 "Last-Translator: admin <demo@woocommerceshop.com>\n"
 "Language-Team: Español\n"
-"Language: es_ES\n"
+"Language: es-ES\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.2.1; wp-5.1"
+"X-Loco-Version: 2.3.0; wp-5.1"
 
-#: WC_Pagantis.php:206
+#: WC_Pagantis.php:214
 msgid "Settings"
 msgstr "Ajustes"
 
-#: WC_Pagantis.php:224 controllers/paymentController.php:88
+#: WC_Pagantis.php:232 controllers/paymentController.php:119
 msgid "Documentation"
 msgstr "Documentación"
 
-#: WC_Pagantis.php:226
+#: WC_Pagantis.php:234
 msgid "API documentation"
 msgstr "Documentación de la API"
 
-#: WC_Pagantis.php:227
+#: WC_Pagantis.php:235
 msgid "Support"
 msgstr "Soporte"
 
@@ -50,27 +50,35 @@ msgstr "Clave Privada"
 msgid "Product simulator"
 msgstr "Simulador en el producto"
 
-#: controllers/paymentController.php:87
-msgid "Login to panel of "
-msgstr "Login al panel de "
+#: controllers/paymentController.php:118
+msgid "Login to your panel"
+msgstr "Accede a tu panel"
 
-#: controllers/paymentController.php:104
+#: controllers/paymentController.php:135
 msgid " is not compatible with your php and/or curl version"
 msgstr " no es compatible con su versión de php/curl"
 
-#: controllers/paymentController.php:113
+#: controllers/paymentController.php:138
+msgid ""
+" is not configured correctly, the fields Public Key and Secret Key are "
+"mandatory for use this plugin"
+msgstr ""
+" no está configurado correctamente, los campos Public Key y Secret Key son "
+"obligatorios para su uso"
+
+#: controllers/paymentController.php:141
 msgid " only can be used in Euros"
 msgstr " solo puede ser usado en Euros"
 
-#: controllers/paymentController.php:117 controllers/paymentController.php:120
+#: controllers/paymentController.php:145 controllers/paymentController.php:148
 msgid " only can be payed from 2 to 12 installments"
 msgstr " solo puede ser pagado de 2 a 12 plazos"
 
-#: controllers/paymentController.php:122
+#: controllers/paymentController.php:150
 msgid " can not have a minimum amount less than 0"
 msgstr " no puede tener un importe mínimo menor a 0"
 
-#: controllers/paymentController.php:294 controllers/paymentController.php:407
+#: controllers/paymentController.php:341 controllers/paymentController.php:458
 msgid "Payment error "
 msgstr "Error en el pago "
 
@@ -86,18 +94,5 @@ msgstr "Financiar con Pagantis"
 msgid "http://www.pagantis.com/"
 msgstr "http://www.pagantis.com/"
 
-#: controllers/paymentController.php:107
-msgid ""
-" is not configured correctly, the fields Public Key and Secret Key are "
-"mandatory for use this plugin"
-msgstr ""
-" no está configurado correctamente, los campos Public Key y Secret Key son "
-"obligatorios para su uso"
-
-#: controllers/paymentController.php:421
-msgid ""
-"Pay up to 12 comfortable installments with Pagantis. Completely online and "
-"sympathetic request, and the answer is immediate!"
-msgstr ""
-"Paga hasta en 12 cómodas cuotas con Pagantis. Completamente online y sin "
-"papeleos, y la respuesta es inmediata!"
+msgid "Instant Financing"
+msgstr "Financiación Instantánea"

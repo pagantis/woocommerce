@@ -39,7 +39,7 @@
         return (window.attempts > 4)
     }
 
-    function loadSimulator()
+    function loadSimulatorPagantis()
     {
         if(typeof pmtSDK == 'undefined' || typeof pgSDK == 'undefined')
         {
@@ -84,7 +84,7 @@
 
     window.attempts = 0;
     window.loadingSimulator = setInterval(function () {
-        loadSimulator();
+        loadSimulatorPagantis();
     }, 2000);
 </script>
 <div class="pagantisSimulator"></div>

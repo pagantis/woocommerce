@@ -1,7 +1,3 @@
-<?php if ($message) { ?>
-<p><?php echo $message; ?></p>
-<?php } ?>
-
 <?php if ($enabled!=='0' && isset($total) && $simulator_enabled!=='0' && $allowed_country!=='0') { ?>
     <div class="pagantisSimulator"></div>
     <script>

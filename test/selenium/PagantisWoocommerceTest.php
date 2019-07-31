@@ -17,11 +17,11 @@ use PHPUnit\Framework\TestCase;
  */
 abstract class PagantisWoocommerceTest extends TestCase
 {
-    const WC3URL = 'http://woocommerce-test.docker:8091';
+    const WOOCOMMERCE_URL_TEST = 'http://woocommerce-test.docker:8091';
+
+    const WOOCOMMERCE_URL_DEV = 'http://woocommerce-dev.docker:8090';
 
     const BACKOFFICE_FOLDER = '/wp-admin';
-
-    const LANG = '';
 
     /**
      * @var array
@@ -43,13 +43,22 @@ abstract class PagantisWoocommerceTest extends TestCase
         'extra'         => 'Free Finance',
         'address'       => 'Av.Diagonal 579',
         'methodName'    => 'Pagantis',
-        'checkoutTitle' => 'Instant Financing',
+        'checkoutTitle' => 'Financiación Instantánea',
         'defaultMinIns' => 3,
         'defaultMaxIns' => 12,
         'defaultSimulatorOpt' => 6,
         'checkoutDescription'=> 'Pay up to 12 comfortable installments with Pagantis'
     );
 
+    /**
+     * @var string URL for test
+     */
+    protected $woocommerceUrl;
+
+    /**
+     * @var language of the installation
+     */
+    protected $woocommerceLanguage;
 
     /**
      * WooCommerce constructor.
@@ -60,6 +69,7 @@ abstract class PagantisWoocommerceTest extends TestCase
      */
     public function __construct($name = null, array $data = array(), $dataName = '')
     {
+        $this->woocommerceUrl = $this->getUrl();
         $faker = Factory::create();
         $this->configuration['dni'] = $this->getDNI();
         $this->configuration['birthdate'] =
@@ -209,5 +219,18 @@ abstract class PagantisWoocommerceTest extends TestCase
     protected function quit()
     {
         $this->webDriver->quit();
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function getUrl()
+    {
+        $env = getenv('WOOCOMMERCE_TEST_ENV');
+        if ($env == 'dev') {
+            $this->woocommerceLanguage = "EN";
+            return self::WOOCOMMERCE_URL_DEV;
+        }
+        return self::WOOCOMMERCE_URL_TEST;
     }
 }

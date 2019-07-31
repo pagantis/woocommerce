@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.1.1
+ * Version: 8.1.2
  * Author: Pagantis
  */
 
@@ -19,10 +19,15 @@ class WcPagantis
     const GIT_HUB_URL = 'https://github.com/pagantis/woocommerce';
     const PAGANTIS_DOC_URL = 'https://developer.pagantis.com';
     const SUPPORT_EML = 'mailto:integrations@pagantis.com?Subject=woocommerce_plugin';
+
     /** Concurrency tablename */
     const LOGS_TABLE = 'pagantis_logs';
+
     /** Config tablename */
     const CONFIG_TABLE = 'pagantis_config';
+
+    /** Concurrency tablename  */
+    const CONCURRENCY_TABLE = 'pagantis_concurrency';
 
     public $defaultConfigs = array('PAGANTIS_TITLE'=>'Instant Financing',
                             'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'pgSDK.simulator.types.SIMPLE',
@@ -38,7 +43,6 @@ class WcPagantis
                             'PAGANTIS_DISPLAY_MIN_AMOUNT'=>1,
                             'PAGANTIS_URL_OK'=>'',
                             'PAGANTIS_URL_KO'=>'',
-                            'PAGANTIS_TITLE_EXTRA' => 'Pay up to 12 comfortable installments with Pagantis. Completely online and sympathetic request, and the answer is immediate!',
                             'PAGANTIS_ALLOWED_COUNTRIES' => 'a:2:{i:0;s:2:"es";i:1;s:2:"it";}'
     );
 
@@ -64,7 +68,7 @@ class WcPagantis
         add_filter('plugin_row_meta', array($this, 'pagantisRowMeta'), 10, 2);
         add_filter('plugin_action_links_'.plugin_basename(__FILE__), array($this, 'pagantisActionLinks'));
         add_action('woocommerce_after_add_to_cart_form', array($this, 'pagantisAddProductSimulator'));
-        add_action('wp_enqueue_scripts', 'add_widget_js');
+        add_action('wp_enqueue_scripts', 'add_pagantis_widget_js');
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
     }
@@ -88,6 +92,16 @@ class WcPagantis
     public function pagantisActivation()
     {
         global $wpdb;
+
+        $tableName = $wpdb->prefix.self::CONCURRENCY_TABLE;
+        if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
+            $charset_collate = $wpdb->get_charset_collate();
+            $sql = "CREATE TABLE $tableName ( order_id int NOT NULL,  
+                    createdAt timestamp DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY id (order_id)) $charset_collate";
+            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
+            dbDelta($sql);
+        }
+
         $tableName = $wpdb->prefix.self::CONFIG_TABLE;
 
         //Check if table exists
@@ -151,13 +165,15 @@ class WcPagantis
             return;
         }
 
+        $css_quantity_selector = $this->prepareQuantitySelector();
+        $css_price_selector = $this->preparePriceSelector();
         $template_fields = array(
             'total'    => is_numeric($product->price) ? $product->price : 0,
             'public_key' => $cfg['pagantis_public_key'],
             'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
             'positionSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'],
-            'quantitySelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR']),
-            'priceSelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR']),
+            'quantitySelector' => unserialize($css_quantity_selector),
+            'priceSelector' => unserialize($css_price_selector),
             'totalAmount' => is_numeric($product->price) ? $product->price : 0,
             'locale' => $locale
         );
@@ -193,8 +209,8 @@ class WcPagantis
     public function pagantisFilterGateways($methods)
     {
         $pagantis = new WcPagantisGateway();
-        if ($pagantis->is_available()) {
-            $methods['pagantis'] = $pagantis;
+        if (!$pagantis->is_available()) {
+            unset($methods['pagantis']);
         }
 
         return $methods;
@@ -373,12 +389,42 @@ class WcPagantis
 
         return $response;
     }
+
+    /**
+     * @return mixed|string
+     */
+    private function prepareQuantitySelector()
+    {
+        $css_quantity_selector = $this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'];
+        if ($css_quantity_selector == 'default' || $css_quantity_selector == '') {
+            $css_quantity_selector = $this->defaultConfigs['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'];
+        } elseif (!unserialize($css_quantity_selector)) { //in the case of a custom string selector, we keep it
+            $css_quantity_selector = serialize(array($css_quantity_selector));
+        }
+
+        return $css_quantity_selector;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    private function preparePriceSelector()
+    {
+        $css_price_selector = $this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'];
+        if ($css_price_selector == 'default' || $css_price_selector == '') {
+            $css_price_selector = $this->defaultConfigs['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'];
+        } elseif (!unserialize($css_price_selector)) { //in the case of a custom string selector, we keep it
+            $css_price_selector = serialize(array($css_price_selector));
+        }
+
+        return $css_price_selector;
+    }
 }
 
 /**
  * Add widget Js
  **/
-function add_widget_js()
+function add_pagantis_widget_js()
 {
     wp_enqueue_script('pgSDK', 'https://cdn.pagantis.com/js/pg-v2/sdk.js', '', '', true);
     wp_enqueue_script('pmtSDK', 'https://cdn.pagamastarde.com/js/pmt-v2/sdk.js', '', '', true);

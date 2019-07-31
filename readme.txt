@@ -2,7 +2,7 @@
 Contributors: pgarcess
 Tags: WooCommerce, Payment Gateway, Pagantis, pagantis payment gateway, gateway for woocommerce, Card payment woocommerce, woocommerce financing
 Requires at least: 2.0.1.3
-Tested up to: 5.2.0
+Tested up to: 5.2.2
 WC tested up to: 3.6.2
 Stable tag: trunk
 License: GPLv2 or later
