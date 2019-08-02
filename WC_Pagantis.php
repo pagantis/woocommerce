@@ -29,6 +29,9 @@ class WcPagantis
     /** Concurrency tablename  */
     const CONCURRENCY_TABLE = 'pagantis_concurrency';
 
+    /** Config tablename */
+    const ORDERS_TABLE = 'posts';
+
     public $defaultConfigs = array('PAGANTIS_TITLE'=>'Instant Financing',
                             'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'pgSDK.simulator.types.SIMPLE',
                             'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'pgSDK.simulator.skins.BLUE',
@@ -268,7 +271,7 @@ class WcPagantis
         $from = $filters['from'];
         $to   = $filters['to'];
         $cfg  = get_option('woocommerce_pagantis_settings');
-        $privateKey = isset($cfg['secret_key']) ? $cfg['secret_key'] : null;
+        $privateKey = isset($cfg['pagantis_private_key']) ? $cfg['pagantis_private_key'] : null;
         $tableName = $wpdb->prefix.self::LOGS_TABLE;
         $query = "select * from $tableName where createdAt>$from and createdAt<$to order by createdAt desc";
         $results = $wpdb->get_results($query);
@@ -344,6 +347,45 @@ class WcPagantis
     }
 
     /**
+     * Read logs
+     */
+    public function readApi($data)
+    {
+        global $wpdb;
+        $filters   = ($data->get_params());
+        $response  = array('timestamp'=>time());
+        $secretKey = $filters['secret'];
+        $from = ($filters['from']) ? date_create($filters['from']) : date("Y-m-d", strtotime("-7 day"));
+        $to = ($filters['to']) ? date_create($filters['to']) : date("Y-m-d", strtotime("+1 day"));
+        $method = ($filters['method']) ? ($filters['method']) : 'Pagantis';
+        $cfg  = get_option('woocommerce_pagantis_settings');
+        $privateKey = isset($cfg['pagantis_private_key']) ? $cfg['pagantis_private_key'] : null;
+        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $tableNameInner = $wpdb->prefix.'postmeta';
+        $query = "select * from $tableName tn
+INNER JOIN $tableNameInner tn2 ON tn2.post_id = tn.id
+where tn.post_type='shop_order' and tn.post_date>'".$from->format("Y-m-d")."' and tn.post_date<'".$to->format("Y-m-d")."' order by tn.post_date desc";
+        $results = $wpdb->get_results($query);
+
+        if (isset($results) && $privateKey == $secretKey) {
+            foreach ($results as $result) {
+                $key = $result->ID;
+                $response['message'][$key]['timestamp'] = $result->post_date;
+                $response['message'][$key]['order_id'] = $key;
+                $response['message'][$key][$result->meta_key] = $result->meta_value;
+            }
+        } else {
+            $response['result'] = 'Error';
+        }
+        $response = json_encode($response);
+        header("HTTP/1.1 200", true, 200);
+        header('Content-Type: application/json', true);
+        header('Content-Length: '.strlen($response));
+        echo($response);
+        exit();
+    }
+
+    /**
      * ENDPOINT - Read logs -> Hook: rest_api_init
      * @return mixed
      */
@@ -369,6 +411,18 @@ class WcPagantis
                 'callback' => array(
                     $this,
                     'updateExtraConfig')
+            ),
+            true
+        );
+
+        register_rest_route(
+            'pagantis/v1',
+            '/api/(?P<secret>\w+)/(?P<from>\w+)/(?P<to>\w+)',
+            array(
+                'methods'  => 'GET',
+                'callback' => array(
+                    $this,
+                    'readApi')
             ),
             true
         );
