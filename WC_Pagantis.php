@@ -313,7 +313,7 @@ class WcPagantis
                     if (isset($this->defaultConfigs[$config]) && $response['status']==null) {
                         $wpdb->update(
                             $tableName,
-                            array('value' => $value),
+                            array('value' => stripslashes($value)),
                             array('config' => $config),
                             array('%s'),
                             array('%s')
