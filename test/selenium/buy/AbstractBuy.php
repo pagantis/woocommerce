@@ -444,13 +444,10 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
      */
     protected function checkApi()
     {
-        $dateFrom = date("Y-m-d", strtotime("-1 day"));
-        $dateTo = date("Y-m-d", strtotime("+1 day"));
+        $dateFrom = date("Ymd", strtotime("-1 day"));
+        $dateTo = date("Ymd", strtotime("+1 day"));
         $apiUrl = $this->woocommerceUrl.self::API_FOLDER.$this->configuration['secretKey']."/$dateFrom/$dateTo";
-        echo $apiUrl;
         $response = Request::get($apiUrl)->expects('json')->send();
-        echo "<pre>";
-        var_dump($response);
         $this->assertNotEmpty($response->body);
         $this->assertEquals(1, count($response->body), "PR63=>".$apiUrl." = ".count($response->body));
     }
