@@ -29,7 +29,7 @@ cp -pr languages/ svn/trunk/languages/
 cp -pr templates/ svn/trunk/templates/
 cp -pr vendor/ svn/trunk/vendor/
 cp readme.txt svn/trunk/readme.txt
-cp WC_pagantis.php svn/trunk/WC_pagantis.php
+cp WC_Pagantis.php svn/trunk/WC_Pagantis.php
 ``` 
 
 4- Add the files to svn track
