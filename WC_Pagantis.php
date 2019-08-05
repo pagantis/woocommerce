@@ -61,8 +61,6 @@ class WcPagantis
 
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
-        $this->pagantisActivation();
-
         $this->extraConfig = $this->getExtraConfig();
 
         load_plugin_textdomain('pagantis', false, basename(dirname(__FILE__)).'/languages');
@@ -74,6 +72,8 @@ class WcPagantis
         add_action('wp_enqueue_scripts', 'add_pagantis_widget_js');
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
+        //add_action('upgrader_process_complete', 'pagantisActivation', 10, 2);
+        register_activation_hook(__FILE__, array($this, 'pagantisActivation'));
     }
 
     /*
@@ -119,6 +119,45 @@ class WcPagantis
 
             require_once(ABSPATH.'wp-admin/includes/upgrade.php');
             dbDelta($sql);
+        } else {
+            //Updated value field to adapt to new length < v8.0.1
+            $query = "select COLUMN_TYPE FROM information_schema.COLUMNS where TABLE_NAME='$tableName' AND COLUMN_NAME='value'";
+            $results = $wpdb->get_results($query, ARRAY_A);
+            if ($results['0']['COLUMN_TYPE'] == 'varchar(100)') {
+                $sql = "ALTER TABLE $tableName MODIFY value varchar(1000)";
+                require_once(ABSPATH.'wp-admin/includes/upgrade.php');
+                dbDelta($sql);
+            }
+
+            //Adapting selector to array
+            $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR' 
+                               or config='PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'";
+            $dbCurrentConfig = $wpdb->get_results($query, ARRAY_A);
+            foreach ($dbCurrentConfig as $item) {
+                if ($item['config'] == 'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR') {
+                    $css_price_selector = $this->preparePriceSelector($item['value']);
+                    if ($item['value'] != $css_price_selector) {
+                        $wpdb->update(
+                            $tableName,
+                            array('value' => stripslashes($css_price_selector)),
+                            array('config' => 'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'),
+                            array('%s'),
+                            array('%s')
+                        );
+                    }
+                } elseif ($item['config'] == 'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR') {
+                    $css_quantity_selector = $this->prepareQuantitySelector($item['value']);
+                    if ($item['value'] != $css_quantity_selector) {
+                        $wpdb->update(
+                            $tableName,
+                            array('value' => stripslashes($css_quantity_selector)),
+                            array('config' => 'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'),
+                            array('%s'),
+                            array('%s')
+                        );
+                    }
+                }
+            }
         }
 
         $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
@@ -168,15 +207,13 @@ class WcPagantis
             return;
         }
 
-        $css_quantity_selector = $this->prepareQuantitySelector();
-        $css_price_selector = $this->preparePriceSelector();
         $template_fields = array(
             'total'    => is_numeric($product->price) ? $product->price : 0,
             'public_key' => $cfg['pagantis_public_key'],
             'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
             'positionSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'],
-            'quantitySelector' => unserialize($css_quantity_selector),
-            'priceSelector' => unserialize($css_price_selector),
+            'quantitySelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'],
+            'priceSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'],
             'totalAmount' => is_numeric($product->price) ? $product->price : 0,
             'locale' => $locale
         );
@@ -447,9 +484,8 @@ where tn.post_type='shop_order' and tn.post_date>'".$from->format("Y-m-d")."' an
     /**
      * @return mixed|string
      */
-    private function prepareQuantitySelector()
+    private function prepareQuantitySelector($css_quantity_selector)
     {
-        $css_quantity_selector = $this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'];
         if ($css_quantity_selector == 'default' || $css_quantity_selector == '') {
             $css_quantity_selector = $this->defaultConfigs['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'];
         } elseif (!unserialize($css_quantity_selector)) { //in the case of a custom string selector, we keep it
@@ -462,9 +498,8 @@ where tn.post_type='shop_order' and tn.post_date>'".$from->format("Y-m-d")."' an
     /**
      * @return mixed|string
      */
-    private function preparePriceSelector()
+    private function preparePriceSelector($css_price_selector)
     {
-        $css_price_selector = $this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'];
         if ($css_price_selector == 'default' || $css_price_selector == '') {
             $css_price_selector = $this->defaultConfigs['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'];
         } elseif (!unserialize($css_price_selector)) { //in the case of a custom string selector, we keep it
