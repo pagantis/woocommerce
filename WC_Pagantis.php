@@ -125,8 +125,7 @@ class WcPagantis
             $results = $wpdb->get_results($query, ARRAY_A);
             if ($results['0']['COLUMN_TYPE'] == 'varchar(100)') {
                 $sql = "ALTER TABLE $tableName MODIFY value varchar(1000)";
-                require_once(ABSPATH.'wp-admin/includes/upgrade.php');
-                dbDelta($sql);
+                $wpdb->query($sql);
             }
 
             //Adapting selector to array
@@ -212,8 +211,8 @@ class WcPagantis
             'public_key' => $cfg['pagantis_public_key'],
             'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
             'positionSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'],
-            'quantitySelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'],
-            'priceSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'],
+            'quantitySelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR']),
+            'priceSelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR']),
             'totalAmount' => is_numeric($product->price) ? $product->price : 0,
             'locale' => $locale
         );
@@ -482,6 +481,8 @@ where tn.post_type='shop_order' and tn.post_date>'".$from->format("Y-m-d")."' an
     }
 
     /**
+     * @param $css_quantity_selector
+     *
      * @return mixed|string
      */
     private function prepareQuantitySelector($css_quantity_selector)
@@ -496,6 +497,8 @@ where tn.post_type='shop_order' and tn.post_date>'".$from->format("Y-m-d")."' an
     }
 
     /**
+     * @param $css_price_selector
+     *
      * @return mixed|string
      */
     private function preparePriceSelector($css_price_selector)
