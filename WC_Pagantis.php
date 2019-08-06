@@ -72,7 +72,6 @@ class WcPagantis
         add_action('wp_enqueue_scripts', 'add_pagantis_widget_js');
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
-        //add_action('upgrader_process_complete', 'pagantisActivation', 10, 2);
         register_activation_hook(__FILE__, array($this, 'pagantisActivation'));
     }
 
@@ -128,7 +127,7 @@ class WcPagantis
                 $wpdb->query($sql);
             }
 
-            //Adapting selector to array
+            //Adapting selector to array < v8.1.1
             $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR' 
                                or config='PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'";
             $dbCurrentConfig = $wpdb->get_results($query, ARRAY_A);
@@ -398,9 +397,9 @@ class WcPagantis
         $privateKey = isset($cfg['pagantis_private_key']) ? $cfg['pagantis_private_key'] : null;
         $tableName = $wpdb->prefix.self::ORDERS_TABLE;
         $tableNameInner = $wpdb->prefix.'postmeta';
-        $query = "select * from $tableName tn
-INNER JOIN $tableNameInner tn2 ON tn2.post_id = tn.id
-where tn.post_type='shop_order' and tn.post_date>'".$from->format("Y-m-d")."' and tn.post_date<'".$to->format("Y-m-d")."' order by tn.post_date desc";
+        $query = "select * from $tableName tn INNER JOIN $tableNameInner tn2 ON tn2.post_id = tn.id
+                  where tn.post_type='shop_order' and tn.post_date>'".$from->format("Y-m-d")."' 
+                  and tn.post_date<'".$to->format("Y-m-d")."' order by tn.post_date desc";
         $results = $wpdb->get_results($query);
 
         if (isset($results) && $privateKey == $secretKey) {
