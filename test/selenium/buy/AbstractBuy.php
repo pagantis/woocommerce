@@ -449,7 +449,8 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $apiUrl = $this->woocommerceUrl.self::API_FOLDER.$this->configuration['secretKey']."/$dateFrom/$dateTo";
         $response = Request::get($apiUrl)->expects('json')->send();
         $this->assertNotEmpty($response->body->message);
-        $this->assertEquals(1, count((array)$response->body->message), "PR63=>".$apiUrl." = ".count($response->body));
+        $numberOfPurchases = count((array)$response->body->message);
+        $this->assertEquals(1, $numberOfPurchases, "PR63=>$apiUrl = $numberOfPurchases");
     }
 
     /**
