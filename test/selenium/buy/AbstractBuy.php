@@ -11,6 +11,7 @@ use Pagantis\ModuleUtils\Model\Response\JsonSuccessResponse;
 use Test\Selenium\PagantisWoocommerceTest;
 use Pagantis\SeleniumFormUtils\SeleniumHelper;
 use Httpful\Request;
+use Httpful\Mime;
 
 /**
  * Class AbstractBuy
@@ -51,9 +52,24 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     const LOGO_FILE = 'logo.png';
 
     /**
-     *  Logout URL
+     *  Notification folder
      */
     const NOTIFICATION_FOLDER = '/?wc-api=wcpagantisgateway';
+
+    /**
+     *  Config folder
+     */
+    const CONFIG_FOLDER = '/?rest_route=/pagantis/v1/configController/';
+
+    /**
+     *  Log folder
+     */
+    const LOG_FOLDER = '/?rest_route=/pagantis/v1/logs/';
+
+    /**
+     *  Api folder
+     */
+    const API_FOLDER = '/?rest_route=/pagantis/v1/api/';
 
     /**
      *  Notification param1
@@ -104,6 +120,25 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
      * @var String $notifyUrl
      */
     public $notifyUrl;
+
+    /**
+     * @var array $configs
+     */
+    protected $configs = array(
+        "PAGANTIS_TITLE",
+        "PAGANTIS_SIMULATOR_DISPLAY_TYPE",
+        "PAGANTIS_SIMULATOR_DISPLAY_SKIN",
+        "PAGANTIS_SIMULATOR_DISPLAY_POSITION",
+        "PAGANTIS_SIMULATOR_START_INSTALLMENTS",
+        "PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR",
+        "PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION",
+        "PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR",
+        "PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR",
+        "PAGANTIS_FORM_DISPLAY_TYPE",
+        "PAGANTIS_DISPLAY_MIN_AMOUNT",
+        "PAGANTIS_URL_OK",
+        "PAGANTIS_URL_KO",
+    );
 
     /**
      * @return mixed
@@ -373,4 +408,61 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $this->assertNotEmpty($response->body->result);
         $this->assertContains(JsonSuccessResponse::RESULT, $response->body->result, "PR51=>".$response->body->result);
     }
+
+    /**
+     * @throws \Httpful\Exception\ConnectionErrorException
+     */
+    protected function checkExtraConfig()
+    {
+        $configUrl = $this->woocommerceUrl.self::CONFIG_FOLDER.$this->configuration['secretKey'];
+        $response = Request::get($configUrl)->expects('json')->send();
+        $content = $response->body;
+        foreach ($this->configs as $config) {
+            $this->assertArrayHasKey($config, (array) $content, "PR61=>".print_r($content, true));
+        }
+
+        $requestTitle = 'changed';
+        $body = array('PAGANTIS_TITLE' => $requestTitle);
+        $response = Request::post($configUrl)
+                           ->body($body, Mime::FORM)
+                           ->expectsJSON()
+                           ->send();
+        $title = $response->body->PAGANTIS_TITLE;
+        $this->assertEquals($requestTitle, $title, "PR62=>".$configUrl." => ".$requestTitle ."!=".$title);
+        $requestTitle = 'Instant Financing';
+        $body = array('PAGANTIS_TITLE' => $requestTitle);
+        $response = Request::post($configUrl)
+                           ->body($body, Mime::FORM)
+                           ->expectsJSON()
+                           ->send();
+        $title = $response->body->PAGANTIS_TITLE;
+        $this->assertEquals($requestTitle, $title, "PR62b=>".$configUrl." => ".$requestTitle ."!=".$title);
+    }
+
+    /**
+     * @throws \Httpful\Exception\ConnectionErrorException
+     */
+    protected function checkApi()
+    {
+        $dateFrom = date("Ymd", strtotime("-1 day"));
+        $dateTo = date("Ymd", strtotime("+1 day"));
+        $apiUrl = $this->woocommerceUrl.self::API_FOLDER.$this->configuration['secretKey']."/$dateFrom/$dateTo";
+        $response = Request::get($apiUrl)->expects('json')->send();
+        $this->assertNotEmpty($response->body->message);
+        $numberOfPurchases = count((array)$response->body->message);
+        $this->assertEquals(1, $numberOfPurchases, "PR63=>$apiUrl = $numberOfPurchases");
+    }
+
+    /**
+     * @throws \Httpful\Exception\ConnectionErrorException
+     */
+    protected function checkLogs()
+    {
+        $dateFrom = date("Ymd", strtotime("-1 day"));
+        $dateTo = date("Ymd", strtotime("+1 day"));
+        $logUrl = $this->woocommerceUrl.self::LOG_FOLDER.$this->configuration['secretKey']."/$dateFrom/$dateTo";
+        $response = Request::get($logUrl)->expects('json')->send();
+        $this->assertEquals(2, count($response->body), "PR60=>".$logUrl." = ".count($response->body));
+    }
+
 }
