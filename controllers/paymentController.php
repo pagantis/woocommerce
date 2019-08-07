@@ -14,6 +14,7 @@ use Pagantis\OrdersApiClient\Model\Order\Configuration\Channel;
 use Pagantis\OrdersApiClient\Model\Order\Configuration;
 use Pagantis\OrdersApiClient\Client;
 use Pagantis\OrdersApiClient\Model\Order;
+use Pagantis\ModuleUtils\Model\Log\LogEntry;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -478,8 +479,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function payment_fields()
     {
-        global $woocommerce;
-
         $locale = strtolower(strstr(get_locale(), '_', true));
         $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
         $allowedCountry = (in_array(strtolower($locale), $allowedCountries));
