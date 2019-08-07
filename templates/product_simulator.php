@@ -66,18 +66,24 @@
         }
 
         var priceSelector = findPriceSelector();
-
+        var promotedProduct = '<?php echo $promoted;?>';
         var quantitySelector = findQuantitySelector();
 
+        simulator_options = {
+            publicKey: '<?php echo $public_key; ?>',
+            type: <?php echo $simulator_type; ?>,
+            selector: positionSelector,
+            itemQuantitySelector: quantitySelector,
+            locale: locale,
+            itemAmountSelector: priceSelector
+        };
+
+        if (promotedProduct == 'true') {
+            simulator_options.itemPromotedAmountSelector = priceSelector;
+        }
+
         if (typeof sdk != 'undefined') {
-            window.WCSimulatorId = sdk.simulator.init({
-                publicKey: '<?php echo $public_key; ?>',
-                type: <?php echo $simulator_type; ?>,
-                selector: positionSelector,
-                itemQuantitySelector: quantitySelector,
-                itemAmountSelector: priceSelector,
-                locale: locale
-            });
+            window.WCSimulatorId = sdk.simulator.init(simulator_options);
             return false;
         }
     }
@@ -87,4 +93,14 @@
         loadSimulatorPagantis();
     }, 2000);
 </script>
+<style>
+    .pmt-no-interest{
+        color: #00c1d5
+    }
+</style>
+<?php
+if ($promoted == 'true') {
+    echo $promotedMessage;
+}
+?>
 <div class="pagantisSimulator"></div>

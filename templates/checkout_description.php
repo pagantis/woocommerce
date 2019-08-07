@@ -38,6 +38,7 @@
                     publicKey: '<?php echo $public_key; ?>',
                     selector: '.pagantisSimulator',
                     totalAmount: '<?php echo $total; ?>',
+                    totalPromotedAmount: '<?php echo $promoted_amount; ?>',
                     locale: locale
                 });
                 return false;
