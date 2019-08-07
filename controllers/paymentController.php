@@ -243,10 +243,21 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 $orderUser->addOrderHistory($orderHistory);
             }
 
+            $metadataOrder = new Metadata();
+            $metadata = array(
+                'woocommerce' => WC()->version,
+                'pagantis'         => $this->plugin_info['Version'],
+                'php'         => phpversion()
+            );
+            foreach ($metadata as $key => $metadatum) {
+                $metadataOrder->addMetadata($key, $metadatum);
+            }
+
             $details = new Details();
             $shippingCost = $order->shipping_total;
             $details->setShippingCost(intval(strval(100 * $shippingCost)));
             $items = $woocommerce->cart->get_cart();
+            $promotedAmount = 0;
             foreach ($items as $key => $item) {
                 $product = new Product();
                 $productDescription = sprintf(
@@ -258,15 +269,26 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 $product
                     ->setAmount(intval(100 * $item['line_total']))
                     ->setQuantity($item['quantity'])
-                    ->setDescription($productDescription);
+                    ->setDescription($productDescription)
+                ;
                 $details->addProduct($product);
+
+                $promotedProduct = $this->isPromoted($item['product_id']);
+                if ($promotedProduct == 'true') {
+                    $promotedAmount+=$product->getAmount();
+                    $promotedMessage = 'Promoted Item: ' . $product->getDescription() .
+                                       ' Price: ' . $item['line_total'] .
+                                       ' Qty: ' . $product->getQuantity() .
+                                       ' Item ID: ' . $item['id_product'];
+                    $metadataOrder->addMetadata('promotedProduct', $promotedMessage);
+                }
             }
 
             $orderShoppingCart = new ShoppingCart();
             $orderShoppingCart
                 ->setDetails($details)
                 ->setOrderReference($order->get_id())
-                ->setPromotedAmount(0)
+                ->setPromotedAmount($promotedAmount)
                 ->setTotalAmount(intval(strval(100 * $order->total)))
             ;
             $orderConfigurationUrls = new Urls();
@@ -295,15 +317,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setUrls($orderConfigurationUrls)
                 ->setPurchaseCountry($this->language)
             ;
-            $metadataOrder = new Metadata();
-            $metadata = array(
-                'woocommerce' => WC()->version,
-                'pagantis'         => $this->plugin_info['Version'],
-                'php'         => phpversion()
-            );
-            foreach ($metadata as $key => $metadatum) {
-                $metadataOrder->addMetadata($key, $metadatum);
-            }
+
             $orderApiClient = new Order();
             $orderApiClient
                 ->setConfiguration($orderConfiguration)
@@ -464,9 +478,12 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function payment_fields()
     {
+        global $woocommerce;
+
         $locale = strtolower(strstr(get_locale(), '_', true));
         $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
         $allowedCountry = (in_array(strtolower($locale), $allowedCountries));
+        $promotedAmount = $this->getPromotedAmount();
 
         $template_fields = array(
             'public_key' => $this->pagantis_public_key,
@@ -476,7 +493,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
             'simulator_enabled' => $this->settings['pagantis_simulator'],
             'locale' => $locale,
             'allowedCountry' => $allowedCountry,
-            'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']
+            'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
+            'promoted_amount' => $promotedAmount
         );
         wc_get_template('checkout_description.php', $template_fields, '', $this->template_path);
     }
@@ -810,5 +828,34 @@ class WcPagantisGateway extends WC_Payment_Gateway
             dbDelta($sql);
         }
         return;
+    }
+
+    /**
+     * @param $product_id
+     *
+     * @return string
+     */
+    private function isPromoted($product_id)
+    {
+        $metaProduct = get_post_meta($product_id);
+        return ($metaProduct['custom_product_pagantis_promoted']['0'] === 'yes') ? 'true' : 'false';
+    }
+
+    /**
+     * @return int
+     */
+    private function getPromotedAmount()
+    {
+        global $woocommerce;
+        $items = $woocommerce->cart->get_cart();
+        $promotedAmount = 0;
+        foreach ($items as $key => $item) {
+            $promotedProduct = $this->isPromoted($item['product_id']);
+            if ($promotedProduct == 'true') {
+                $promotedAmount+=$item['line_total'];
+            }
+        }
+
+        return $promotedAmount;
     }
 }

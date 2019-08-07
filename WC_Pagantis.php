@@ -46,7 +46,8 @@ class WcPagantis
                                    'PAGANTIS_DISPLAY_MIN_AMOUNT'=>1,
                                    'PAGANTIS_URL_OK'=>'',
                                    'PAGANTIS_URL_KO'=>'',
-                                   'PAGANTIS_ALLOWED_COUNTRIES' => 'a:2:{i:0;s:2:"es";i:1;s:2:"it";}'
+                                   'PAGANTIS_ALLOWED_COUNTRIES' => 'a:2:{i:0;s:2:"es";i:1;s:2:"it";}',
+                                   'PAGANTIS_PROMOTION_EXTRA' => '<p>Finance this product <span class="pmt-no-interest">without interest!</span></p>'
     );
 
     /** @var Array $extraConfig */
@@ -73,14 +74,16 @@ class WcPagantis
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
         register_activation_hook(__FILE__, array($this, 'pagantisActivation'));
-        add_action('woocommerce_product_options_general_product_data', array($this, 'woocommerce_product_custom_fields'));
-        add_action('woocommerce_process_product_meta', array($this, 'woocommerce_product_custom_fields_save'));
-        add_filter('handle_bulk_actions-edit-shop_order', 'downloads_handle_bulk_action_edit_shop_order', 10, 3 );
-        add_action('woocommerce_product_bulk_edit_start', array($this,'bbloomer_custom_field_bulk_edit_start'));
-        add_action('woocommerce_product_bulk_edit_save', array($this,'bbloomer_custom_field_bulk_edit_save'));
+        add_action('woocommerce_product_options_general_product_data', array($this, 'pagantisPromotedProductTpl'));
+        add_action('woocommerce_process_product_meta', array($this, 'pagantisPromotedVarSave'));
+        add_action('woocommerce_product_bulk_edit_start', array($this,'pagantisPromotedBulkTemplate'));
+        add_action('woocommerce_product_bulk_edit_save', array($this,'pagantisPromotedBulkTemplateSave'));
     }
 
-    public function bbloomer_custom_field_bulk_edit_start()
+    /**
+     * Piece of html code to insert into BULK admin edit
+     */
+    public function pagantisPromotedBulkTemplate()
     {
         echo '<div class="inline-edit-group">
 			<label class="alignleft">
@@ -92,23 +95,29 @@ class WcPagantis
 		</div>';
     }
 
-    public function bbloomer_custom_field_bulk_edit_save($product)
+    /**
+     * Php code to save our meta after a bulk admin edit
+     * @param $product
+     */
+    public function pagantisPromotedBulkTemplateSave($product)
     {
         $post_id = $product->get_id();
-        var_dump($post_id);
-        $woocommerce_custom_product_pagantis_promoted = $_REQUEST['pagantis_promoted'];
-        if ($woocommerce_custom_product_pagantis_promoted == 'on') {
-            $woocommerce_custom_product_pagantis_promoted = 'yes';
+        $pagantis_promoted_value = $_REQUEST['pagantis_promoted'];
+        if ($pagantis_promoted_value == 'on') {
+            $pagantis_promoted_value = 'yes';
         } else {
-            $woocommerce_custom_product_pagantis_promoted = 'no';
+            $pagantis_promoted_value = 'no';
         }
 
-        update_post_meta($post_id, 'custom_product_pagantis_promoted', esc_attr($woocommerce_custom_product_pagantis_promoted));
+        update_post_meta($post_id, 'custom_product_pagantis_promoted', esc_attr($pagantis_promoted_value));
     }
 
-    public function woocommerce_product_custom_fields()
+    /**
+     * Piece of html code to insert into PRODUCT admin edit
+     */
+    public function pagantisPromotedProductTpl()
     {
-        global $woocommerce, $post;
+        global $post;
         $_product = get_post_meta($post->ID);
         woocommerce_wp_checkbox(
             array(
@@ -121,13 +130,17 @@ class WcPagantis
         );
     }
 
-    public function woocommerce_product_custom_fields_save($post_id)
+    /**
+     *  Php code to save our meta after a PRODUCT admin edit
+     * @param $post_id
+     */
+    public function pagantisPromotedVarSave($post_id)
     {
-        $woocommerce_custom_product_pagantis_promoted = $_POST['pagantis_promoted'];
-        if ($woocommerce_custom_product_pagantis_promoted == null) {
-            $woocommerce_custom_product_pagantis_promoted = 'no';
+        $pagantis_promoted_value = $_POST['pagantis_promoted'];
+        if ($pagantis_promoted_value == null) {
+            $pagantis_promoted_value = 'no';
         }
-        update_post_meta($post_id, 'custom_product_pagantis_promoted', esc_attr($woocommerce_custom_product_pagantis_promoted));
+        update_post_meta($post_id, 'custom_product_pagantis_promoted', esc_attr($pagantis_promoted_value));
     }
 
     /*
@@ -260,6 +273,7 @@ class WcPagantis
             return;
         }
 
+        $post_id = $product->get_id();
         $template_fields = array(
             'total'    => is_numeric($product->price) ? $product->price : 0,
             'public_key' => $cfg['pagantis_public_key'],
@@ -268,7 +282,9 @@ class WcPagantis
             'quantitySelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR']),
             'priceSelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR']),
             'totalAmount' => is_numeric($product->price) ? $product->price : 0,
-            'locale' => $locale
+            'locale' => $locale,
+            'promoted' => $this->isPromoted($post_id),
+            'promotedMessage' => $this->extraConfig['PAGANTIS_PROMOTION_EXTRA']
         );
         wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
     }
@@ -564,6 +580,17 @@ class WcPagantis
         }
 
         return $css_price_selector;
+    }
+
+    /**
+     * @param $product_id
+     *
+     * @return string
+     */
+    private function isPromoted($product_id)
+    {
+        $metaProduct = get_post_meta($product_id);
+        return ($metaProduct['custom_product_pagantis_promoted']['0'] === 'yes') ? 'true' : 'false';
     }
 }
 
