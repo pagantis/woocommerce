@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.1.3
+ * Version: 8.2.0
  * Author: Pagantis
  */
 
@@ -33,20 +33,21 @@ class WcPagantis
     const ORDERS_TABLE = 'posts';
 
     public $defaultConfigs = array('PAGANTIS_TITLE'=>'Instant Financing',
-                            'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'pgSDK.simulator.types.SIMPLE',
-                            'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'pgSDK.simulator.skins.BLUE',
-                            'PAGANTIS_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
-                            'PAGANTIS_SIMULATOR_START_INSTALLMENTS'=>3,
-                            'PAGANTIS_SIMULATOR_MAX_INSTALLMENTS'=>12,
-                            'PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'=>'default',
-                            'PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'=>'pgSDK.simulator.positions.INNER',
-                            'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'=>'a:3:{i:0;s:48:"div.summary *:not(del)>.woocommerce-Price-amount";i:1;s:54:"div.entry-summary *:not(del)>.woocommerce-Price-amount";i:2;s:36:"*:not(del)>.woocommerce-Price-amount";}',
-                            'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'=>'a:2:{i:0;s:22:"div.quantity input.qty";i:1;s:18:"div.quantity>input";}',
-                            'PAGANTIS_FORM_DISPLAY_TYPE'=>0,
-                            'PAGANTIS_DISPLAY_MIN_AMOUNT'=>1,
-                            'PAGANTIS_URL_OK'=>'',
-                            'PAGANTIS_URL_KO'=>'',
-                            'PAGANTIS_ALLOWED_COUNTRIES' => 'a:2:{i:0;s:2:"es";i:1;s:2:"it";}'
+                                   'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'pgSDK.simulator.types.SIMPLE',
+                                   'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'pgSDK.simulator.skins.BLUE',
+                                   'PAGANTIS_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
+                                   'PAGANTIS_SIMULATOR_START_INSTALLMENTS'=>3,
+                                   'PAGANTIS_SIMULATOR_MAX_INSTALLMENTS'=>12,
+                                   'PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'=>'default',
+                                   'PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'=>'pgSDK.simulator.positions.INNER',
+                                   'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'=>'a:3:{i:0;s:48:"div.summary *:not(del)>.woocommerce-Price-amount";i:1;s:54:"div.entry-summary *:not(del)>.woocommerce-Price-amount";i:2;s:36:"*:not(del)>.woocommerce-Price-amount";}',
+                                   'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'=>'a:2:{i:0;s:22:"div.quantity input.qty";i:1;s:18:"div.quantity>input";}',
+                                   'PAGANTIS_FORM_DISPLAY_TYPE'=>0,
+                                   'PAGANTIS_DISPLAY_MIN_AMOUNT'=>1,
+                                   'PAGANTIS_URL_OK'=>'',
+                                   'PAGANTIS_URL_KO'=>'',
+                                   'PAGANTIS_ALLOWED_COUNTRIES' => 'a:2:{i:0;s:2:"es";i:1;s:2:"it";}',
+                                   'PAGANTIS_PROMOTION_EXTRA' => '<p>Finance this product <span class="pmt-no-interest">without interest!</span></p>'
     );
 
     /** @var Array $extraConfig */
@@ -73,6 +74,73 @@ class WcPagantis
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
         register_activation_hook(__FILE__, array($this, 'pagantisActivation'));
+        add_action('woocommerce_product_options_general_product_data', array($this, 'pagantisPromotedProductTpl'));
+        add_action('woocommerce_process_product_meta', array($this, 'pagantisPromotedVarSave'));
+        add_action('woocommerce_product_bulk_edit_start', array($this,'pagantisPromotedBulkTemplate'));
+        add_action('woocommerce_product_bulk_edit_save', array($this,'pagantisPromotedBulkTemplateSave'));
+    }
+
+    /**
+     * Piece of html code to insert into BULK admin edit
+     */
+    public function pagantisPromotedBulkTemplate()
+    {
+        echo '<div class="inline-edit-group">
+			<label class="alignleft">
+				<span class="title">Pagantis promoted</span>
+				<span class="input-text-wrap">
+                    <input type="checkbox" id="pagantis_promoted" name="pagantis_promoted"/>
+				</span>
+			</label>
+		</div>';
+    }
+
+    /**
+     * Php code to save our meta after a bulk admin edit
+     * @param $product
+     */
+    public function pagantisPromotedBulkTemplateSave($product)
+    {
+        $post_id = $product->get_id();
+        $pagantis_promoted_value = $_REQUEST['pagantis_promoted'];
+        if ($pagantis_promoted_value == 'on') {
+            $pagantis_promoted_value = 'yes';
+        } else {
+            $pagantis_promoted_value = 'no';
+        }
+
+        update_post_meta($post_id, 'custom_product_pagantis_promoted', esc_attr($pagantis_promoted_value));
+    }
+
+    /**
+     * Piece of html code to insert into PRODUCT admin edit
+     */
+    public function pagantisPromotedProductTpl()
+    {
+        global $post;
+        $_product = get_post_meta($post->ID);
+        woocommerce_wp_checkbox(
+            array(
+                'id' => 'pagantis_promoted',
+                'label' => __('Pagantis promoted', 'woocommerce'),
+                'value' => $_product['custom_product_pagantis_promoted']['0'],
+                'cbvalue' => 'yes',
+                'echo' => true
+            )
+        );
+    }
+
+    /**
+     *  Php code to save our meta after a PRODUCT admin edit
+     * @param $post_id
+     */
+    public function pagantisPromotedVarSave($post_id)
+    {
+        $pagantis_promoted_value = $_POST['pagantis_promoted'];
+        if ($pagantis_promoted_value == null) {
+            $pagantis_promoted_value = 'no';
+        }
+        update_post_meta($post_id, 'custom_product_pagantis_promoted', esc_attr($pagantis_promoted_value));
     }
 
     /*
@@ -205,6 +273,7 @@ class WcPagantis
             return;
         }
 
+        $post_id = $product->get_id();
         $template_fields = array(
             'total'    => is_numeric($product->price) ? $product->price : 0,
             'public_key' => $cfg['pagantis_public_key'],
@@ -213,7 +282,9 @@ class WcPagantis
             'quantitySelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR']),
             'priceSelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR']),
             'totalAmount' => is_numeric($product->price) ? $product->price : 0,
-            'locale' => $locale
+            'locale' => $locale,
+            'promoted' => $this->isPromoted($post_id),
+            'promotedMessage' => $this->extraConfig['PAGANTIS_PROMOTION_EXTRA']
         );
         wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
     }
@@ -285,7 +356,7 @@ class WcPagantis
         if ($file == plugin_basename(__FILE__)) {
             $links[] = '<a href="'.WcPagantis::GIT_HUB_URL.'" target="_blank">'.__('Documentation', 'pagantis').'</a>';
             $links[] = '<a href="'.WcPagantis::PAGANTIS_DOC_URL.'" target="_blank">'.
-            __('API documentation', 'pagantis').'</a>';
+                       __('API documentation', 'pagantis').'</a>';
             $links[] = '<a href="'.WcPagantis::SUPPORT_EML.'">'.__('Support', 'pagantis').'</a>';
 
             return $links;
@@ -430,10 +501,10 @@ class WcPagantis
             'pagantis/v1',
             '/logs/(?P<secret>\w+)/(?P<from>\d+)/(?P<to>\d+)',
             array(
-            'methods'  => 'GET',
-            'callback' => array(
-                $this,
-                'readLogs')
+                'methods'  => 'GET',
+                'callback' => array(
+                    $this,
+                    'readLogs')
             ),
             true
         );
@@ -509,6 +580,17 @@ class WcPagantis
         }
 
         return $css_price_selector;
+    }
+
+    /**
+     * @param $product_id
+     *
+     * @return string
+     */
+    private function isPromoted($product_id)
+    {
+        $metaProduct = get_post_meta($product_id);
+        return ($metaProduct['custom_product_pagantis_promoted']['0'] === 'yes') ? 'true' : 'false';
     }
 }
 

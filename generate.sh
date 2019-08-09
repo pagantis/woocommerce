@@ -59,3 +59,7 @@ then
         vendor/bin/phpunit --group woocommerce3-buy
     fi
 fi
+
+containerPort=$(docker container port ${container})
+PORT=$(sed  -e 's/.*://' <<< $containerPort)
+echo 'Build of Woocommerce complete: http://'${container}'.docker:'${PORT}
