@@ -72,6 +72,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
         $this->extraConfig = $this->getExtraConfig();
         $this->title = __($this->extraConfig['PAGANTIS_TITLE'], 'pagantis');
+        $this->method_description = "Financial Payment Gateway. Enable the possibility for your customers to pay their order in confortable installments with Pagantis.";
 
         $this->settings['ok_url'] = ($this->extraConfig['PAGANTIS_URL_OK']!='')?$this->extraConfig['PAGANTIS_URL_OK']:$this->generateOkUrl();
         $this->settings['ko_url'] = ($this->extraConfig['PAGANTIS_URL_KO']!='')?$this->extraConfig['PAGANTIS_URL_KO']:$this->generateKoUrl();
