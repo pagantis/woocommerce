@@ -75,7 +75,11 @@
             selector: positionSelector,
             itemQuantitySelector: quantitySelector,
             locale: locale,
-            itemAmountSelector: priceSelector
+            itemAmountSelector: priceSelector,
+            amountParserConfig :  {
+                thousandSeparator: '<?php echo $thousandSeparator;?>',
+                decimalSeparator: '<?php echo $decimalSeparator;?>'
+            }
         };
 
         if (promotedProduct == 'true') {

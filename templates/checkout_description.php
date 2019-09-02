@@ -40,6 +40,10 @@
                     totalAmount: '<?php echo $total; ?>',
                     totalPromotedAmount: '<?php echo $promoted_amount; ?>',
                     locale: locale
+                    amountParserConfig :  {
+                        thousandSeparator: '<?php echo $thousandSeparator;?>',
+                        decimalSeparator: '<?php echo $decimalSeparator;?>'
+                    };
                 });
                 return false;
             }
