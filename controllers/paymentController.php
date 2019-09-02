@@ -494,9 +494,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             'locale' => $locale,
             'allowedCountry' => $allowedCountry,
             'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
-            'promoted_amount' => $promotedAmount,
-            'thousandSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'],
-            'decimalSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR']
+            'promoted_amount' => $promotedAmount
         );
         wc_get_template('checkout_description.php', $template_fields, '', $this->template_path);
     }
