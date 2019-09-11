@@ -9,6 +9,16 @@
 
     }
 
+    function findPositionSelector()
+    {
+        var positionSelector = '<?php echo $positionSelector;?>';
+        if (positionSelector === 'default') {
+            positionSelector = '.pagantisSimulator';
+        }
+
+        return positionSelector;
+    }
+
     function findQuantitySelector()
     {
         var quantitySelectors = <?php echo json_encode($quantitySelector);?>;
@@ -23,8 +33,9 @@
     }
     function checkSimulatorContent() {
         var simulatorLoaded = false;
-        var pmtDiv = document.getElementsByClassName("pagantisSimulator");
-        if (pmtDiv.length > 0) {
+        var positionSelector = findPositionSelector();
+        var pmtDiv = document.querySelectorAll(positionSelector);
+        if (pmtDiv.length > 0 && typeof window.WCSimulatorId!='undefined') {
             var pmtElement = pmtDiv[0];
             if (pmtElement.innerHTML != '') {
                 simulatorLoaded = true;
@@ -60,11 +71,7 @@
             var sdk = pgSDK;
         }
 
-        var positionSelector = '<?php echo $positionSelector;?>';
-        if (positionSelector === 'default') {
-            positionSelector = '.pagantisSimulator';
-        }
-
+        var positionSelector = findPositionSelector();
         var priceSelector = findPriceSelector();
         var promotedProduct = '<?php echo $promoted;?>';
         var quantitySelector = findQuantitySelector();
@@ -75,7 +82,14 @@
             selector: positionSelector,
             itemQuantitySelector: quantitySelector,
             locale: locale,
-            itemAmountSelector: priceSelector
+            itemAmountSelector: priceSelector,
+            amountParserConfig :  {
+                thousandSeparator: '<?php echo $thousandSeparator;?>',
+                decimalSeparator: '<?php echo $decimalSeparator;?>'
+            },
+            numInstalments : '<?php echo $pagantisQuotesStart;?>',
+            skin : <?php echo $pagantisSimulatorSkin;?>,
+            position: <?php echo $pagantisSimulatorPosition;?>
         };
 
         if (promotedProduct == 'true') {
@@ -83,6 +97,7 @@
         }
 
         if (typeof sdk != 'undefined') {
+            console.log(window.WCSimulatorId);
             window.WCSimulatorId = sdk.simulator.init(simulator_options);
             return false;
         }
