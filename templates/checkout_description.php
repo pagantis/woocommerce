@@ -39,11 +39,7 @@
                     selector: '.pagantisSimulator',
                     totalAmount: '<?php echo $total; ?>',
                     totalPromotedAmount: '<?php echo $promoted_amount; ?>',
-                    locale: locale,
-                    amountParserConfig :  {
-                        thousandSeparator: '<?php echo $thousandSeparator;?>',
-                        decimalSeparator: '<?php echo $decimalSeparator;?>'
-                    }
+                    locale: locale
                 });
                 return false;
             }
