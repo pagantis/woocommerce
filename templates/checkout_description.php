@@ -1,4 +1,4 @@
-<?php if ($enabled!=='0' && isset($total) && $simulator_enabled!=='0' && $allowed_country!=='0') { ?>
+<?php if ($enabled==='yes' && isset($total) && $simulator_enabled==='yes' && $allowed_country===true) { ?>
     <div class="pagantisSimulator"></div>
     <script>
         window.WCsimulatorId = null;
