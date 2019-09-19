@@ -32,22 +32,25 @@ class WcPagantis
     /** Config tablename */
     const ORDERS_TABLE = 'posts';
 
-    public $defaultConfigs = array('PAGANTIS_TITLE'=>'Instant Financing',
-                                   'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'pgSDK.simulator.types.SIMPLE',
-                                   'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'pgSDK.simulator.skins.BLUE',
-                                   'PAGANTIS_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
-                                   'PAGANTIS_SIMULATOR_START_INSTALLMENTS'=>3,
-                                   'PAGANTIS_SIMULATOR_MAX_INSTALLMENTS'=>12,
-                                   'PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'=>'default',
-                                   'PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'=>'pgSDK.simulator.positions.INNER',
-                                   'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'=>'a:3:{i:0;s:48:"div.summary *:not(del)>.woocommerce-Price-amount";i:1;s:54:"div.entry-summary *:not(del)>.woocommerce-Price-amount";i:2;s:36:"*:not(del)>.woocommerce-Price-amount";}',
-                                   'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'=>'a:2:{i:0;s:22:"div.quantity input.qty";i:1;s:18:"div.quantity>input";}',
-                                   'PAGANTIS_FORM_DISPLAY_TYPE'=>0,
-                                   'PAGANTIS_DISPLAY_MIN_AMOUNT'=>1,
-                                   'PAGANTIS_URL_OK'=>'',
-                                   'PAGANTIS_URL_KO'=>'',
-                                   'PAGANTIS_ALLOWED_COUNTRIES' => 'a:2:{i:0;s:2:"es";i:1;s:2:"it";}',
-                                   'PAGANTIS_PROMOTION_EXTRA' => '<p>Finance this product <span class="pmt-no-interest">without interest!</span></p>'
+    public $defaultConfigs = array(
+       'PAGANTIS_TITLE'=>'Instant Financing',
+       'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'sdk.simulator.types.SIMPLE',
+       'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'sdk.simulator.skins.BLUE',
+       'PAGANTIS_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
+       'PAGANTIS_SIMULATOR_START_INSTALLMENTS'=>3,
+       'PAGANTIS_SIMULATOR_MAX_INSTALLMENTS'=>12,
+       'PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'=>'default',
+       'PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'=>'sdk.simulator.positions.INNER',
+       'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'=>'a:3:{i:0;s:48:"div.summary *:not(del)>.woocommerce-Price-amount";i:1;s:54:"div.entry-summary *:not(del)>.woocommerce-Price-amount";i:2;s:36:"*:not(del)>.woocommerce-Price-amount";}',
+       'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'=>'a:2:{i:0;s:22:"div.quantity input.qty";i:1;s:18:"div.quantity>input";}',
+       'PAGANTIS_FORM_DISPLAY_TYPE'=>0,
+       'PAGANTIS_DISPLAY_MIN_AMOUNT'=>1,
+       'PAGANTIS_URL_OK'=>'',
+       'PAGANTIS_URL_KO'=>'',
+       'PAGANTIS_ALLOWED_COUNTRIES' => 'a:2:{i:0;s:2:"es";i:1;s:2:"it";}',
+       'PAGANTIS_PROMOTION_EXTRA' => '<p>Finance this product <span class="pmt-no-interest">without interest!</span></p>',
+       'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR' => '.',
+       'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR' => ','
     );
 
     /** @var Array $extraConfig */
@@ -226,6 +229,15 @@ class WcPagantis
             }
         }
 
+        //Adapting selector to array < v8.2.2
+        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'";
+        $results = $wpdb->get_results($query, ARRAY_A);
+        if (count($results) == 0) {
+            $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR', 'value'  => '.'), array('%s', '%s'));
+            $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR', 'value'  => ','), array('%s', '%s'));
+        }
+
         $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
 
         // Convert a multimple dimension array for SQL insert statements into a simple key/value
@@ -285,7 +297,12 @@ class WcPagantis
             'locale' => $locale,
             'country' => $locale,
             'promoted' => $this->isPromoted($post_id),
-            'promotedMessage' => $this->extraConfig['PAGANTIS_PROMOTION_EXTRA']
+            'promotedMessage' => $this->extraConfig['PAGANTIS_PROMOTION_EXTRA'],
+            'thousandSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'],
+            'decimalSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'],
+            'pagantisQuotesStart' => $this->extraConfig['PAGANTIS_SIMULATOR_START_INSTALLMENTS'],
+            'pagantisSimulatorSkin' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SKIN'],
+            'pagantisSimulatorPosition' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION']
         );
         wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
     }
