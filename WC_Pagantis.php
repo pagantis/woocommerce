@@ -283,6 +283,7 @@ class WcPagantis
             'priceSelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR']),
             'totalAmount' => is_numeric($product->get_price()) ? $product->get_price() : 0,
             'locale' => $locale,
+            'country' => $locale,
             'promoted' => $this->isPromoted($post_id),
             'promotedMessage' => $this->extraConfig['PAGANTIS_PROMOTION_EXTRA']
         );

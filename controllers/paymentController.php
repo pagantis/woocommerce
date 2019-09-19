@@ -492,6 +492,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             'min_installments' => $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'],
             'simulator_enabled' => $this->settings['simulator'],
             'locale' => $locale,
+            'country' => $locale,
             'allowed_country' => $allowedCountry,
             'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
             'promoted_amount' => $promotedAmount

@@ -26,6 +26,7 @@
                 }
             }
 
+            var country = '<?php echo $country; ?>';
             var locale = '<?php echo $locale; ?>';
             if (locale == 'es' || locale == '') {
                 var sdk = pmtSDK;
@@ -39,7 +40,8 @@
                     selector: '.pagantisSimulator',
                     totalAmount: '<?php echo $total; ?>',
                     totalPromotedAmount: '<?php echo $promoted_amount; ?>',
-                    locale: locale
+                    locale: locale,
+                    country: country
                 });
                 return false;
             }

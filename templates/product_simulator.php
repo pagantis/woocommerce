@@ -53,6 +53,7 @@
 
         var price = '<?php echo $total;?>';
 
+        var country = '<?php echo $country; ?>';
         var locale = '<?php echo $locale; ?>';
         if (locale == 'es' || locale == '') {
             var sdk = pmtSDK;
@@ -75,6 +76,7 @@
             selector: positionSelector,
             itemQuantitySelector: quantitySelector,
             locale: locale,
+            country: country,
             itemAmountSelector: priceSelector
         };
 
