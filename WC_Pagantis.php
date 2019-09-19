@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.2.2
+ * Version: 8.2.3
  * Author: Pagantis
  */
 
@@ -280,7 +280,7 @@ class WcPagantis
         $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
         $allowedCountry = (in_array(strtolower($locale), $allowedCountries));
         if ($cfg['enabled'] !== 'yes' || $cfg['pagantis_public_key'] == '' || $cfg['pagantis_private_key'] == '' ||
-            $cfg['simulator'] !== 'yes' ||  $product->price < $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'] ||
+            $cfg['simulator'] !== 'yes' ||  $product->get_price() < $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'] ||
             !$allowedCountry ) {
             return;
         }
@@ -293,8 +293,9 @@ class WcPagantis
             'positionSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'],
             'quantitySelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR']),
             'priceSelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR']),
-            'totalAmount' => is_numeric($product->price) ? $product->price : 0,
+            'totalAmount' => is_numeric($product->get_price()) ? $product->get_price() : 0,
             'locale' => $locale,
+            'country' => $locale,
             'promoted' => $this->isPromoted($post_id),
             'promotedMessage' => $this->extraConfig['PAGANTIS_PROMOTION_EXTRA'],
             'thousandSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'],
