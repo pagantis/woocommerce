@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.2.3
+ * Version: 8.2.4
  * Author: Pagantis
  */
 
@@ -608,7 +608,8 @@ class WcPagantis
     private function isPromoted($product_id)
     {
         $metaProduct = get_post_meta($product_id);
-        return ($metaProduct['custom_product_pagantis_promoted']['0'] === 'yes') ? 'true' : 'false';
+        return (array_key_exists('custom_product_pagantis_promoted', $metaProduct) &&
+                $metaProduct['custom_product_pagantis_promoted']['0'] === 'yes') ? 'true' : 'false';
     }
 }
 
