@@ -841,7 +841,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
     private function isPromoted($product_id)
     {
         $metaProduct = get_post_meta($product_id);
-        return ($metaProduct['custom_product_pagantis_promoted']['0'] === 'yes') ? 'true' : 'false';
+        return (array_key_exists('custom_product_pagantis_promoted', $metaProduct) &&
+                $metaProduct['custom_product_pagantis_promoted']['0'] === 'yes') ? 'true' : 'false';
     }
 
     /**
