@@ -268,6 +268,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
                     $item['data']->get_description(),
                     $item['data']->get_short_description()
                 );
+                $productDescription = substr($productDescription, 0, 9999);
+
                 $product
                     ->setAmount(intval(100 * $item['line_total']))
                     ->setQuantity($item['quantity'])
