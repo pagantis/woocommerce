@@ -192,7 +192,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $userAddress
                 ->setZipCode($shippingAddress['postcode'])
                 ->setFullName($shippingAddress['first_name']." ".$shippingAddress['last_name'])
-                ->setCountryCode('ES')
+                ->setCountryCode($shippingAddress['country'])
                 ->setCity($shippingAddress['city'])
                 ->setAddress($shippingAddress['address_1']." ".$shippingAddress['address_2'])
             ;
@@ -200,7 +200,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $orderShippingAddress
                 ->setZipCode($shippingAddress['postcode'])
                 ->setFullName($shippingAddress['first_name']." ".$shippingAddress['last_name'])
-                ->setCountryCode('ES')
+                ->setCountryCode($shippingAddress['country'])
                 ->setCity($shippingAddress['city'])
                 ->setAddress($shippingAddress['address_1']." ".$shippingAddress['address_2'])
                 ->setFixPhone($shippingAddress['phone'])
@@ -212,7 +212,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $orderBillingAddress
                 ->setZipCode($billingAddress['postcode'])
                 ->setFullName($billingAddress['first_name']." ".$billingAddress['last_name'])
-                ->setCountryCode('ES')
+                ->setCountryCode($billingAddress['country'])
                 ->setCity($billingAddress['city'])
                 ->setAddress($billingAddress['address_1']." ".$billingAddress['address_2'])
                 ->setFixPhone($billingAddress['phone'])
