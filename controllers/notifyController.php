@@ -215,7 +215,7 @@ class WcPagantisNotify extends WcPagantisGateway
     private function validateAmount()
     {
         $pagantisAmount = $this->pagantisOrder->getShoppingCart()->getTotalAmount();
-        $wcAmount = (string) floor(100 * $this->woocommerceOrder->get_total());
+        $wcAmount = intval(strval(100 * $this->woocommerceOrder->get_total()));
         if ($pagantisAmount != $wcAmount) {
             throw new AmountMismatchException($pagantisAmount, $wcAmount);
         }
