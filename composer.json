@@ -28,7 +28,7 @@
         "pagantis/module-utils": "^2.0"
     },
     "require-dev": {
-        "pagantis/selenium-form-utils": "^3.0.1"
+        "pagantis/selenium-form-utils": "^3.0"
     },
     "autoload-dev": {
         "psr-4": { "Test\\Selenium\\Buy\\": "test/selenium/buy/", "Test\\Selenium\\": "test/selenium/" }
