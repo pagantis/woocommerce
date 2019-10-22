@@ -258,30 +258,31 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $details = new Details();
             $shippingCost = $order->shipping_total;
             $details->setShippingCost(intval(strval(100 * $shippingCost)));
-            $items = $woocommerce->cart->get_cart();
+            $items = $order->get_items();
             $promotedAmount = 0;
             foreach ($items as $key => $item) {
+                $wcProduct = $item->get_product();
                 $product = new Product();
                 $productDescription = sprintf(
                     '%s %s %s',
-                    $item['data']->get_title(),
-                    $item['data']->get_description(),
-                    $item['data']->get_short_description()
+                    $wcProduct->get_name(),
+                    $wcProduct->get_description(),
+                    $wcProduct->get_short_description()
                 );
                 $productDescription = substr($productDescription, 0, 9999);
 
                 $product
-                    ->setAmount(intval(100 * $item['line_total']))
-                    ->setQuantity($item['quantity'])
+                    ->setAmount(intval(100 * $item->get_total()))
+                    ->setQuantity($item->get_quantity())
                     ->setDescription($productDescription)
                 ;
                 $details->addProduct($product);
 
-                $promotedProduct = $this->isPromoted($item['product_id']);
+                $promotedProduct = $this->isPromoted($item->get_product_id());
                 if ($promotedProduct == 'true') {
                     $promotedAmount+=$product->getAmount();
                     $promotedMessage = 'Promoted Item: ' . $product->getDescription() .
-                                       ' Price: ' . $item['line_total'] .
+                                       ' Price: ' . $item->get_total() .
                                        ' Qty: ' . $product->getQuantity() .
                                        ' Item ID: ' . $item['id_product'];
                     $metadataOrder->addMetadata('promotedProduct', $promotedMessage);
