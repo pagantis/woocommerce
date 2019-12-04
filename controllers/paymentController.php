@@ -281,7 +281,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 $promotedProduct = $this->isPromoted($item->get_product_id());
                 if ($promotedProduct == 'true') {
                     $promotedAmount+=$product->getAmount();
-                    $promotedMessage = 'Promoted Item: ' . $product->getDescription() .
+                    $promotedMessage = 'Promoted Item: ' . $wcProduct->get_name() .
                                        ' Price: ' . $item->get_total() .
                                        ' Qty: ' . $product->getQuantity() .
                                        ' Item ID: ' . $item['id_product'];
@@ -859,7 +859,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
         foreach ($items as $key => $item) {
             $promotedProduct = $this->isPromoted($item['product_id']);
             if ($promotedProduct == 'true') {
-                $promotedAmount+=$item['line_total'];
+                var_dump($item->get_total());die;
+                $promotedAmount+=$item->get_total();
             }
         }
 
