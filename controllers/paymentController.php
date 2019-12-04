@@ -285,6 +285,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
                                        ' Price: ' . $item->get_total() .
                                        ' Qty: ' . $product->getQuantity() .
                                        ' Item ID: ' . $item['id_product'];
+                    $promotedMessage = substr($promotedMessage, 0, 999);
                     $metadataOrder->addMetadata('promotedProduct', $promotedMessage);
                 }
             }
