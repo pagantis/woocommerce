@@ -272,7 +272,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 $productDescription = substr($productDescription, 0, 9999);
 
                 $product
-                    ->setAmount(intval(100 * $item->get_total()))
+                    ->setAmount(intval(100 * ($item->get_total() + $item->get_total_tax())))
                     ->setQuantity($item->get_quantity())
                     ->setDescription($productDescription)
                 ;
@@ -281,10 +281,11 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 $promotedProduct = $this->isPromoted($item->get_product_id());
                 if ($promotedProduct == 'true') {
                     $promotedAmount+=$product->getAmount();
-                    $promotedMessage = 'Promoted Item: ' . $product->getDescription() .
-                                       ' Price: ' . $item->get_total() .
-                                       ' Qty: ' . $product->getQuantity() .
-                                       ' Item ID: ' . $item['id_product'];
+                    $promotedMessage = 'Promoted Item: ' . $wcProduct->get_name() .
+                                       ' - Price: ' . $item->get_total() .
+                                       ' - Qty: ' . $product->getQuantity() .
+                                       ' - Item ID: ' . $item['id_product'];
+                    $promotedMessage = substr($promotedMessage, 0, 999);
                     $metadataOrder->addMetadata('promotedProduct', $promotedMessage);
                 }
             }
@@ -859,7 +860,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         foreach ($items as $key => $item) {
             $promotedProduct = $this->isPromoted($item['product_id']);
             if ($promotedProduct == 'true') {
-                $promotedAmount+=$item['line_total'];
+                $promotedAmount+=$item['line_total'] + $item['line_tax'];
             }
         }
 

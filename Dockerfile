@@ -28,11 +28,11 @@ RUN buildDeps="libxml2-dev" \
         patch \
         --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
-ADD "https://git.archlinux.org/svntogit/packages.git/plain/trunk/freetype.patch?h=packages/php" /tmp/freetype.patch
-RUN docker-php-source extract; \
-    cd /usr/src/php; \
-    patch -p1 -i /tmp/freetype.patch; \
-    rm /tmp/freetype.patch
+#ADD "https://git.archlinux.org/svntogit/packages.git/plain/trunk/freetype.patch?h=packages/php" /tmp/freetype.patch
+#RUN docker-php-source extract; \
+ #   cd /usr/src/php; \
+  #  patch -p1 -i /tmp/freetype.patch; \
+   # rm /tmp/freetype.patch
 
 RUN docker-php-ext-install -j$(nproc) pdo_mysql soap mysqli pdo mbstring zip \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
