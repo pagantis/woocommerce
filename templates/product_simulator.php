@@ -34,10 +34,10 @@
     function checkSimulatorContent() {
         var simulatorLoaded = false;
         var positionSelector = findPositionSelector();
-        var pmtDiv = document.querySelectorAll(positionSelector);
-        if (pmtDiv.length > 0 && typeof window.WCSimulatorId!='undefined') {
-            var pmtElement = pmtDiv[0];
-            if (pmtElement.innerHTML != '') {
+        var pgDiv = document.querySelectorAll(positionSelector);
+        if (pgDiv.length > 0 && typeof window.WCSimulatorId!='undefined') {
+            var pgElement = pgDiv[0];
+            if (pgElement.innerHTML != '') {
                 simulatorLoaded = true;
             }
         }
@@ -52,7 +52,7 @@
 
     function loadSimulatorPagantis()
     {
-        if(typeof pmtSDK == 'undefined' || typeof pgSDK == 'undefined')
+        if(typeof pgSDK == 'undefined')
         {
             return false;
         }
@@ -66,11 +66,7 @@
 
         var country = '<?php echo $country; ?>';
         var locale = '<?php echo $locale; ?>';
-        if (locale == 'es' || locale == '') {
-            var sdk = pmtSDK;
-        } else {
-            var sdk = pgSDK;
-        }
+        var sdk = pgSDK;
 
         var positionSelector = findPositionSelector();
         var priceSelector = findPriceSelector();
@@ -111,7 +107,7 @@
     }, 2000);
 </script>
 <style>
-    .pmt-no-interest{
+    .pg-no-interest{
         color: #00c1d5
     }
 </style>

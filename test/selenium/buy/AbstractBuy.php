@@ -429,7 +429,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
                            ->send();
         $title = $response->body->PAGANTIS_TITLE;
         $this->assertEquals($requestTitle, $title, "PR62=>".$configUrl." => ".$requestTitle ."!=".$title);
-        $requestTitle = 'Instant Financing';
+        $requestTitle = 'Paga en cuotas';
         $body = array('PAGANTIS_TITLE' => $requestTitle);
         $response = Request::post($configUrl)
                            ->body($body, Mime::FORM)

@@ -98,5 +98,5 @@ msgid ""
 "with Pagantis"
 msgstr ""
 
-msgid "Instant Financing"
+msgid "Paga en cuotas"
 msgstr ""

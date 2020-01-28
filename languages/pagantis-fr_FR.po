@@ -102,5 +102,5 @@ msgstr ""
 "Passerelle de paiement financier. Permettez à vos clients de payer leur "
 "commande en plusieurs fois avec Pagantis"
 
-msgid "Instant Financing"
+msgid "Paga en cuotas"
 msgstr "Paiement en plusieurs fois"

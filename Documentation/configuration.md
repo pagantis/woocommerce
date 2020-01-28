@@ -34,7 +34,7 @@ Here you have a complete list of configurations you can change and it's explanat
 
 | Field | Description<br/><br/>
 | :------------- |:-------------| 
-| PAGANTIS_TITLE                           | Payment title to show in checkout page. By default:"Instant financing".
+| PAGANTIS_TITLE                           | Payment title to show in checkout page. By default:"Paga en cuotas".
 | PAGANTIS_SIMULATOR_DISPLAY_TYPE          | Installments simulator skin inside product page, in positive case. Recommended value: 'pgSDK.simulator.types.SIMPLE'.
 | PAGANTIS_SIMULATOR_DISPLAY_SKIN          | Skin of the product page simulator. Recommended value: 'pgSDK.simulator.skins.BLUE'.
 | PAGANTIS_SIMULATOR_DISPLAY_POSITION      | Choose the place where you want to watch the simulator.

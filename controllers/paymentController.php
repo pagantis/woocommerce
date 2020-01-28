@@ -59,12 +59,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $this->mainFileLocation = dirname(plugin_dir_path(__FILE__)) . '/WC_Pagantis.php';
         $this->plugin_info = get_file_data($this->mainFileLocation, array('Version' => 'Version'), false);
         $this->language = strstr(get_locale(), '_', true);
-
-        if ($this->language == 'es' || $this->language == '') {
-            $this->icon = esc_url(plugins_url('../assets/images/logopagamastarde.png', __FILE__));
-        } else {
-            $this->icon = esc_url(plugins_url('../assets/images/logo.png', __FILE__));
-        }
+        $this->icon = 'https://cdn.digitalorigin.com/assets/master/logos/pg.png'; //TODO
 
         //Panel form fields
         $this->form_fields = include(plugin_dir_path(__FILE__).'../includes/settings-pagantis.php');//Panel options

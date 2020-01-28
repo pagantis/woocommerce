@@ -102,5 +102,5 @@ msgstr ""
 "Gateway di pagamento finanziario. Consenti ai tuoi clienti di pagare il loro "
 "ordine in rate confortevoli con Pagantis"
 
-msgid "Instant Financing"
-msgstr "Finanza con Pagantis"
+msgid "Paga en cuotas"
+msgstr "Finanziamento istantaneo"

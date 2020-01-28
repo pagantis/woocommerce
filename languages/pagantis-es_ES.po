@@ -103,5 +103,5 @@ msgstr ""
 "paguen su pedido en cómodas entregas\n"
 "con Pagantis"
 
-msgid "Instant Financing"
-msgstr "Financiación Instantánea"
+msgid "Paga en cuotas"
+msgstr "Paga en cuotas"
