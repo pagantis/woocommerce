@@ -84,7 +84,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     /**
      * Pagantis Order Title
      */
-    const PAGANTIS_TITLE = 'Paga+Tarde';
+    const PAGANTIS_TITLE = 'Pagantis';
 
     /**
      * Already processed
