@@ -100,3 +100,6 @@ msgstr ""
 
 msgid "Paga en cuotas"
 msgstr ""
+
+msgid "ó"
+msgstr ""
