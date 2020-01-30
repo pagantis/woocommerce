@@ -34,7 +34,7 @@ class WcPagantis
 
     public $defaultConfigs = array(
        'PAGANTIS_TITLE'=>'Paga en cuotas',
-       'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'sdk.simulator.types.SIMPLE',
+       'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'sdk.simulator.types.SELECTABLE_TEXT_CUSTOM',
        'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'sdk.simulator.skins.BLUE',
        'PAGANTIS_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
        'PAGANTIS_SIMULATOR_START_INSTALLMENTS'=>3,
