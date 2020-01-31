@@ -39,15 +39,27 @@
             var pgElement = pgDiv[0];
             if (pgElement.innerHTML != '') {
                 simulatorLoaded = true;
+                prependSeparator();
             }
         }
-
         return simulatorLoaded;
     }
 
     function checkAttempts() {
         window.attempts = window.attempts + 1;
         return (window.attempts > 4)
+    }
+
+    function prependSeparator()
+    {
+        var node = document.querySelector(findPositionSelector());
+
+        var textnode = document.createTextNode(<?php echo json_encode($separator);?>);
+        var spannode = document.createElement("span");
+        spannode.style.cssText = 'margin-right:5px';
+        spannode.appendChild(textnode);
+        node.prepend(spannode);
+
     }
 
     function loadSimulatorPagantis()
@@ -81,10 +93,10 @@
             locale: locale,
             country: country,
             itemAmountSelector: priceSelector,
-            amountParserConfig :  {
+            /*amountParserConfig :  {
                 thousandSeparator: '<?php echo $thousandSeparator;?>',
                 decimalSeparator: '<?php echo $decimalSeparator;?>'
-            },
+            },*/
             numInstalments : '<?php echo $pagantisQuotesStart;?>',
             skin : <?php echo $pagantisSimulatorSkin;?>,
             position: <?php echo $pagantisSimulatorPosition;?>
@@ -95,7 +107,6 @@
         }
 
         if (typeof sdk != 'undefined') {
-            console.log(window.WCSimulatorId);
             window.WCSimulatorId = sdk.simulator.init(simulator_options);
             return false;
         }
@@ -116,4 +127,4 @@ if ($promoted == 'true') {
     echo $promotedMessage;
 }
 ?>
-<div class="pagantisSimulator"></div>
+<div class="pagantisSimulator" style="display: flex"> </div>

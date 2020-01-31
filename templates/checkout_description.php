@@ -32,6 +32,7 @@
 
             if (typeof sdk != 'undefined') {
                 window.WCSimulatorId = sdk.simulator.init({
+                    type: <?php echo $simulator_type; ?>,
                     publicKey: '<?php echo $public_key; ?>',
                     selector: '.pagantisSimulator',
                     totalAmount: '<?php echo $total; ?>',

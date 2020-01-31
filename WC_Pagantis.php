@@ -302,7 +302,8 @@ class WcPagantis
             'decimalSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'],
             'pagantisQuotesStart' => $this->extraConfig['PAGANTIS_SIMULATOR_START_INSTALLMENTS'],
             'pagantisSimulatorSkin' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SKIN'],
-            'pagantisSimulatorPosition' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION']
+            'pagantisSimulatorPosition' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'],
+            'separator' => __('ó', 'pagantis')
         );
         wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
     }
