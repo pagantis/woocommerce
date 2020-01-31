@@ -294,17 +294,26 @@ class WcPagantisGateway extends WC_Payment_Gateway
             ;
             $orderConfigurationUrls = new Urls();
             $cancelUrl = $this->getKoUrl($order);
-            $callback_arg = array(
-                'wc-api'=>'wcpagantisgateway',
+            $callback_arg = array('wc-api'=>'wcpagantisgateway',
                 'key'=>$order->get_order_key(),
-                'order-received'=>$order->get_id());
-            $callback_url = add_query_arg($callback_arg, home_url('/'));
+                'order-received'=>$order->get_id(),
+                'origin' => ''
+            );
+
+            $callback_arg_user = $callback_arg;
+            $callback_arg_user['origin'] = 'redirect';
+            $callback_url_user = add_query_arg($callback_arg_user, home_url('/'));
+
+            $callback_arg_notif = $callback_arg;
+            $callback_arg_notif['origin'] = 'notification';
+            $callback_url_notif = add_query_arg($callback_arg_notif, home_url('/'));
+
             $orderConfigurationUrls
                 ->setCancel($cancelUrl)
-                ->setKo($callback_url)
-                ->setAuthorizedNotificationCallback($callback_url)
-                ->setRejectedNotificationCallback($callback_url)
-                ->setOk($callback_url)
+                ->setKo($callback_url_user)
+                ->setAuthorizedNotificationCallback($callback_url_notif)
+                ->setRejectedNotificationCallback(null)
+                ->setOk($callback_url_user)
             ;
             $orderChannel = new Channel();
             $orderChannel
