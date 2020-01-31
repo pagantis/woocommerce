@@ -59,7 +59,6 @@
         spannode.style.cssText = 'margin-right:5px';
         spannode.appendChild(textnode);
         node.prepend(spannode);
-
     }
 
     function loadSimulatorPagantis()
