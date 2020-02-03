@@ -62,6 +62,9 @@ class WcPagantisNotify extends WcPagantisGateway
         try {
             require_once(__ROOT__.'/vendor/autoload.php');
             try {
+                if ($_SERVER['REQUEST_METHOD'] == 'GET' && $_GET['origin'] == 'notification') {
+                    return $this->buildResponse();
+                }
                 $this->checkConcurrency();
                 $this->getMerchantOrder();
                 $this->getPagantisOrderId();

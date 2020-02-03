@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.2.8
+ * Version: 8.2.9
  * Author: Pagantis
  */
 
@@ -33,8 +33,8 @@ class WcPagantis
     const ORDERS_TABLE = 'posts';
 
     public $defaultConfigs = array(
-       'PAGANTIS_TITLE'=>'Instant Financing',
-       'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'sdk.simulator.types.SIMPLE',
+       'PAGANTIS_TITLE'=>'Pago en cuotas',
+       'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'sdk.simulator.types.SELECTABLE_TEXT_CUSTOM',
        'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'sdk.simulator.skins.BLUE',
        'PAGANTIS_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
        'PAGANTIS_SIMULATOR_START_INSTALLMENTS'=>3,
@@ -48,7 +48,7 @@ class WcPagantis
        'PAGANTIS_URL_OK'=>'',
        'PAGANTIS_URL_KO'=>'',
        'PAGANTIS_ALLOWED_COUNTRIES' => 'a:3:{i:0;s:2:"es";i:1;s:2:"it";i:2;s:2:"fr";}',
-       'PAGANTIS_PROMOTION_EXTRA' => '<p>Finance this product <span class="pmt-no-interest">without interest!</span></p>',
+       'PAGANTIS_PROMOTION_EXTRA' => '<p>Finance this product <span class="pg-no-interest">without interest!</span></p>',
        'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR' => '.',
        'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR' => ','
     );
@@ -302,7 +302,8 @@ class WcPagantis
             'decimalSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'],
             'pagantisQuotesStart' => $this->extraConfig['PAGANTIS_SIMULATOR_START_INSTALLMENTS'],
             'pagantisSimulatorSkin' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SKIN'],
-            'pagantisSimulatorPosition' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION']
+            'pagantisSimulatorPosition' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'],
+            'separator' => __('ó', 'pagantis')
         );
         wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
     }
@@ -619,7 +620,6 @@ class WcPagantis
 function add_pagantis_widget_js()
 {
     wp_enqueue_script('pgSDK', 'https://cdn.pagantis.com/js/pg-v2/sdk.js', '', '', true);
-    wp_enqueue_script('pmtSDK', 'https://cdn.pagamastarde.com/js/pmt-v2/sdk.js', '', '', true);
 }
 
 $WcPagantis = new WcPagantis();

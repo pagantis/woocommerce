@@ -43,7 +43,7 @@ abstract class PagantisWoocommerceTest extends TestCase
         'extra'         => 'Free Finance',
         'address'       => 'Av.Diagonal 579',
         'methodName'    => 'Pagantis',
-        'checkoutTitle' => 'Financiación Instantánea',
+        'checkoutTitle' => 'Pago en cuotas',
         'defaultMinIns' => 3,
         'defaultMaxIns' => 12,
         'defaultSimulatorOpt' => 6,
