@@ -33,7 +33,7 @@ class WcPagantis
     const ORDERS_TABLE = 'posts';
 
     public $defaultConfigs = array(
-       'PAGANTIS_TITLE'=>'Paga en cuotas',
+       'PAGANTIS_TITLE'=>'Pago en cuotas',
        'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'sdk.simulator.types.SELECTABLE_TEXT_CUSTOM',
        'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'sdk.simulator.skins.BLUE',
        'PAGANTIS_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
