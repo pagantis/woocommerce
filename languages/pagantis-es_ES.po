@@ -103,8 +103,8 @@ msgstr ""
 "paguen su pedido en cómodas entregas\n"
 "con Pagantis"
 
-msgid "Paga en cuotas"
-msgstr "Paga en cuotas"
+msgid "Pago en cuotas"
+msgstr "Pago en cuotas"
 
 msgid "ó"
 msgstr "ó"

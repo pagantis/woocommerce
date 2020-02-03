@@ -102,5 +102,5 @@ msgstr ""
 "Gateway de pagamento financeiro. Habilite a possibilidade de seus clientes "
 "pagarem seu pedido em parcelas confortáveis ​​com Pagantis"
 
-msgid "Paga en cuotas"
+msgid "Pago en cuotas"
 msgstr "Financiamento instantâneo"

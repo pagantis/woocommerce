@@ -98,7 +98,7 @@ msgid ""
 "with Pagantis"
 msgstr ""
 
-msgid "Paga en cuotas"
+msgid "Pago en cuotas"
 msgstr ""
 
 msgid "ó"
