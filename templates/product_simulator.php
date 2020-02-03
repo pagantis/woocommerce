@@ -45,6 +45,18 @@
         return simulatorLoaded;
     }
 
+    function moveToPrice()
+    {
+        if ('<?php echo $simulator_type; ?>' === 'sdk.simulator.types.SELECTABLE_TEXT_CUSTOM') {
+            var simnode = document.querySelector(findPositionSelector());
+
+            var detailnode = document.getElementsByClassName('woocommerce-product-details__short-description');
+            detailnode = detailnode['0'];
+
+            detailnode.parentNode.insertBefore(simnode,detailnode)
+        }
+    }
+
     function checkAttempts() {
         window.attempts = window.attempts + 1;
         return (window.attempts > 4)
@@ -53,7 +65,6 @@
     function prependSeparator()
     {
         var node = document.querySelector(findPositionSelector());
-
         var textnode = document.createTextNode(<?php echo json_encode($separator);?>);
         var spannode = document.createElement("span");
         spannode.style.cssText = 'margin-right:5px';
@@ -72,8 +83,6 @@
         {
             return finishInterval();
         }
-
-        var price = '<?php echo $total;?>';
 
         var country = '<?php echo $country; ?>';
         var locale = '<?php echo $locale; ?>';
@@ -96,7 +105,7 @@
                 thousandSeparator: '<?php echo $thousandSeparator;?>',
                 decimalSeparator: '<?php echo $decimalSeparator;?>'
             },
-            numInstalments : '<?php echo $pagantisQuotesStart;?>',
+        numInstalments : '<?php echo $pagantisQuotesStart;?>',
             skin : <?php echo $pagantisSimulatorSkin;?>,
             position: <?php echo $pagantisSimulatorPosition;?>
         };
@@ -107,6 +116,7 @@
 
         if (typeof sdk != 'undefined') {
             window.WCSimulatorId = sdk.simulator.init(simulator_options);
+            moveToPrice();
             return false;
         }
     }
@@ -126,4 +136,4 @@ if ($promoted == 'true') {
     echo $promotedMessage;
 }
 ?>
-<div class="pagantisSimulator" style="display: flex"> </div>
+<div class="pagantisSimulator" style="display:flex; margin-top: -30px;margin-bottom: 20px"></div><br/><br/>
