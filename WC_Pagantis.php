@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.2.9
+ * Version: 8.3.0
  * Author: Pagantis
  */
 
@@ -45,6 +45,7 @@ class WcPagantis
        'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'=>'a:2:{i:0;s:22:"div.quantity input.qty";i:1;s:18:"div.quantity>input";}',
        'PAGANTIS_FORM_DISPLAY_TYPE'=>0,
        'PAGANTIS_DISPLAY_MIN_AMOUNT'=>1,
+       'PAGANTIS_DISPLAY_MAX_AMOUNT'=>0,
        'PAGANTIS_URL_OK'=>'',
        'PAGANTIS_URL_KO'=>'',
        'PAGANTIS_ALLOWED_COUNTRIES' => 'a:3:{i:0;s:2:"es";i:1;s:2:"it";i:2;s:2:"fr";}',
@@ -238,6 +239,14 @@ class WcPagantis
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR', 'value'  => ','), array('%s', '%s'));
         }
 
+        //Adding new selector < v8.3.0
+        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $query = "select * from $tableName where config='PAGANTIS_DISPLAY_MAX_AMOUNT'";
+        $results = $wpdb->get_results($query, ARRAY_A);
+        if (count($results) == 0) {
+            $wpdb->insert($tableName, array('config' => 'PAGANTIS_DISPLAY_MAX_AMOUNT', 'value'  => '0'), array('%s', '%s'));
+        }
+
         $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
 
         // Convert a multimple dimension array for SQL insert statements into a simple key/value
@@ -279,9 +288,12 @@ class WcPagantis
         $locale = strtolower(strstr(get_locale(), '_', true));
         $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
         $allowedCountry = (in_array(strtolower($locale), $allowedCountries));
+        $minAmount = $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'];
+        $maxAmount = $this->extraConfig['PAGANTIS_DISPLAY_MAX_AMOUNT'];
+        $totalPrice = $product->get_price();
+        $validAmount = ($totalPrice>=$minAmount && ($totalPrice<=$maxAmount || $maxAmount=='0'));
         if ($cfg['enabled'] !== 'yes' || $cfg['pagantis_public_key'] == '' || $cfg['pagantis_private_key'] == '' ||
-            $cfg['simulator'] !== 'yes' ||  $product->get_price() < $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'] ||
-            !$allowedCountry ) {
+            $cfg['simulator'] !== 'yes'  || !$allowedCountry || !$validAmount) {
             return;
         }
 

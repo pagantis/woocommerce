@@ -320,12 +320,18 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setAssistedSale(false)
                 ->setType(Channel::ONLINE)
             ;
-            $orderConfiguration = new Configuration();
 
+            $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
+            $purchaseCountry =
+                in_array(strtolower($this->language), $allowedCountries) ? $this->language :
+                in_array(strtolower($shippingAddress['country']), $allowedCountries) ? $shippingAddress['country'] :
+                in_array(strtolower($billingAddress['country']), $allowedCountries) ? $billingAddress['country'] : null;
+
+            $orderConfiguration = new Configuration();
             $orderConfiguration
                 ->setChannel($orderChannel)
                 ->setUrls($orderConfigurationUrls)
-                ->setPurchaseCountry($this->language)
+                ->setPurchaseCountry($purchaseCountry)
             ;
 
             $orderApiClient = new Order();
@@ -440,8 +446,12 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $locale = strtolower(strstr(get_locale(), '_', true));
         $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
         $allowedCountry = (in_array(strtolower($locale), $allowedCountries));
+        $minAmount = $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'];
+        $maxAmount = $this->extraConfig['PAGANTIS_DISPLAY_MAX_AMOUNT'];
+        $totalPrice = (int)$this->get_order_total();
+        $validAmount = ($totalPrice>=$minAmount && ($totalPrice<=$maxAmount || $maxAmount=='0'));
         if ($this->enabled==='yes' && $this->pagantis_public_key!='' && $this->pagantis_private_key!='' &&
-            (int)$this->get_order_total()>$this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'] && $allowedCountry) {
+            $validAmount && $allowedCountry) {
             return true;
         }
 
@@ -498,6 +508,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             'total' => WC()->session->cart_totals['total'],
             'enabled' =>  $this->settings['enabled'],
             'min_installments' => $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'],
+            'max_installments' => $this->extraConfig['PAGANTIS_DISPLAY_MAX_AMOUNT'],
             'simulator_enabled' => $this->settings['simulator'],
             'locale' => $locale,
             'country' => $locale,

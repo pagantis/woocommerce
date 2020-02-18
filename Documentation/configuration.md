@@ -46,6 +46,7 @@ Here you have a complete list of configurations you can change and it's explanat
 | PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR | CSS selector with DOM element having the quantity selector value.
 | PAGANTIS_FORM_DISPLAY_TYPE               | Allow you to select the way to show the payment form in your site
 | PAGANTIS_DISPLAY_MIN_AMOUNT              | Minimum amount to use the module and show the payment method in the checkout page.
+| PAGANTIS_DISPLAY_MAX_AMOUNT              | Maximum amount to use the module and show the payment method in the checkout page.
 | PAGANTIS_URL_OK                          | Location where user will be redirected after a successful payment. This string will be concatenated to the base url to build the full url
 | PAGANTIS_URL_KO                          | Location where user will be redirected after a wrong payment. This string will be concatenated to the base url to build the full url  
 | PAGANTIS_ALLOWED_COUNTRIES               | Array of country codes where the method can be used 
