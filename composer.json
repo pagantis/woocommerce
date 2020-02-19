@@ -2,7 +2,7 @@
     "name": "pagantis/woocommerce",
     "description": "Woocommerce module to add Pagantis",
     "license": "proprietary",
-    "type": "module",
+    "type": "wordpress-plugin",
     "keywords": [
         "api",
         "rest",
