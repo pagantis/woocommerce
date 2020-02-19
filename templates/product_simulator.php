@@ -116,7 +116,11 @@
 
         if (typeof sdk != 'undefined') {
             window.WCSimulatorId = sdk.simulator.init(simulator_options);
-            moveToPrice();
+            if (window.WCSimulatorId!='')
+            {
+                moveToPrice();
+            }
+
             return false;
         }
     }
