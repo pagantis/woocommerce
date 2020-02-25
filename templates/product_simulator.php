@@ -39,7 +39,7 @@
             var pgElement = pgDiv[0];
             if (pgElement.innerHTML != '') {
                 simulatorLoaded = true;
-                prependSeparator();
+                moveToPrice();
             }
         }
         return simulatorLoaded;
@@ -53,7 +53,9 @@
             var detailnode = document.getElementsByClassName('woocommerce-product-details__short-description');
             detailnode = detailnode['0'];
 
-            detailnode.parentNode.insertBefore(simnode,detailnode)
+            detailnode.parentNode.insertBefore(simnode,detailnode);
+
+            prependSeparator();
         }
     }
 
@@ -116,10 +118,6 @@
 
         if (typeof sdk != 'undefined') {
             window.WCSimulatorId = sdk.simulator.init(simulator_options);
-            if (window.WCSimulatorId!='')
-            {
-                moveToPrice();
-            }
 
             return false;
         }
