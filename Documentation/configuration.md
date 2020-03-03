@@ -50,6 +50,8 @@ Here you have a complete list of configurations you can change and it's explanat
 | PAGANTIS_URL_OK                          | Location where user will be redirected after a successful payment. This string will be concatenated to the base url to build the full url
 | PAGANTIS_URL_KO                          | Location where user will be redirected after a wrong payment. This string will be concatenated to the base url to build the full url  
 | PAGANTIS_ALLOWED_COUNTRIES               | Array of country codes where the method can be used 
+| PAGANTIS_SIMULATOR_DISPLAY_SITUATION     | Place to move the text simulator. To disable set to: "default"
+| PAGANTIS_SIMULATOR_SELECTOR_VARIATION    | Selector to use for products with variations. To disable set to: "default"
 
 ##### Edit using database
 1 - Open your database management (Frequently Cpanel->phpmyadmin) 
