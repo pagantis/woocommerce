@@ -226,7 +226,11 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
      */
     public function goToCheckout()
     {
-        $this->findByClass('checkout-button')->click();
+        $buttonElementSearch = WebDriverBy::linkText('Checkout');
+        $condition = WebDriverExpectedCondition::elementToBeClickable($buttonElementSearch);
+        $this->waitUntil($condition);
+
+        $this->findByLinkText('Checkout')->click();
         $condition = WebDriverExpectedCondition::titleContains(self::CHECKOUT_TITLE);
         $this->webDriver->wait()->until($condition);
         $this->assertTrue((bool) $condition);
