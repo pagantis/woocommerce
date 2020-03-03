@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.3.0
+ * Version: 8.3.2
  * Author: Pagantis
  */
 
@@ -51,7 +51,9 @@ class WcPagantis
        'PAGANTIS_ALLOWED_COUNTRIES' => 'a:3:{i:0;s:2:"es";i:1;s:2:"it";i:2;s:2:"fr";}',
        'PAGANTIS_PROMOTION_EXTRA' => '<p>Finance this product <span class="pg-no-interest">without interest!</span></p>',
        'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR' => '.',
-       'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR' => ','
+       'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR' => ',',
+       'PAGANTIS_SIMULATOR_DISPLAY_SITUATION' => 'default',
+       'PAGANTIS_SIMULATOR_SELECTOR_VARIATION' => 'default'
     );
 
     /** @var Array $extraConfig */
@@ -247,6 +249,14 @@ class WcPagantis
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_DISPLAY_MAX_AMOUNT', 'value'  => '0'), array('%s', '%s'));
         }
 
+        //Adding new selector < v8.3.2
+        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_DISPLAY_SITUATION'";
+        $results = $wpdb->get_results($query, ARRAY_A);
+        if (count($results) == 0) {
+            $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_SITUATION', 'value'  => 'default'), array('%s', '%s'));
+        }
+
         $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
 
         // Convert a multimple dimension array for SQL insert statements into a simple key/value
@@ -299,7 +309,7 @@ class WcPagantis
 
         $post_id = $product->get_id();
         $template_fields = array(
-            'total'    => is_numeric($product->price) ? $product->price : 0,
+            'total'    => is_numeric($product->get_price()) ? $product->get_price() : 0,
             'public_key' => $cfg['pagantis_public_key'],
             'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
             'positionSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'],
@@ -315,7 +325,9 @@ class WcPagantis
             'pagantisQuotesStart' => $this->extraConfig['PAGANTIS_SIMULATOR_START_INSTALLMENTS'],
             'pagantisSimulatorSkin' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SKIN'],
             'pagantisSimulatorPosition' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'],
-            'separator' => __('ó', 'pagantis')
+            'separator' => __('ó', 'pagantis'),
+            'finalDestination' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SITUATION'],
+            'variationSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_SELECTOR_VARIATION']
         );
         wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
     }
