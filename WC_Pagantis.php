@@ -255,6 +255,7 @@ class WcPagantis
         $results = $wpdb->get_results($query, ARRAY_A);
         if (count($results) == 0) {
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_SITUATION', 'value'  => 'default'), array('%s', '%s'));
+            $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION', 'value'  => 'default'), array('%s', '%s'));
         }
 
         $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
