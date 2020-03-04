@@ -27,10 +27,12 @@
             return (priceDOM != null );
         });
     }
+
     function finishInterval() {
         clearInterval(window.loadingSimulator);
         return true;
     }
+
     function checkSimulatorContent() {
         var simulatorLoaded = false;
         var positionSelector = findPositionSelector();
@@ -45,12 +47,22 @@
         return simulatorLoaded;
     }
 
+    function findDestinationSim()
+    {
+        var destinationSim = '<?php echo $finalDestination;?>';
+        if (destinationSim === 'default' || destinationSim == '') {
+            destinationSim = 'woocommerce-product-details__short-description';
+        }
+
+        return destinationSim;
+    }
+
     function moveToPrice()
     {
         if ('<?php echo $simulator_type; ?>' === 'sdk.simulator.types.SELECTABLE_TEXT_CUSTOM') {
             var simnode = document.querySelector(findPositionSelector());
 
-            var detailnode = document.getElementsByClassName('woocommerce-product-details__short-description');
+            var detailnode = document.getElementsByClassName(findDestinationSim());
             detailnode = detailnode['0'];
 
             detailnode.parentNode.insertBefore(simnode,detailnode)
@@ -105,17 +117,18 @@
                 thousandSeparator: '<?php echo $thousandSeparator;?>',
                 decimalSeparator: '<?php echo $decimalSeparator;?>'
             },
-        numInstalments : '<?php echo $pagantisQuotesStart;?>',
+            numInstalments : '<?php echo $pagantisQuotesStart;?>',
             skin : <?php echo $pagantisSimulatorSkin;?>,
             position: <?php echo $pagantisSimulatorPosition;?>
         };
 
+        window.pgSDK = sdk;
         if (promotedProduct == 'true') {
             simulator_options.itemPromotedAmountSelector = priceSelector;
         }
 
-        if (typeof sdk != 'undefined') {
-            window.WCSimulatorId = sdk.simulator.init(simulator_options);
+        if (typeof window.pgSDK != 'undefined') {
+            window.WCSimulatorId = window.pgSDK.simulator.init(simulator_options);
             if (window.WCSimulatorId!='')
             {
                 moveToPrice();
@@ -129,6 +142,38 @@
     window.loadingSimulator = setInterval(function () {
         loadSimulatorPagantis();
     }, 2000);
+
+    window.lastPrice = '';
+    function updateSimulator()
+    {
+        if (window.WCSimulatorId != '')
+        {
+            var updateSelector = '<?php echo $variationSelector;?>';
+
+            if (updateSelector == 'default' || updateSelector === '')
+            {
+                clearInterval(window.variationInterval);
+            }
+            else
+            {
+                var priceDOM = document.querySelector(updateSelector);
+                if (priceDOM != null) {
+                    var newPrice = priceDOM.innerText;
+                    if (newPrice != window.lastPrice) {
+                        window.lastPrice = newPrice;
+                        window.pgSDK.simulator.update(window.WCSimulatorId, {itemAmountSelector: updateSelector})
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+
+    window.variationInterval = setInterval(function () {
+        updateSimulator();
+    }, 5000);
+
 </script>
 <style>
     .pg-no-interest{
