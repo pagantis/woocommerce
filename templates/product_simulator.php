@@ -41,7 +41,6 @@
             var pgElement = pgDiv[0];
             if (pgElement.innerHTML != '') {
                 simulatorLoaded = true;
-                prependSeparator();
             }
         }
         return simulatorLoaded;
@@ -72,16 +71,6 @@
     function checkAttempts() {
         window.attempts = window.attempts + 1;
         return (window.attempts > 4)
-    }
-
-    function prependSeparator()
-    {
-        var node = document.querySelector(findPositionSelector());
-        var textnode = document.createTextNode(<?php echo json_encode($separator);?>);
-        var spannode = document.createElement("span");
-        spannode.style.cssText = 'margin-right:5px';
-        spannode.appendChild(textnode);
-        node.prepend(spannode);
     }
 
     function loadSimulatorPagantis()

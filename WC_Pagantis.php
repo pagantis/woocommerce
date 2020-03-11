@@ -326,7 +326,6 @@ class WcPagantis
             'pagantisQuotesStart' => $this->extraConfig['PAGANTIS_SIMULATOR_START_INSTALLMENTS'],
             'pagantisSimulatorSkin' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SKIN'],
             'pagantisSimulatorPosition' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'],
-            'separator' => __('ó', 'pagantis'),
             'finalDestination' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SITUATION'],
             'variationSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_SELECTOR_VARIATION']
         );
