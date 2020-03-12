@@ -314,6 +314,8 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
      */
     public function verifyOrderInformation()
     {
+        echo $this->webDriver->getCurrentURL();
+
         echo $this->webDriver->getPageSource();
 
         $messageElementSearch = WebDriverBy::className('entry-title');
