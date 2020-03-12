@@ -513,7 +513,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             'locale' => $locale,
             'country' => $locale,
             'allowed_country' => $allowedCountry,
-            'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
+            'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE_CHECKOUT'],
             'promoted_amount' => $promotedAmount,
             'thousandSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'],
             'decimalSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'],

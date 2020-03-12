@@ -174,4 +174,4 @@ if ($promoted == 'true') {
     echo $promotedMessage;
 }
 ?>
-<div class="pagantisSimulator" style="display:flex; margin-top: -30px;margin-bottom: 20px"></div><br/><br/>
+<br/><div class="pagantisSimulator"></div><br/><br/>

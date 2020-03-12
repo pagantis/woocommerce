@@ -34,7 +34,8 @@ class WcPagantis
 
     public $defaultConfigs = array(
        'PAGANTIS_TITLE'=>'Pago en cuotas',
-       'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'sdk.simulator.types.SELECTABLE_TEXT_CUSTOM',
+       'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'sdk.simulator.types.PRODUCT_PAGE',
+       'PAGANTIS_SIMULATOR_DISPLAY_TYPE_CHECKOUT'=>'sdk.simulator.types.CHECKOUT_PAGE',
        'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'sdk.simulator.skins.BLUE',
        'PAGANTIS_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
        'PAGANTIS_SIMULATOR_START_INSTALLMENTS'=>3,
@@ -256,6 +257,15 @@ class WcPagantis
         if (count($results) == 0) {
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_SITUATION', 'value'  => 'default'), array('%s', '%s'));
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION', 'value'  => 'default'), array('%s', '%s'));
+        }
+
+        //Adding new selector < v8.3.3
+        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_DISPLAY_TYPE_CHECKOUT'";
+        $results = $wpdb->get_results($query, ARRAY_A);
+        if (count($results) == 0) {
+            $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_TYPE_CHECKOUT', 'value'  => 'sdk.simulator.types.CHECKOUT_PAGE'), array('%s', '%s'));
+            $wpdb->update($tableName, array('value' => 'sdk.simulator.types.PRODUCT_PAGE'), array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_TYPE'), array('%s'), array('%s'));
         }
 
         $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
