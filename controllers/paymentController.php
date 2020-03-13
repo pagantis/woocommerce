@@ -59,6 +59,9 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $this->mainFileLocation = dirname(plugin_dir_path(__FILE__)) . '/WC_Pagantis.php';
         $this->plugin_info = get_file_data($this->mainFileLocation, array('Version' => 'Version'), false);
         $this->language = strstr(get_locale(), '_', true);
+        if ($this->language=='') {
+            $this->language = 'ES';
+        }
         $this->icon = 'https://cdn.digitalorigin.com/assets/master/logos/pg-130x30.svg';
 
         //Panel form fields
@@ -187,7 +190,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $userAddress
                 ->setZipCode($shippingAddress['postcode'])
                 ->setFullName($shippingAddress['first_name']." ".$shippingAddress['last_name'])
-                ->setCountryCode($shippingAddress['country'] ? $shippingAddress['country'] : $this->language)
+                ->setCountryCode(isset($shippingAddress['country']) ? $shippingAddress['country'] : $this->language)
                 ->setCity($shippingAddress['city'])
                 ->setAddress($shippingAddress['address_1']." ".$shippingAddress['address_2'])
             ;
@@ -195,7 +198,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $orderShippingAddress
                 ->setZipCode($shippingAddress['postcode'])
                 ->setFullName($shippingAddress['first_name']." ".$shippingAddress['last_name'])
-                ->setCountryCode($shippingAddress['country'] ? $shippingAddress['country'] : $this->language)
+                ->setCountryCode(isset($shippingAddress['country']) ? $shippingAddress['country'] : $this->language)
                 ->setCity($shippingAddress['city'])
                 ->setAddress($shippingAddress['address_1']." ".$shippingAddress['address_2'])
                 ->setFixPhone($shippingAddress['phone'])
@@ -207,7 +210,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $orderBillingAddress
                 ->setZipCode($billingAddress['postcode'])
                 ->setFullName($billingAddress['first_name']." ".$billingAddress['last_name'])
-                ->setCountryCode($billingAddress['country'] ? $billingAddress['country'] : $this->language)
+                ->setCountryCode(isset($billingAddress['country']) ? $billingAddress['country'] : $this->language)
                 ->setCity($billingAddress['city'])
                 ->setAddress($billingAddress['address_1']." ".$billingAddress['address_2'])
                 ->setFixPhone($billingAddress['phone'])
@@ -513,7 +516,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             'locale' => $locale,
             'country' => $locale,
             'allowed_country' => $allowedCountry,
-            'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
+            'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE_CHECKOUT'],
             'promoted_amount' => $promotedAmount,
             'thousandSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'],
             'decimalSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'],
