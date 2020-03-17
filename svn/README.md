@@ -6,7 +6,7 @@ This file explains how to upload a new module version to Woocommerce market.
 
 1- Located in your local Woocommerce root folder, clone Pagantis svn repository:
 ```
-svn checkout http://plugins.svn.wordpress.org/pagantis svn/
+svn checkout http://plugins.svn.wordpress.org/pagamastarde svn/
 ```
 
 2- Move the current code to the current tag version
@@ -39,6 +39,7 @@ svn add --force svn/.
 
 5- Commit the files to svn
 ```
+cd svn
 svn commit -m "<new_version>"
 ```  
 
