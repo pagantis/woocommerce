@@ -58,7 +58,8 @@
 
     function moveToPrice()
     {
-        if ('<?php echo $simulator_type; ?>' === 'sdk.simulator.types.SELECTABLE_TEXT_CUSTOM') {
+        if ('<?php echo $simulator_type; ?>' === 'sdk.simulator.types.SELECTABLE_TEXT_CUSTOM'
+          ||  '<?php echo $simulator_type; ?>' === 'sdk.simulator.types.PRODUCT_PAGE') {
             var simnode = document.querySelector(findPositionSelector());
 
             var detailnode = document.getElementsByClassName(findDestinationSim());
