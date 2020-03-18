@@ -210,7 +210,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $orderBillingAddress
                 ->setZipCode($billingAddress['postcode'])
                 ->setFullName($billingAddress['first_name']." ".$billingAddress['last_name'])
-                ->setCountryCode($billingAddress['country']!='' ? strtoupper($billingAddress['country']) : strtoupper(($this->language))
+                ->setCountryCode($billingAddress['country']!='' ? strtoupper($billingAddress['country']) : strtoupper($this->language))
                 ->setCity($billingAddress['city'])
                 ->setAddress($billingAddress['address_1']." ".$billingAddress['address_2'])
                 ->setFixPhone($billingAddress['phone'])
