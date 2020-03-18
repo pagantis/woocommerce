@@ -198,7 +198,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $orderShippingAddress
                 ->setZipCode($shippingAddress['postcode'])
                 ->setFullName($shippingAddress['first_name']." ".$shippingAddress['last_name'])
-                ->setCountryCode($shippingAddress['country']!='') ? $shippingAddress['country'] : $this->language)
+                ->setCountryCode($shippingAddress['country']!='' ? $shippingAddress['country'] : $this->language)
                 ->setCity($shippingAddress['city'])
                 ->setAddress($shippingAddress['address_1']." ".$shippingAddress['address_2'])
                 ->setFixPhone($shippingAddress['phone'])
