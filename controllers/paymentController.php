@@ -245,10 +245,12 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
             $metadataOrder = new Metadata();
             $metadata = array(
-                'woocommerce' => WC()->version,
-                'pagantis'         => $this->plugin_info['Version'],
-                'php'         => phpversion()
+                'pg_module' => 'woocommerce',
+                'pg_version' => $this->plugin_info['Version'],
+                'ec_module' => 'woocommerce',
+                'ec_version' => WC()->version
             );
+
             foreach ($metadata as $key => $metadatum) {
                 $metadataOrder->addMetadata($key, $metadatum);
             }
