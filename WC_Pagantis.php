@@ -69,6 +69,8 @@ class WcPagantis
 
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
+        $this->pagantisActivation();
+
         $this->extraConfig = $this->getExtraConfig();
 
         load_plugin_textdomain('pagantis', false, basename(dirname(__FILE__)).'/languages');
