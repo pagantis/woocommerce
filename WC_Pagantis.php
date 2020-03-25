@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.3.5
+ * Version: 8.3.6
  * Author: Pagantis
  */
 
@@ -68,6 +68,8 @@ class WcPagantis
         require_once(plugin_dir_path(__FILE__).'/vendor/autoload.php');
 
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
+
+        $this->pagantisActivation();
 
         $this->extraConfig = $this->getExtraConfig();
 
@@ -268,6 +270,15 @@ class WcPagantis
             $wpdb->update($tableName, array('value' => 'sdk.simulator.types.PRODUCT_PAGE'), array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_TYPE'), array('%s'), array('%s'));
         }
 
+        //Adapting to variable selector < v8.3.6
+        $variableSelector="div.summary div.woocommerce-variation.single_variation > div.woocommerce-variation-price span.price";
+        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_SELECTOR_VARIATION' and value='default'";
+        $results = $wpdb->get_results($query, ARRAY_A);
+        if (count($results) == 0) {
+            $wpdb->update($tableName, array('value' => $variableSelector), array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION'), array('%s'), array('%s'));
+        }
+
         $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
 
         // Convert a multimple dimension array for SQL insert statements into a simple key/value
@@ -337,8 +348,10 @@ class WcPagantis
             'pagantisSimulatorSkin' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SKIN'],
             'pagantisSimulatorPosition' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'],
             'finalDestination' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SITUATION'],
-            'variationSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_SELECTOR_VARIATION']
+            'variationSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_SELECTOR_VARIATION'],
+            'productType' => $product->get_type()
         );
+
         wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
     }
 

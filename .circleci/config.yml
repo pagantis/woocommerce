@@ -31,6 +31,9 @@ jobs:
           name: Npm Install
           command: |
             npm install
+            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
+            export NVM_DIR="/opt/circleci/.nvm" && \. "$NVM_DIR/nvm.sh" && \. "$NVM_DIR/bash_completion"
+            nvm install node
             node_modules/.bin/grunt
       - run:
           name: Docker UP
