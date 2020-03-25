@@ -140,7 +140,9 @@
         {
             var updateSelector = '<?php echo $variationSelector;?>';
 
-            if (updateSelector == 'default' || updateSelector === '')
+            var productType = '<?php echo $productType;?>';
+
+            if (updateSelector == 'default' || updateSelector === '' || productType!=='variable')
             {
                 clearInterval(window.variationInterval);
             }
