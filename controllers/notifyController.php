@@ -52,8 +52,6 @@ class WcPagantisNotify extends WcPagantisGateway
     /** @var mixed $pagantisOrderId */
     protected $pagantisOrderId = '';
 
-    /** @var $string */
-    protected $pagantisOrderStatus;
 
     /**
      * Validation vs PagantisClient
@@ -189,22 +187,6 @@ class WcPagantisNotify extends WcPagantisGateway
         }
     }
 
-    /**
-     * @return void
-     * @throws OrderNotCreatedException
-     * @throws UnknownException
-     */
-    private function deleteMerchantOrder()
-    {
-        if ( ! $this->woocommerceOrder instanceof WC_Order) {
-            throw new UnknownException ('Order :' . $this->woocommerceOrder->get_id() . "couldn't be created");
-        }
-        try {
-            $this->woocommerceOrder->delete($force_delete = true);
-        } catch (\Exception $e) {
-            throw new UnknownException($e->getMessage());
-        }
-    }
 
     /**
      * @return bool
@@ -226,8 +208,6 @@ class WcPagantisNotify extends WcPagantisGateway
             return false;
         } else {
             return true; //TO SAVE
-            // if ($this->woocommerceOrder->needs_processing()) {
-            // }
         }
     }
 
@@ -349,22 +329,6 @@ class WcPagantisNotify extends WcPagantisGateway
         }
     }
 
-    /**
-     * @return string
-     * @throws OrderNotFoundException
-     */
-    private function updatePgOrderStatus()
-    {
-        if ( ! $this->pagantisOrder instanceof Order) {
-            throw new OrderNotFoundException();
-        }
-        $orderStatus = $this->pagantisOrder->getStatus();
-        if ( ! $this->isPgOrderAuthorized($orderStatus)) {
-            return $this->setPgOrderStatus($orderStatus);
-        }
-
-        return $this->setPgOrderStatus('-');
-    }
 
     /** STEP 6 CMOS - Check Merchant Order Status */
     /** STEP 7 VA - Validate Amount */
@@ -377,8 +341,6 @@ class WcPagantisNotify extends WcPagantisGateway
         global $woocommerce;
         $paymentResult = $this->woocommerceOrder->payment_complete();
         if ($paymentResult) {
-            $this->woocommerceOrder->add_order_note("Payment Complete Continuing");
-
             $metadataOrder = $this->pagantisOrder->getMetadata();
             $metadataInfo  = null;
             foreach ($metadataOrder as $metadataKey => $metadataValue) {
@@ -522,39 +484,6 @@ class WcPagantisNotify extends WcPagantisGateway
         } else {
             return $jsonResponse;
         }
-    }
-
-    /**
-     * @param string $currentOrderStatus
-     *
-     * @return bool
-     */
-    private function isPgOrderAuthorized($currentOrderStatus)
-    {
-        if ( ! $currentOrderStatus == Order::STATUS_CONFIRMED) {
-            return false;
-        }
-
-        return true;
-    }
-
-
-    /**
-     * @param mixed $status
-     *
-     * @return string
-     */
-    protected function setPgOrderStatus($status)
-    {
-        $this->status = $status;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getPgOrderStatus()
-    {
-        return $this->status;
     }
 
     /**
