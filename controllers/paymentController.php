@@ -85,7 +85,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
         add_action('woocommerce_receipt_' . $this->id, array($this, 'pagantisReceiptPage'));                           //Pagantis form
         add_action('woocommerce_api_wcpagantisgateway', array($this, 'pagantisNotification'));                         //Json Notification
         add_filter('woocommerce_payment_complete_order_status', array($this, 'pagantisCompleteStatus'), 10, 3);
-        add_filter('woocommerce_payment_complete_order_status', array($this, 'create_wc_order'), 10, 2);
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
     }
 
@@ -162,191 +161,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
             wc_get_template('error_msg.php', $template_fields, '', $this->template_path);
         }
     }
-
-    /**
-     * @param $data
-     *
-     * @return array
-     * @throws WC_Data_Exception
-     */
-    function create_wc_order($data)
-    {
-        global $woocommerce;
-        $order = new WC_Order();
-        // Set Billing and Shipping addresses
-        $order_id        = $data['id'];
-        $order_parent_id = $data['parent_id'];
-
-        // Get the Customer ID (User ID)
-        $customer_id = $data['customer_id'];
-
-        /** Billing   & Shipping Information
-         * https://docs.woocommerce.com/wc-apidocs/source-class-WC_Order_Data_Store_CPT.html#12-795
-         * INFO if doesnt work try https://docs.woocommerce.com/wc-apidocs/source-class-WC_Order.html#960
-         */
-        if (isset($data['billing'])) {
-            $billing_address = array(
-                'billing_first_name' => get_post_meta($data['id'], '_billing_first_name', true),
-                'billing_last_name'  => get_post_meta($data['id'], '_billing_last_name', true),
-                'billing_company'    => get_post_meta($data['id'], '_billing_company', true),
-                'billing_address_1'  => get_post_meta($data['id'], '_billing_address_1', true),
-                'billing_address_2'  => get_post_meta($data['id'], '_billing_address_2', true),
-                'billing_city'       => get_post_meta($data['id'], '_billing_city', true),
-                'billing_state'      => get_post_meta($data['id'], '_billing_state', true),
-                'billing_postcode'   => get_post_meta($data['id'], '_billing_postcode', true),
-                'billing_country'    => get_post_meta($data['id'], '_billing_country', true),
-                'billing_email'      => get_post_meta($data['id'], '_billing_email', true),
-                'billing_phone'      => get_post_meta($data['id'], '_billing_phone', true)
-            );
-            $order->set_address($billing_address, 'billing');
-        }
-        if (isset($data['shipping'])) {
-            $shipping_address = array(
-                'shipping_first_name' => get_post_meta($data['id'], '_shipping_first_name', true),
-                'shipping_last_name'  => get_post_meta($data['id'], '_shipping_last_name', true),
-                'shipping_company'    => get_post_meta($data['id'], '_shipping_company', true),
-                'shipping_address_1'  => get_post_meta($data['id'], '_shipping_address_1', true),
-                'shipping_address_2'  => get_post_meta($data['id'], '_shipping_address_2', true),
-                'shipping_city'       => get_post_meta($data['id'], '_shipping_city', true),
-                'shipping_state'      => get_post_meta($data['id'], '_shipping_state', true),
-                'shipping_postcode'   => get_post_meta($data['id'], '_shipping_postcode', true),
-                'shipping_country'    => get_post_meta($data['id'], '_shipping_country', true)
-            );
-            $order->set_address($shipping_address, 'shipping');
-        }
-
-        $order->get_meta_data();
-        // Set other details
-        $order->set_created_via('pagantis');
-        $order->set_date_paid(current_time('timestamp', true));
-        $order->set_customer_id($data['customer_id']);
-        $order->set_currency(get_woocommerce_currency());
-        $order->set_prices_include_tax('yes' === get_option('woocommerce_prices_include_tax'));
-        $order->set_customer_note(isset($data['order_comments']) ? $data['order_comments'] : '');
-        $order->set_payment_method(ucfirst($this->id));
-
-        // Line items
-        foreach ($data['line_items'] as $line_item) {
-            $args    = $line_item['args'];
-            $product = wc_get_product(isset($args['variation_id']) && $args['variation_id'] > 0 ? $args['variation_id'] : $args['product_id']);
-            $order->add_product($product, $line_item['quantity'], $line_item['args']);
-        }
-
-        $calculate_taxes_for = array(
-            'country'  => $data['shipping']['country'],
-            'state'    => $data['shipping']['state'],
-            'postcode' => $data['shipping']['postcode'],
-            'city'     => $data['shipping']['city']
-        );
-
-        // Coupon items
-        if (isset($data['coupon_items'])) {
-            foreach ($data['coupon_items'] as $coupon_item) {
-                $order->apply_coupon(sanitize_title($coupon_item['code']));
-            }
-        }
-        // Fee items
-        if (isset($data['fee_items'])) {
-            foreach ($data['fee_items'] as $fee_item) {
-                $fee_item = new WC_Order_Item_Fee();
-                $fee_item->set_name($fee_item['name']);
-                $fee_item->set_total($fee_item['total']);
-                $tax_class = isset($fee_item['tax_class']) && $fee_item['tax_class'] != 0 ? $fee_item['tax_class'] : 0;
-                $fee_item->set_tax_class($tax_class); // O if not taxable
-                $fee_item->calculate_taxes($calculate_taxes_for);
-                $fee_item->save();
-                $order->add_item($fee_item);
-            }
-        }
-
-        // Set calculated totals
-        $order->calculate_totals();
-
-        // Save order to database (returns the order ID)
-        $order_id = $order->save();
-
-        // Update order status from pending to processing
-        if (isset($data['order_status'])) {
-            $order->update_status($data['order_status']['processing'], $data['order_status']['note']);
-        }
-
-        // Returns the order ID
-        return $order_id;
-    }
-
-    // public function createOrder($status, $order_id, $order)
-    // {
-    //     try {
-    //         require_once(__ROOT__ . '/vendor/autoload.php');
-    //         global $woocommerce;
-    //         $order = new WC_Order($order_id);
-    //
-    //         $orderArguments = array(
-    //             'status'        => null,
-    //             'customer_id'   => null,
-    //             'customer_note' => null,
-    //             'parent'        => null,
-    //             'created_via'   => null,
-    //             'cart_hash'     => null,
-    //             'order_id'      => 0,
-    //         );
-    //         $order->set_payment_method(ucfirst($this->id));
-    //         wc_create_order();
-    //         $order->save();
-    //
-    //         if ( ! isset($order)) {
-    //             throw new Exception(_("Order not found"));
-    //         }
-    //
-    //         $shippingAddress = $order->get_address('shipping');
-    //         $billingAddress  = $order->get_address('billing');
-    //         if ($shippingAddress['address_1'] == '') {
-    //             $shippingAddress = $billingAddress;
-    //         }
-    //
-    //
-    //         $shippingCost   = $order->shipping_total;
-    //         $items          = $order->get_items();
-    //         $promotedAmount = 0;
-    //         foreach ($items as $key => $item) {
-    //             $wcProduct          = $item->get_product();
-    //             $product            = new Product();
-    //             $productDescription = sprintf('%s %s %s', $wcProduct->get_name(), $wcProduct->get_description(), $wcProduct->get_short_description());
-    //             $productDescription = substr($productDescription, 0, 9999);
-    //
-    //
-    //             if ($promotedProduct == 'true') {
-    //                 $promotedAmount  += $product->getAmount();
-    //                 $promotedMessage =
-    //                     'Promoted Item: ' . $wcProduct->get_name() . ' - Price: ' . $item->get_total() . ' - Qty: ' . $product->getQuantity()
-    //                     . ' - Item ID: ' . $item['id_product'];
-    //                 $promotedMessage = substr($promotedMessage, 0, 999);
-    //                 $metadataOrder->addMetadata('promotedProduct', $promotedMessage);
-    //             }
-    //         }
-    //
-    //
-    //         $callback_arg_user           = $callback_arg;
-    //         $callback_arg_user['origin'] = 'redirect';
-    //         $callback_url_user           = add_query_arg($callback_arg_user, home_url('/'));
-    //
-    //         $callback_arg_notif           = $callback_arg;
-    //         $callback_arg_notif['origin'] = 'notification';
-    //         $callback_url_notif           = add_query_arg($callback_arg_notif, home_url('/'));
-    //
-    //
-    //         $purchaseCountry = in_array(strtolower($this->language), $allowedCountries)
-    //             ? $this->language
-    //             : in_array(strtolower($shippingAddress['country']), $allowedCountries) ? $shippingAddress['country']
-    //                 : in_array(strtolower($billingAddress['country']), $allowedCountries) ? $billingAddress['country'] : null;
-    //     } catch (\Exception $exception) {
-    //         wc_add_notice(__('Order Creation error ', 'pagantis') . $exception->getMessage(), 'error');
-    //         $this->insertLog($exception);
-    //         $checkout_url = get_permalink(wc_get_page_id('checkout'));
-    //         wp_redirect($checkout_url);
-    //         exit;
-    //     }
-    // }
 
     /**
      * CHECKOUT - Generate the pagantis form. "Return" iframe or redirect. - Hook: woocommerce_receipt_pagantis
@@ -563,13 +377,12 @@ class WcPagantisGateway extends WC_Payment_Gateway
         } else {
             $orderStatus = 'cancelled';
         }
-        $acceptedStatus = array('processing', 'completed');
-        if (in_array($orderStatus, $acceptedStatus)) {
+        if (!$paymentOrder->needs_payment()) {
             $returnUrl = $this->getOkUrl($paymentOrder);
         } else {
             $returnUrl = $this->getKoUrl($paymentOrder);
+           $paymentOrder->delete($forceDelete = true);
         }
-
         wp_redirect($returnUrl);
         exit;
     }

@@ -26,6 +26,7 @@ RUN buildDeps="libxml2-dev" \
         libmcrypt-dev \
         pkg-config \
         patch \
+        nano \
         --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 #ADD "https://git.archlinux.org/svntogit/packages.git/plain/trunk/freetype.patch?h=packages/php" /tmp/freetype.patch
