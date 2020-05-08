@@ -60,6 +60,12 @@ if [ ! -f app/etc/local.xml ]; then
     wp --allow-root option update page_on_front	$SHOPIDPAGE
     wp --allow-root wc --user=admin shipping_zone_method create 0 --method_id=flat_rate
 
+    echo "ADDING DEVELOPMENT CONSTANTS"
+    wp --allow-root config set --add --type=constant WP_DEBUG_LOG true
+    wp --allow-root config set --add --type=constant WP_DEBUG_DISPLAY true
+    wp --allow-root config set --add --type=constant WPS_DEBUG true
+    wp --allow-root config set --add --type=constant SAVEQUERIES true
+
     chown -R www-data:www-data /var/www/html/*
 fi
 

@@ -3,8 +3,10 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.3.6
+ * Version: 8.3.7
  * Author: Pagantis
+ * Domain Path: /languages
+ * WC requires at least: 3.0
  */
 
 //namespace Gateways;
@@ -13,23 +15,26 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+define('PAGANTIS_VERSION', '8.3.7');
+
+define('PAGANTIS_PLUGIN_URL', untrailingslashit(plugins_url(basename(plugin_dir_path(__FILE__)), basename(__FILE__))));
+define('PAGANTIS_PLUGIN_PATH', untrailingslashit(plugin_dir_path(__FILE__)));
+
+define('WC_PAGANTIS_MAIN_FILE', __FILE__, true);
+define('PAGANTIS_ORDERS_TABLE', 'cart_process', true);
+define('PAGANTIS_WC_ORDERS_TABLE', 'posts', true);
+define('PAGANTIS_LOGS_TABLE', 'pagantis_logs', true);
+define('PAGANTIS_NOT_CONFIRMED_MESSAGE', 'No se ha podido confirmar el pago');
+define('PAGANTIS_CONFIG_TABLE', 'pagantis_config');
+define('PAGANTIS_CONCURRENCY_TABLE', 'pagantis_config');
+define('GIT_HUB_URL', 'https://github.com/pagantis/woocommerce');
+define('PAGANTIS_DOC_URL', 'https://developer.pagantis.com');
+define('SUPPORT_EML', 'mailto:integrations@pagantis.com?Subject=woocommerce_plugin');
 
 class WcPagantis
 {
-    const GIT_HUB_URL = 'https://github.com/pagantis/woocommerce';
-    const PAGANTIS_DOC_URL = 'https://developer.pagantis.com';
-    const SUPPORT_EML = 'mailto:integrations@pagantis.com?Subject=woocommerce_plugin';
 
-    /** Concurrency tablename */
-    const LOGS_TABLE = 'pagantis_logs';
 
-    /** Config tablename */
-    const CONFIG_TABLE = 'pagantis_config';
-
-    /** Concurrency tablename  */
-    const CONCURRENCY_TABLE = 'pagantis_concurrency';
-
-    /** Config tablename */
     const ORDERS_TABLE = 'posts';
 
     public $defaultConfigs = array(
@@ -57,7 +62,7 @@ class WcPagantis
        'PAGANTIS_SIMULATOR_SELECTOR_VARIATION' => 'default'
     );
 
-    /** @var Array $extraConfig */
+    /** @var array $extraConfig */
     public $extraConfig;
 
     /**
@@ -65,7 +70,7 @@ class WcPagantis
      */
     public function __construct()
     {
-        require_once(plugin_dir_path(__FILE__).'/vendor/autoload.php');
+        require_once dirname(__FILE__).'/vendor/autoload.php';
 
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
@@ -172,7 +177,7 @@ class WcPagantis
     {
         global $wpdb;
 
-        $tableName = $wpdb->prefix.self::CONCURRENCY_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_CONCURRENCY_TABLE;
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
             $sql = "CREATE TABLE $tableName ( order_id int NOT NULL,  
@@ -181,7 +186,7 @@ class WcPagantis
             dbDelta($sql);
         }
 
-        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_CONFIG_TABLE;
 
         //Check if table exists
         $tableExists = $wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName;
@@ -236,7 +241,7 @@ class WcPagantis
         }
 
         //Adapting selector to array < v8.2.2
-        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_CONFIG_TABLE;
         $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'";
         $results = $wpdb->get_results($query, ARRAY_A);
         if (count($results) == 0) {
@@ -245,7 +250,7 @@ class WcPagantis
         }
 
         //Adding new selector < v8.3.0
-        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_CONFIG_TABLE;
         $query = "select * from $tableName where config='PAGANTIS_DISPLAY_MAX_AMOUNT'";
         $results = $wpdb->get_results($query, ARRAY_A);
         if (count($results) == 0) {
@@ -253,7 +258,7 @@ class WcPagantis
         }
 
         //Adding new selector < v8.3.2
-        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_CONFIG_TABLE;
         $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_DISPLAY_SITUATION'";
         $results = $wpdb->get_results($query, ARRAY_A);
         if (count($results) == 0) {
@@ -262,7 +267,7 @@ class WcPagantis
         }
 
         //Adding new selector < v8.3.3
-        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_CONFIG_TABLE;
         $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_DISPLAY_TYPE_CHECKOUT'";
         $results = $wpdb->get_results($query, ARRAY_A);
         if (count($results) == 0) {
@@ -272,7 +277,7 @@ class WcPagantis
 
         //Adapting to variable selector < v8.3.6
         $variableSelector="div.summary div.woocommerce-variation.single_variation > div.woocommerce-variation-price span.price";
-        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_CONFIG_TABLE;
         $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_SELECTOR_VARIATION' and value='default'";
         $results = $wpdb->get_results($query, ARRAY_A);
         if (count($results) == 0) {
@@ -328,7 +333,6 @@ class WcPagantis
             $cfg['simulator'] !== 'yes'  || !$allowedCountry || !$validAmount) {
             return;
         }
-
         $post_id = $product->get_id();
         $template_fields = array(
             'total'    => is_numeric($product->get_price()) ? $product->get_price() : 0,
@@ -420,10 +424,10 @@ class WcPagantis
     public function pagantisRowMeta($links, $file)
     {
         if ($file == plugin_basename(__FILE__)) {
-            $links[] = '<a href="'.WcPagantis::GIT_HUB_URL.'" target="_blank">'.__('Documentation', 'pagantis').'</a>';
-            $links[] = '<a href="'.WcPagantis::PAGANTIS_DOC_URL.'" target="_blank">'.
+            $links[] = '<a href="'.GIT_HUB_URL.'" target="_blank">'.__('Documentation', 'pagantis').'</a>';
+            $links[] = '<a href="'.PAGANTIS_DOC_URL.'" target="_blank">'.
                        __('API documentation', 'pagantis').'</a>';
-            $links[] = '<a href="'.WcPagantis::SUPPORT_EML.'">'.__('Support', 'pagantis').'</a>';
+            $links[] = '<a href="'.SUPPORT_EML.'">'.__('Support', 'pagantis').'</a>';
 
             return $links;
         }
@@ -444,7 +448,7 @@ class WcPagantis
         $to   = $filters['to'];
         $cfg  = get_option('woocommerce_pagantis_settings');
         $privateKey = isset($cfg['pagantis_private_key']) ? $cfg['pagantis_private_key'] : null;
-        $tableName = $wpdb->prefix.self::LOGS_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_LOGS_TABLE;
         $query = "select * from $tableName where createdAt>$from and createdAt<$to order by createdAt desc";
         $results = $wpdb->get_results($query);
         if (isset($results) && $privateKey == $secretKey) {
@@ -469,7 +473,7 @@ class WcPagantis
     public function updateExtraConfig($data)
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_CONFIG_TABLE;
         $response = array('status'=>null);
 
         $filters   = ($data->get_params());
@@ -502,7 +506,7 @@ class WcPagantis
         }
 
         if ($response['status']==null) {
-            $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+            $tableName = $wpdb->prefix.PAGANTIS_CONFIG_TABLE;
             $dbResult = $wpdb->get_results("select config, value from $tableName", ARRAY_A);
             foreach ($dbResult as $value) {
                 $formattedResult[$value['config']] = $value['value'];
@@ -532,7 +536,7 @@ class WcPagantis
         $method = ($filters['method']) ? ($filters['method']) : 'Pagantis';
         $cfg  = get_option('woocommerce_pagantis_settings');
         $privateKey = isset($cfg['pagantis_private_key']) ? $cfg['pagantis_private_key'] : null;
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_WC_ORDERS_TABLE;
         $tableNameInner = $wpdb->prefix.'postmeta';
         $query = "select * from $tableName tn INNER JOIN $tableNameInner tn2 ON tn2.post_id = tn.id
                   where tn.post_type='shop_order' and tn.post_date>'".$from->format("Y-m-d")."' 
@@ -606,7 +610,7 @@ class WcPagantis
     private function getExtraConfig()
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_CONFIG_TABLE;
         $response = array();
         $dbResult = $wpdb->get_results("select config, value from $tableName", ARRAY_A);
         foreach ($dbResult as $value) {

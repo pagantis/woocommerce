@@ -27,21 +27,12 @@ class WcPagantisGateway extends WC_Payment_Gateway
 {
     const METHOD_ID = "pagantis";
 
-    /** Orders tablename */
-    const ORDERS_TABLE = 'cart_process';
-
-    /** Concurrency tablename */
-    const LOGS_TABLE = 'pagantis_logs';
-
-    const NOT_CONFIRMED = 'No se ha podido confirmar el pago';
-
-    const CONFIG_TABLE = 'pagantis_config';
-
-    /** @var Array $extraConfig */
+    /** @var array $extraConfig */
     public $extraConfig;
 
     /** @var string $language */
     public $language;
+
 
     /**
      * WcPagantisGateway constructor.
@@ -49,15 +40,16 @@ class WcPagantisGateway extends WC_Payment_Gateway
     public function __construct()
     {
         //Mandatory vars for plugin
-        $this->id = WcPagantisGateway::METHOD_ID;
+        $this->id = self::METHOD_ID;
         $this->has_fields = true;
         $this->method_title = ucfirst($this->id);
-
+        include_once dirname(__FILE__).'/../includes/class-wc-pagantis-extraconfig.php';
+        include_once dirname(__FILE__).'/../includes/class-wc-pagantis-logger.php';
+        $value = WcPagantisExtraConfig::getExtraConfigValue('PAGANTIS_TITLE');
+        WCPagantisLogger::writeLog($value);
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
         $this->allowed_currencies = array("EUR");
-        $this->mainFileLocation = dirname(plugin_dir_path(__FILE__)) . '/WC_Pagantis.php';
-        $this->plugin_info = get_file_data($this->mainFileLocation, array('Version' => 'Version'), false);
         $this->language = strstr(get_locale(), '_', true);
         if ($this->language=='') {
             $this->language = 'ES';
@@ -87,6 +79,31 @@ class WcPagantisGateway extends WC_Payment_Gateway
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
     }
 
+    public function enqueue_scripts()
+    {
+        if ($this->enabled !== 'yes' || ! is_checkout() || is_order_received_page() || is_wc_endpoint_url('order-pay')) {
+            return;
+        }
+
+        wp_register_script(
+            'pagantis-checkout',
+            plugins_url('../assets/js/pagantis-checkout.js', __FILE__),
+            array('jquery', 'woocommerce', 'wc-checkout', 'wc-country-select', 'wc-address-i18n'),
+            PAGANTIS_VERSION,
+            true
+        );
+        wp_enqueue_script('pagantis-checkout');
+
+        $checkout_localize_params                        = array();
+        $checkout_localize_params['place_order_url']     = WC_AJAX::get_endpoint('pagantis_checkout');
+        $checkout_localize_params['place_order_nonce']   = wp_create_nonce('pagantis_checkout');
+        $checkout_localize_params['wc_ajax_url']         = WC_AJAX::get_endpoint('%%endpoint%%');
+        $checkout_localize_params['i18n_checkout_error'] = esc_attr__('Error processing pagantis checkout. Please try again.', 'woocommerce');
+
+        wp_localize_script('pagantis-checkout', 'pagantis_params', $checkout_localize_params);
+
+        wp_enqueue_script('pagantis_params');
+    }
     /**
      * @param $mofile
      * @param $domain
@@ -151,7 +168,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
         if ($error_string!='') {
             $template_fields = array(
-                'error_msg' => ucfirst(WcPagantisGateway::METHOD_ID).' '.$error_string,
+                'error_msg' => ucfirst(self::METHOD_ID).' '.$error_string,
             );
             wc_get_template('error_msg.php', $template_fields, '', $this->template_path);
         }
@@ -246,7 +263,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $metadataOrder = new Metadata();
             $metadata = array(
                 'pg_module' => 'woocommerce',
-                'pg_version' => $this->plugin_info['Version'],
+                'pg_version' => PAGANTIS_VERSION,
                 'ec_module' => 'woocommerce',
                 'ec_version' => WC()->version
             );
@@ -425,7 +442,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function pagantisCompleteStatus($status, $order_id, $order)
     {
-        if ($order->get_payment_method() == WcPagantisGateway::METHOD_ID) {
+        if ($order->get_payment_method() == self::METHOD_ID) {
             if ($order->get_status() == 'failed') {
                 $status = 'processing';
             } elseif ($order->get_status() == 'pending' && $status=='completed') {
@@ -491,7 +508,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 'result'   => 'success',
                 'redirect' => $redirectUrl
             );
-
         } catch (Exception $e) {
             wc_add_notice(__('Payment error ', 'pagantis') . $e->getMessage(), 'error');
             return array();
@@ -736,7 +752,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
     {
         global $wpdb;
         $this->checkDbTable();
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_WC_ORDERS_TABLE;
 
         //Check if id exists
         $resultsSelect = $wpdb->get_results("select * from $tableName where id='$orderId'");
@@ -764,7 +780,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
     private function checkDbTable()
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_WC_ORDERS_TABLE;
 
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
@@ -782,7 +798,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
     private function getExtraConfig()
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_CONFIG_TABLE;
         $response = array();
         $dbResult = $wpdb->get_results("select config, value from $tableName", ARRAY_A);
         foreach ($dbResult as $value) {
@@ -838,7 +854,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         } else {
             $logEntry = $logEntry->info($message);
         }
-        $tableName = $wpdb->prefix.self::LOGS_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_LOGS_TABLE;
         $wpdb->insert($tableName, array('log' => $logEntry->toJson()));
     }
     /**
@@ -847,7 +863,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
     private function checkDbLogTable()
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.self::LOGS_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_LOGS_TABLE;
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
             $sql = "CREATE TABLE $tableName ( id int NOT NULL AUTO_INCREMENT, log text NOT NULL, 

@@ -138,7 +138,7 @@ class WcPagantisNotify extends WcPagantisGateway
     {
         global $wpdb;
         $this->checkDbTable();
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_WC_ORDERS_TABLE;
         $queryResult = $wpdb->get_row("select order_id from $tableName where id='".$this->woocommerceOrderId."'");
         $this->pagantisOrderId = $queryResult->order_id;
 
@@ -265,7 +265,7 @@ class WcPagantisNotify extends WcPagantisGateway
     private function checkDbTable()
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_WC_ORDERS_TABLE;
 
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
@@ -283,7 +283,7 @@ class WcPagantisNotify extends WcPagantisGateway
     private function checkDbLogTable()
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.self::LOGS_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_LOGS_TABLE;
 
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
@@ -370,7 +370,7 @@ class WcPagantisNotify extends WcPagantisGateway
         global $wpdb;
 
         $this->checkDbTable();
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_WC_ORDERS_TABLE;
 
         $wpdb->update(
             $tableName,
@@ -403,7 +403,7 @@ class WcPagantisNotify extends WcPagantisGateway
             $logEntry = $logEntry->info($message);
         }
 
-        $tableName = $wpdb->prefix.self::LOGS_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_LOGS_TABLE;
         $wpdb->insert($tableName, array('log' => $logEntry->toJson()));
     }
 
@@ -415,7 +415,7 @@ class WcPagantisNotify extends WcPagantisGateway
     private function unblockConcurrency($orderId = null)
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.self::CONCURRENCY_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_CONCURRENCY_TABLE;
         if ($orderId == null) {
             $query = "DELETE FROM $tableName WHERE createdAt<(NOW()- INTERVAL ".self::CONCURRENCY_TIMEOUT." SECOND)";
         } else {
@@ -435,7 +435,7 @@ class WcPagantisNotify extends WcPagantisGateway
     private function blockConcurrency($orderId)
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.self::CONCURRENCY_TABLE;
+        $tableName = $wpdb->prefix.PAGANTIS_CONCURRENCY_TABLE;
         $insertResult = $wpdb->insert($tableName, array('order_id' => $orderId));
         if ($insertResult === false) {
             if ($this->getOrigin() == 'Notify') {
@@ -459,7 +459,6 @@ class WcPagantisNotify extends WcPagantisGateway
                     $restSeconds
                 );
                 $this->insertLog(null, $logMessage);
-
             }
         }
     }
