@@ -5,9 +5,8 @@ if (!defined('ABSPATH')) {
 }
 
 
-class WCPagantisLogger
+class WcPagantisLogger
 {
-
     public static $logger;
     const WC_LOG_FILENAME = 'pagantis-wc';
 
@@ -25,14 +24,15 @@ class WCPagantisLogger
             return;
         }
 
-        if (apply_filters('wc_stripe_logging', true, $message)) {
+        if ($message) {
             if (empty(self::$logger)) {
-                    self::$logger = wc_get_logger();
+                self::$logger = wc_get_logger();
             }
 
-            $settings = get_option('woocommerce_stripe_settings');
+            $isDebugLogEnabled    = 'yes' === WC_Admin_Settings::get_option('debug', 'no');
+            $settings = get_option('woocommerce_pagantis_settings');
 
-            if (empty($settings) || isset($settings['logging']) && 'yes' !== $settings['logging']) {
+            if (empty($settings) || isset($settings['debug']) && $isDebugLogEnabled) {
                 return;
             }
 
@@ -52,8 +52,19 @@ class WCPagantisLogger
             if (defined('WP_DEBUG') && WP_DEBUG) {
                 error_log($log_entry);
             }
-                print_r($log_entry);
-                self::$logger->debug($log_entry, array( 'source' => self::WC_LOG_FILENAME ));
+            print_r($log_entry);
+            self::$logger->debug($log_entry, array( 'source' => self::WC_LOG_FILENAME ));
         }
+    }
+
+    /**
+     * empty log file
+     */
+    public static function clearLogs()
+    {
+        if (empty(self::$logger)) {
+            self::$logger = wc_get_logger();
+        }
+        self::$logger->clear(self::WC_LOG_FILENAME);
     }
 }

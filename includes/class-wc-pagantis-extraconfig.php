@@ -15,14 +15,13 @@ class WcPagantisExtraConfig
         include_once('class-wc-pagantis-logger.php');
         $config = self::getExtraConfig();
         $value = $config[$key];
-        WCPagantisLogger::writeLog($value);
         return $value;
     }
 
     /**
      * @return array
      */
-    private static function getExtraConfig()
+    public static function getExtraConfig()
     {
         global $wpdb;
         $tableName = $wpdb->prefix.PAGANTIS_CONFIG_TABLE;
@@ -36,11 +35,4 @@ class WcPagantisExtraConfig
     }
 }
 
-/**
- * @todo remove this is for debug
- */
-WcPagantisExtraConfig::getExtraConfigValue('PAGANTIS_PROMOTION_EXTRA');
-WcPagantisExtraConfig::getExtraConfigValue('PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR');
-WcPagantisExtraConfig::getExtraConfigValue('PAGANTIS_SIMULATOR_DISPLAY_SKIN');
-WCPagantisLogger::writeLog(WcPagantisExtraConfig::getExtraConfigValue('PAGANTIS_SIMULATOR_DISPLAY_SKIN'));
-WCPagantisLogger::writeLog(WcPagantisExtraConfig::getExtraConfigValue('PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'));
+

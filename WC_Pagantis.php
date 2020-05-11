@@ -20,22 +20,19 @@ define('PAGANTIS_VERSION', '8.3.7');
 define('PAGANTIS_PLUGIN_URL', untrailingslashit(plugins_url(basename(plugin_dir_path(__FILE__)), basename(__FILE__))));
 define('PAGANTIS_PLUGIN_PATH', untrailingslashit(plugin_dir_path(__FILE__)));
 
-define('WC_PAGANTIS_MAIN_FILE', __FILE__, true);
+define('PAGANTIS_WC__MAIN_FILE', __FILE__, true);
 define('PAGANTIS_ORDERS_TABLE', 'cart_process', true);
 define('PAGANTIS_WC_ORDERS_TABLE', 'posts', true);
 define('PAGANTIS_LOGS_TABLE', 'pagantis_logs', true);
 define('PAGANTIS_NOT_CONFIRMED_MESSAGE', 'No se ha podido confirmar el pago');
-define('PAGANTIS_CONFIG_TABLE', 'pagantis_config');
-define('PAGANTIS_CONCURRENCY_TABLE', 'pagantis_config');
-define('GIT_HUB_URL', 'https://github.com/pagantis/woocommerce');
+define('PAGANTIS_CONFIG_TABLE', 'pagantis_config', true);
+define('PAGANTIS_CONCURRENCY_TABLE', 'pagantis_concurrency', true);
+define('PAGANTIS_GIT_HUB_URL', 'https://github.com/pagantis/woocommerce');
 define('PAGANTIS_DOC_URL', 'https://developer.pagantis.com');
-define('SUPPORT_EML', 'mailto:integrations@pagantis.com?Subject=woocommerce_plugin');
+define('PAGANTIS_SUPPORT_EMAIL', 'mailto:integrations@pagantis.com?Subject=woocommerce_plugin');
 
 class WcPagantis
 {
-
-
-    const ORDERS_TABLE = 'posts';
 
     public $defaultConfigs = array(
        'PAGANTIS_TITLE'=>'Pago en cuotas',
@@ -63,7 +60,8 @@ class WcPagantis
     );
 
     /** @var array $extraConfig */
-    public $extraConfig;
+    private $extraConfig;
+
 
     /**
      * WC_Pagantis constructor.
@@ -72,8 +70,7 @@ class WcPagantis
     {
         require_once dirname(__FILE__).'/vendor/autoload.php';
 
-        $this->template_path = plugin_dir_path(__FILE__).'/templates/';
-
+        $this->template_path = plugin_dir_path(PAGANTIS_WC__MAIN_FILE).'templates/';
         $this->pagantisActivation();
 
         $this->extraConfig = $this->getExtraConfig();
@@ -424,10 +421,10 @@ class WcPagantis
     public function pagantisRowMeta($links, $file)
     {
         if ($file == plugin_basename(__FILE__)) {
-            $links[] = '<a href="'.GIT_HUB_URL.'" target="_blank">'.__('Documentation', 'pagantis').'</a>';
+            $links[] = '<a href="'.PAGANTIS_GIT_HUB_URL.'" target="_blank">'.__('Documentation', 'pagantis').'</a>';
             $links[] = '<a href="'.PAGANTIS_DOC_URL.'" target="_blank">'.
                        __('API documentation', 'pagantis').'</a>';
-            $links[] = '<a href="'.SUPPORT_EML.'">'.__('Support', 'pagantis').'</a>';
+            $links[] = '<a href="'.PAGANTIS_SUPPORT_EMAIL.'">'.__('Support', 'pagantis').'</a>';
 
             return $links;
         }

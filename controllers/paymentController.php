@@ -28,11 +28,10 @@ class WcPagantisGateway extends WC_Payment_Gateway
     const METHOD_ID = "pagantis";
 
     /** @var array $extraConfig */
-    public $extraConfig;
+    private $extraConfig;
 
     /** @var string $language */
     public $language;
-
 
     /**
      * WcPagantisGateway constructor.
@@ -43,10 +42,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $this->id = self::METHOD_ID;
         $this->has_fields = true;
         $this->method_title = ucfirst($this->id);
-        include_once dirname(__FILE__).'/../includes/class-wc-pagantis-extraconfig.php';
-        include_once dirname(__FILE__).'/../includes/class-wc-pagantis-logger.php';
-        $value = WcPagantisExtraConfig::getExtraConfigValue('PAGANTIS_TITLE');
-        WCPagantisLogger::writeLog($value);
+        require_once dirname(__FILE__).'/../includes/class-wc-pagantis-extraconfig.php';
+        require_once dirname(__FILE__).'/../includes/class-wc-pagantis-logger.php';
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
         $this->allowed_currencies = array("EUR");
@@ -60,7 +57,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $this->form_fields = include(plugin_dir_path(__FILE__).'../includes/settings-pagantis.php');//Panel options
         $this->init_settings();
 
-        $this->extraConfig = $this->getExtraConfig();
+        $this->extraConfig = WcPagantisExtraConfig::getExtraConfig();
         $this->title = __($this->extraConfig['PAGANTIS_TITLE'], 'pagantis');
         $this->method_description = "Financial Payment Gateway. Enable the possibility for your customers to pay their order in confortable installments with Pagantis.";
 
@@ -186,7 +183,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         try {
             require_once(__ROOT__.'/vendor/autoload.php');
             global $woocommerce;
-            $order = new WC_Order($order_id);
+            $order = wc_get_order($order_id);
             $order->set_payment_method(ucfirst($this->id));
             $order->save();
 
@@ -526,7 +523,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
         $template_fields = array(
             'public_key' => $this->pagantis_public_key,
-            'total' => WC()->session->cart_totals['total'],
+            'total' => WC()->cart->get_total(),
             'enabled' =>  $this->settings['enabled'],
             'min_installments' => $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'],
             'max_installments' => $this->extraConfig['PAGANTIS_DISPLAY_MAX_AMOUNT'],
@@ -540,7 +537,12 @@ class WcPagantisGateway extends WC_Payment_Gateway
             'decimalSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'],
             'pagantisSimulatorSkin' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SKIN']
         );
-        wc_get_template('checkout_description.php', $template_fields, '', $this->template_path);
+        try {
+            wc_get_template('checkout_description.php', $template_fields, '', $this->template_path);
+        } catch (Exception $exception) {
+            $exception->getMessage();
+            var_export($exception->getMessage());
+        }
     }
 
     /***********
