@@ -19,36 +19,62 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class WcPagantisNotify extends WcPagantisGateway
+class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
 {
-    /** Concurrency table name  */
+    /**
+    * Concurrency table name
+    */
     const CONCURRENCY_TABLE = 'pagantis_concurrency';
 
-    /** Seconds to expire a locked request */
+    /**
+    * Seconds to expire a locked request
+    */
     const CONCURRENCY_TIMEOUT = 5;
 
-    /** @var mixed $pagantisOrder */
+    /**
+     * Pagantis Order Number
+     *
+    * @var mixed $pagantisOrder
+    */
     protected $pagantisOrder;
 
-    /** @var $string $origin */
+    /**
+     *  Origin of Order
+     *
+    * @var $string $origin
+    */
     public $origin;
 
-    /** @var $string */
+    /**
+     * WC_Order object
+     *
+    * @var $string
+    */
     public $order;
 
-    /** @var mixed $woocommerceOrderId */
+    /**
+    * @var mixed $woocommerceOrderId
+    */
     protected $woocommerceOrderId = '';
 
-    /** @var mixed $cfg */
+    /**
+    * @var mixed $cfg
+    */
     protected $cfg;
 
-    /** @var Client $orderClient */
+    /**
+ * @var Client $orderClient
+*/
     protected $orderClient;
 
-    /** @var  WC_Order $woocommerceOrder */
+    /**
+ * @var WC_Order $woocommerceOrder
+*/
     protected $woocommerceOrder;
 
-    /** @var mixed $pagantisOrderId */
+    /**
+ * @var mixed $pagantisOrderId
+*/
     protected $pagantisOrderId = '';
 
     /**
@@ -59,10 +85,12 @@ class WcPagantisNotify extends WcPagantisGateway
      */
     public function processInformation()
     {
+        require_once dirname(__FILE__) . '/../includes/class-wc-pagantis-logger.php';
+        require_once dirname(__FILE__) . '/../includes/functions.php';
         try {
             require_once(__ROOT__.'/vendor/autoload.php');
             try {
-                if ($_SERVER['REQUEST_METHOD'] == 'GET' && $_GET['origin'] == 'notification') {
+                if ($_SERVER['REQUEST_METHOD'] === 'GET' && $_GET['origin'] === 'notification') {
                     return $this->buildResponse();
                 }
                 $this->checkConcurrency();
@@ -78,7 +106,7 @@ class WcPagantisNotify extends WcPagantisGateway
                     $this->processMerchantOrder();
                 }
             } catch (\Exception $exception) {
-                $this->insertLog($exception);
+                WC_Pagantis_Logger::insert_log_entry_in_wpdb($exception);
 
                 return $this->buildResponse($exception);
             }
@@ -89,12 +117,12 @@ class WcPagantisNotify extends WcPagantisGateway
                 return $this->buildResponse();
             } catch (\Exception $exception) {
                 $this->rollbackMerchantOrder();
-                $this->insertLog($exception);
+                WC_Pagantis_Logger::insert_log_entry_in_wpdb($exception);
 
                 return $this->buildResponse($exception);
             }
         } catch (\Exception $exception) {
-            $this->insertLog($exception);
+            WC_Pagantis_Logger::insert_log_entry_in_wpdb($exception);
             return $this->buildResponse($exception);
         }
     }
@@ -110,7 +138,7 @@ class WcPagantisNotify extends WcPagantisGateway
     private function checkConcurrency()
     {
         $this->woocommerceOrderId = $_GET['order-received'];
-        if ($this->woocommerceOrderId == '') {
+        if ($this->woocommerceOrderId === '') {
             throw new QuoteNotFoundException();
         }
 
@@ -125,7 +153,7 @@ class WcPagantisNotify extends WcPagantisGateway
     {
         try {
             $this->woocommerceOrder = new WC_Order($this->woocommerceOrderId);
-            $this->woocommerceOrder->set_payment_method_title(Ucfirst(WcPagantisGateway::METHOD_ID));
+            $this->woocommerceOrder->set_payment_method_title(Ucfirst(PAGANTIS_PLUGIN_ID));
         } catch (\Exception $e) {
             throw new MerchantOrderNotFoundException();
         }
@@ -138,11 +166,11 @@ class WcPagantisNotify extends WcPagantisGateway
     {
         global $wpdb;
         $this->checkDbTable();
-        $tableName = $wpdb->prefix.PAGANTIS_WC_ORDERS_TABLE;
-        $queryResult = $wpdb->get_row("select order_id from $tableName where id='".$this->woocommerceOrderId."'");
+        $tableName             = $wpdb->prefix.PAGANTIS_WC_ORDERS_TABLE;
+        $queryResult           = $wpdb->get_row("select order_id from $tableName where id='".$this->woocommerceOrderId."'");
         $this->pagantisOrderId = $queryResult->order_id;
 
-        if ($this->pagantisOrderId == '') {
+        if ($this->pagantisOrderId === '') {
             throw new NoIdentificationException();
         }
     }
@@ -153,8 +181,8 @@ class WcPagantisNotify extends WcPagantisGateway
     private function getPagantisOrder()
     {
         try {
-            $this->cfg = get_option('woocommerce_pagantis_settings');
-            $this->orderClient = new Client($this->cfg['pagantis_public_key'], $this->cfg['pagantis_private_key']);
+            $this->cfg           = get_option('woocommerce_pagantis_settings');
+            $this->orderClient   = new Client($this->cfg['pagantis_public_key'], $this->cfg['pagantis_private_key']);
             $this->pagantisOrder = $this->orderClient->getOrder($this->pagantisOrderId);
         } catch (\Exception $e) {
             throw new OrderNotFoundException();
@@ -197,13 +225,13 @@ class WcPagantisNotify extends WcPagantisGateway
         );
 
         if (!$this->woocommerceOrder->has_status($isValidStatus)) { // TO CONFIRM
-            $logMessage = "WARNING checkMerchantOrderStatus." .
-                          " Merchant order id:".$this->woocommerceOrder->get_id().
-                          " Merchant order status:".$this->woocommerceOrder->get_status().
-                          " Pagantis order id:".$this->pagantisOrder->getStatus().
-                          " Pagantis order status:".$this->pagantisOrder->getId();
+            $logMessage = 'WARNING checkMerchantOrderStatus.' .
+                          ' Merchant order id:'.$this->woocommerceOrder->get_id().
+                          ' Merchant order status:'.$this->woocommerceOrder->get_status().
+                          ' Pagantis order id:'.$this->pagantisOrder->getStatus().
+                          ' Pagantis order status:'.$this->pagantisOrder->getId();
 
-            $this->insertLog(null, $logMessage);
+            WC_Pagantis_Logger::insert_log_entry_in_wpdb(null, $logMessage);
             $this->woocommerceOrder->add_order_note($logMessage);
             $this->woocommerceOrder->save();
             return false;
@@ -218,7 +246,7 @@ class WcPagantisNotify extends WcPagantisGateway
     private function validateAmount()
     {
         $pagantisAmount = $this->pagantisOrder->getShoppingCart()->getTotalAmount();
-        $wcAmount = intval(strval(100 * $this->woocommerceOrder->get_total()));
+        $wcAmount       = intval(strval(100 * $this->woocommerceOrder->get_total()));
         if ($pagantisAmount != $wcAmount) {
             throw new AmountMismatchException($pagantisAmount, $wcAmount);
         }
@@ -247,7 +275,7 @@ class WcPagantisNotify extends WcPagantisGateway
                 throw new UnknownException($e->getMessage());
             } else {
                 $logMessage = 'Concurrency issue: Order_id '.$this->pagantisOrderId.' was confirmed by other process';
-                $this->insertLog(null, $logMessage);
+                WC_Pagantis_Logger::insert_log_entry_in_wpdb(null, $logMessage);
             }
         }
 
@@ -258,7 +286,9 @@ class WcPagantisNotify extends WcPagantisGateway
     /**
      * UTILS FUNCTIONS
      */
-    /** STEP 1 CC - Check concurrency */
+    /**
+ * STEP 1 CC - Check concurrency
+*/
     /**
      * Check if orders table exists
      */
@@ -287,7 +317,7 @@ class WcPagantisNotify extends WcPagantisGateway
 
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
-            $sql = "CREATE TABLE $tableName ( id int NOT NULL AUTO_INCREMENT, log text NOT NULL, 
+            $sql             = "CREATE TABLE $tableName ( id int NOT NULL AUTO_INCREMENT, log text NOT NULL, 
                     createdAt timestamp DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY id (id)) $charset_collate";
 
             require_once(ABSPATH.'wp-admin/includes/upgrade.php');
@@ -296,10 +326,18 @@ class WcPagantisNotify extends WcPagantisGateway
         return;
     }
 
-    /** STEP 2 GMO - Get Merchant Order */
-    /** STEP 3 GPOI - Get Pagantis OrderId */
-    /** STEP 4 GPO - Get Pagantis Order */
-    /** STEP 5 COS - Check Order Status */
+    /**
+ * STEP 2 GMO - Get Merchant Order
+*/
+    /**
+ * STEP 3 GPOI - Get Pagantis OrderId
+*/
+    /**
+ * STEP 4 GPO - Get Pagantis Order
+*/
+    /**
+ * STEP 5 COS - Check Order Status
+*/
 
     /**
      * @param $statusArray
@@ -328,9 +366,15 @@ class WcPagantisNotify extends WcPagantisGateway
         }
     }
 
-    /** STEP 6 CMOS - Check Merchant Order Status */
-    /** STEP 7 VA - Validate Amount */
-    /** STEP 8 PMO - Process Merchant Order */
+    /**
+ * STEP 6 CMOS - Check Merchant Order Status
+*/
+    /**
+ * STEP 7 VA - Validate Amount
+*/
+    /**
+ * STEP 8 PMO - Process Merchant Order
+*/
     /**
      * @throws \Exception
      */
@@ -340,10 +384,10 @@ class WcPagantisNotify extends WcPagantisGateway
         $paymentResult = $this->woocommerceOrder->payment_complete();
         if ($paymentResult) {
             $metadataOrder = $this->pagantisOrder->getMetadata();
-            $metadataInfo = null;
+            $metadataInfo  = null;
             foreach ($metadataOrder as $metadataKey => $metadataValue) {
-                if ($metadataKey == 'promotedProduct') {
-                    $metadataInfo.= "/Producto promocionado = $metadataValue";
+                if ($metadataKey === 'promotedProduct') {
+                    $metadataInfo .= "/Producto promocionado = $metadataValue";
                 }
             }
 
@@ -381,10 +425,12 @@ class WcPagantisNotify extends WcPagantisGateway
         );
     }
 
-    /** STEP 9 CPO - Confirmation Pagantis Order */
+    /**
+    * STEP 9 CPO - Confirmation Pagantis Order
+    */
     private function rollbackMerchantOrder()
     {
-        $this->woocommerceOrder->update_status('pending', __('Pending payment', 'woocommerce'));
+        $this->woocommerceOrder->update_status('pending', __('Pending payment', 'woocommerce')); // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
     }
 
     /**
@@ -395,8 +441,8 @@ class WcPagantisNotify extends WcPagantisGateway
     {
         global $wpdb;
 
-        $this->checkDbLogTable();
-        $logEntry     = new LogEntry();
+        pg_wc_check_db_log_table();
+        $logEntry = new LogEntry();
         if ($exception instanceof \Exception) {
             $logEntry = $logEntry->error($exception);
         } else {
@@ -416,8 +462,8 @@ class WcPagantisNotify extends WcPagantisGateway
     {
         global $wpdb;
         $tableName = $wpdb->prefix.PAGANTIS_CONCURRENCY_TABLE;
-        if ($orderId == null) {
-            $query = "DELETE FROM $tableName WHERE createdAt<(NOW()- INTERVAL ".self::CONCURRENCY_TIMEOUT." SECOND)";
+        if ($orderId === null) {
+            $query = "DELETE FROM $tableName WHERE createdAt<(NOW()- INTERVAL ".self::CONCURRENCY_TIMEOUT.' SECOND)';
         } else {
             $query = "DELETE FROM $tableName WHERE order_id = $orderId";
         }
@@ -435,37 +481,36 @@ class WcPagantisNotify extends WcPagantisGateway
     private function blockConcurrency($orderId)
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.PAGANTIS_CONCURRENCY_TABLE;
+        $tableName    = $wpdb->prefix.PAGANTIS_CONCURRENCY_TABLE;
         $insertResult = $wpdb->insert($tableName, array('order_id' => $orderId));
         if ($insertResult === false) {
-            if ($this->getOrigin() == 'Notify') {
+            if ($this->getOrigin() === 'Notify') {
                 throw new ConcurrencyException();
             } else {
-                $query = sprintf(
-                    "SELECT TIMESTAMPDIFF(SECOND,NOW()-INTERVAL %s SECOND, createdAt) as rest FROM %s WHERE %s",
+                $query           = sprintf(
+                    'SELECT TIMESTAMPDIFF(SECOND,NOW()-INTERVAL %s SECOND, createdAt) as rest FROM %s WHERE %s',
                     self::CONCURRENCY_TIMEOUT,
                     $tableName,
                     "order_id=$orderId"
                 );
-                $resultSeconds = $wpdb->get_row($query);
-                $restSeconds = isset($resultSeconds) ? ($resultSeconds->rest) : 0;
+                $resultSeconds   = $wpdb->get_row($query);
+                $restSeconds     = isset($resultSeconds) ? ($resultSeconds->rest) : 0;
                 $secondsToExpire = ($restSeconds>self::CONCURRENCY_TIMEOUT) ? self::CONCURRENCY_TIMEOUT : $restSeconds;
                 sleep($secondsToExpire+1);
 
                 $logMessage = sprintf(
-                    "User waiting %s seconds, default seconds %s, bd time to expire %s seconds",
+                    'User waiting %s seconds, default seconds %s, bd time to expire %s seconds',
                     $secondsToExpire,
                     self::CONCURRENCY_TIMEOUT,
                     $restSeconds
                 );
-                $this->insertLog(null, $logMessage);
+                WC_Pagantis_Logger::insert_log_entry_in_wpdb(null, $logMessage);
             }
         }
     }
 
     /**
      * @param null $exception
-     *
      *
      * @return JsonExceptionResponse|JsonSuccessResponse
      * @throws ConcurrencyException
@@ -474,7 +519,7 @@ class WcPagantisNotify extends WcPagantisGateway
     {
         $this->unblockConcurrency($this->woocommerceOrderId);
 
-        if ($exception == null) {
+        if ($exception === null) {
             $jsonResponse = new JsonSuccessResponse();
         } else {
             $jsonResponse = new JsonExceptionResponse();
@@ -484,7 +529,7 @@ class WcPagantisNotify extends WcPagantisGateway
         $jsonResponse->setMerchantOrderId($this->woocommerceOrderId);
         $jsonResponse->setPagantisOrderId($this->pagantisOrderId);
 
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $jsonResponse->printResponse();
         } else {
             return $jsonResponse;

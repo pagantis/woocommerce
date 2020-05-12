@@ -1,7 +1,7 @@
 <?php
 
 
-class WcPgConfig
+class WC_Pagantis_Config
 {
 
 
@@ -16,13 +16,16 @@ class WcPgConfig
         include_once('class-wc-pagantis-logger.php');
         $config = self::getExtraConfig();
         $value  = $config[$key];
-        if ($unSerialized = true) {
+        if ($unSerialized === true) {
             return unserialize($value);
         } else {
             return $value;
         }
     }
 
+    /**
+     * @return array
+     */
 
     public static function getDefaultConfig()
     {
@@ -49,7 +52,7 @@ class WcPgConfig
         'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'     => ',',
         'PAGANTIS_SIMULATOR_DISPLAY_SITUATION'     => 'default',
         'PAGANTIS_SIMULATOR_SELECTOR_VARIATION'    => 'default'
-    );
+        );
     }
     /**
      * Get extra config from WP DB
@@ -74,10 +77,8 @@ class WcPgConfig
      */
     public static function getAllowedCountriesSerialized()
     {
-        $allowedCountries = WcPgConfig::getValueOfKey('PAGANTIS_ALLOWED_COUNTRIES', true);
+        $allowedCountries = WC_Pagantis_Config::getValueOfKey('PAGANTIS_ALLOWED_COUNTRIES', true);
 
         return $allowedCountries;
     }
 }
-
-

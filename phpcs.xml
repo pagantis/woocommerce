@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<ruleset name="Pagantis-WP">
+    <description>Pagantis dev PHP_CodeSniffer ruleset. This is a mix of PSR2 and WordPress-Core</description>
+
+    <file>./</file>
+
+    <!-- Exclude paths -->
+    <exclude-pattern>test/</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+
+    <!-- Configs -->
+    <!-- Pass some flags to PHPCS:
+          p flag: Show progress of the run.
+          s flag: Show sniff codes in all reports.
+          v flag: Print verbose output.
+          n flag: Do not print warnings.
+     -->
+    <arg value="psv"/>
+    <!-- Strip the file paths in reports down to the relevant bit. -->
+    <arg name="basepath" value="./"/>
+    <!-- Check up to 8 files simultaneously. -->
+    <arg name="parallel" value="8"/>
+    <!-- Display colors in shell. -->
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
+    <!-- Configs -->
+    <config name="minimum_supported_wp_version" value="5.0"/>
+    <config name="testVersion" value="5.3-"/>
+
+    <!-- Rules -->
+    <rule ref="PSR2"/>
+
+    <rule ref="WordPress-Core">
+        <!-- We do not comply with these right now. -->
+        <exclude name="WordPress.PHP.YodaConditions.NotYoda"/>
+        <exclude name="WordPress.DB.PreparedSQL.NotPrepared"/>
+        <exclude name="WordPress.DB.PreparedSQL.InterpolatedNotPrepared"/>
+        <exclude name="WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound"/>
+        <exclude name="WordPress.WhiteSpace.PrecisionAlignment.Found"/>
+        <exclude name="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned"/>
+        <exclude name="WordPress.Arrays.ArrayDeclarationSpacing.NoSpaceAfterArrayOpener"/>
+        <exclude name="WordPress.Arrays.ArrayDeclarationSpacing.NoSpaceBeforeArrayCloser"/>
+        <exclude name="WordPress.Arrays.ArrayKeySpacingRestrictions.NoSpacesAroundArrayKeys"/>
+        <exclude name="WordPress.WhiteSpace.ControlStructureSpacing.NoSpaceAfterOpenParenthesis"/>
+        <exclude
+                name="WordPress.WhiteSpace.ControlStructureSpacing.ExtraSpaceAfterCloseParenthesis"/>
+        <exclude name="WordPress.WhiteSpace.ControlStructureSpacing.NoSpaceBeforeCloseParenthesis"/>
+        <exclude
+                name="WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase"/>
+        <exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase"/>
+        <exclude name="WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase"/>
+        <exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"/>
+        <exclude name="WordPress.WhiteSpace.OperatorSpacing.NoSpaceBefore"/>
+        <exclude name="WordPress.WhiteSpace.OperatorSpacing.NoSpaceAfter"/>
+        <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+        <exclude name="WordPress.Arrays.ArrayIndentation.ItemNotAligned"/>
+        <exclude name="WordPress.WhiteSpace.PrecisionAlignment.Found"/>
+        <exclude name="WordPress.Arrays.CommaAfterArrayItem.NoComma"/>
+        <exclude name="WordPress.WhiteSpace.CastStructureSpacing.NoSpaceBeforeOpenParenthesis"/>
+        <exclude name="WordPress.DateTime.CurrentTimeTimestamp.Requested"/>
+        <exclude name="Squiz.Commenting"/>
+    </rule>
+
+    <rule ref="PHPCompatibility">
+        <exclude-pattern>test/</exclude-pattern>
+        <!-- Exclude PHP constants back-filled by PHPCS. -->
+        <!--        <exclude name="PHPCompatibility.Constants.NewConstants.t_finallyFound"/>-->
+
+    </rule>
+
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array" value="pagantis"/>
+        </properties>
+        <exclude name="WordPress.WP.I18n.NonSingularStringLiteralText"/>
+    </rule>
+
+    <rule ref="PEAR.Functions.FunctionCallSignature.EmptyLine">
+        <exclude-pattern>tests/e2e-tests/</exclude-pattern>
+    </rule>
+
+    <rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+        <exclude-pattern>i18n/</exclude-pattern>
+        <exclude-pattern>src/</exclude-pattern>
+        <exclude-pattern>tests/php</exclude-pattern>
+    </rule>
+
+
+    <!-- Ignored rules -->
+    <rule ref="PSR1.Classes.ClassDeclaration">
+        <severity>0</severity>
+    </rule>
+     <rule ref="PEAR.Functions.FunctionCallSignature.SpaceBeforeCloseBracket">
+        <severity>0</severity>
+    </rule>
+    <rule ref="PEAR.Functions.FunctionCallSignature.CloseBracketLine">
+        <severity>0</severity>
+    </rule>
+       <rule ref="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket">
+        <severity>0</severity>
+    </rule>
+
+     <rule ref="Generic.WhiteSpace.ArbitraryParenthesesSpacing.SpaceAfterOpen">
+        <severity>0</severity>
+    </rule>
+
+    <rule ref="PSR1.Files.SideEffects">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed">
+        <severity>0</severity>
+    </rule>
+    <rule ref="PEAR.Functions.FunctionCallSignature.SpaceAfterOpenBracket">
+        <severity>0</severity>
+    </rule>
+
+    <rule ref="Generic.Files.LineLength">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Generic.WhiteSpace.ArbitraryParenthesesSpacing.SpaceBeforeClose">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Generic.Classes.OpeningBraceSameLine.BraceOnNewLine">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie.BraceOnNewLine">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Zend.NamingConventions.ValidVariableName">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Squiz.Classes.ValidClassName.NotCamelCaps">
+        <severity>0</severity>
+    </rule>
+
+    <rule ref="PSR1.Methods.CamelCapsMethodName">
+        <severity>1</severity>
+    </rule>
+    <rule ref="Squiz.PHP.EmbeddedPhp.SpacingBeforeClose">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpacingAfterOpen">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Squiz.Strings.ConcatenationSpacing.PaddingFound">
+        <severity>0</severity>
+    </rule>
+    <rule ref="PHPCompatibility.Operators.RemovedTernaryAssociativity.Found">
+        <severity>1</severity>
+    </rule>
+</ruleset>

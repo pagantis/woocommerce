@@ -16,21 +16,38 @@ use Pagantis\OrdersApiClient\Client;
 use Pagantis\OrdersApiClient\Model\Order;
 use Pagantis\ModuleUtils\Model\Log\LogEntry;
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
 define('__ROOT__', dirname(dirname(__FILE__)));
 
-class WcPagantisGateway extends WC_Payment_Gateway
+class WC_Pagantis_Gateway extends WC_Payment_Gateway
 {
-    const METHOD_ID = "pagantis";
+    const METHOD_ID = 'pagantis';
 
-    /** @var array $extraConfig */
+    /**
+     * Customizable configuration options
+     *
+     * @var array $extraConfig
+     */
     private $extraConfig;
 
-    /** @var string $language */
+    /**
+     * Language to facilitate localization
+     *
+     * @var string $language
+     */
     public $language;
+
+
+    /**
+     * Array of allowed currencies with Pagantis
+     *
+     * @var array $allowed_currencies
+     */
+    private $allowed_currencies;
+
 
     /**
      * WcPagantisGateway constructor.
@@ -41,56 +58,60 @@ class WcPagantisGateway extends WC_Payment_Gateway
         require_once dirname(__FILE__) . '/../includes/class-wc-pagantis-logger.php';
         require_once dirname(__FILE__) . '/../includes/functions.php';
         //Mandatory vars for plugin
-        $this->id           = self::METHOD_ID;
+        $this->id           = PAGANTIS_PLUGIN_ID;
         $this->has_fields   = true;
         $this->method_title = ucfirst($this->id);
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
 
-        $this->allowed_currencies = array("EUR");
+        $this->allowed_currencies = array('EUR');
         $this->language           = strstr(get_locale(), '_', true);
-        if ($this->language == '') {
+        if ($this->language === '') {
             $this->language = 'ES';
         }
         $this->icon = 'https://cdn.digitalorigin.com/assets/master/logos/pg-130x30.svg';
 
         //Panel form fields
-        $this->form_fields = include(plugin_dir_path(__FILE__) . '../includes/settings-pagantis.php');//Panel options
+        $this->init_form_fields();
         $this->init_settings();
 
-        $this->extraConfig        = WcPgConfig::getExtraConfig();
-        $this->title              = __($this->extraConfig['PAGANTIS_TITLE'], 'pagantis');
+        $this->extraConfig = WC_Pagantis_Config::getExtraConfig();
+        $this->title       = __($this->extraConfig['PAGANTIS_TITLE'], 'pagantis');
+
         $this->method_description =
-            "Financial Payment Gateway. Enable the possibility for your customers to pay their order in confortable installments with Pagantis.";
-
-        $this->settings['ok_url'] =
-            ($this->extraConfig['PAGANTIS_URL_OK'] != '') ? $this->extraConfig['PAGANTIS_URL_OK'] : $this->generateOkUrl();
-        $this->settings['ko_url'] =
-            ($this->extraConfig['PAGANTIS_URL_KO'] != '') ? $this->extraConfig['PAGANTIS_URL_KO'] : $this->generateKoUrl();
-        foreach ($this->settings as $setting_key => $setting_value) {
-            $this->$setting_key = $setting_value;
-        }
+            __('Give the flexibility to your clients to pay in installments with Pagantis!', 'pagantis');
         $this->check_deprecated_arguments();
-
+        $this->set_payment_urls();
         //Hooks
-        add_action('woocommerce_update_options_payment_gateways_' . $this->id,
-            array($this, 'process_admin_options')); //Save plugin options
-        //add_action('admin_notices', array($this, 'pagantisCheckFields'));                          //Check config fields
-        add_action('woocommerce_receipt_' . $this->id, array($this, 'pagantisReceiptPage'));          //Pagantis form
+        add_action(
+            'woocommerce_update_options_payment_gateways_' . $this->id,
+            array($this, 'process_admin_options')
+        ); //Save plugin options
+        add_action(
+            'woocommerce_receipt_' . $this->id,
+            array($this, 'get_wc_order_received_page')
+        );          //Pagantis form
         add_action('woocommerce_api_wcpagantisgateway', array($this, 'pagantisNotification'));      //Json Notification
         add_filter('woocommerce_payment_complete_order_status', array($this, 'pagantisCompleteStatus'), 10, 3);
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_ajax_scripts'));
+        //add_action('wp_enqueue_scripts', array($this, 'enqueue_ajax_scripts'));
     }
 
     public function enqueue_ajax_scripts()
     {
-        if ($this->enabled !== 'yes' || ! is_checkout() || is_order_received_page() || is_wc_endpoint_url('order-pay')) {
+        if ($this->enabled !== 'yes' || ! is_checkout() || is_order_received_page()
+            || is_wc_endpoint_url('order-pay')
+        ) {
             return;
         }
 
-        wp_register_script('pagantis-checkout', plugins_url('../assets/js/pagantis-checkout.js', __FILE__),
-            array('jquery', 'woocommerce', 'wc-checkout', 'wc-country-select', 'wc-address-i18n'), PAGANTIS_VERSION, true);
+        wp_register_script(
+            'pagantis-checkout',
+            plugins_url('../assets/js/pagantis-checkout.js', __FILE__),
+            array('jquery', 'woocommerce', 'wc-checkout', 'wc-country-select', 'wc-address-i18n'),
+            PAGANTIS_VERSION,
+            true
+        );
         wp_enqueue_script('pagantis-checkout');
 
         $checkout_localize_params                        = array();
@@ -98,7 +119,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $checkout_localize_params['place_order_nonce']   = wp_create_nonce('pagantis_checkout');
         $checkout_localize_params['wc_ajax_url']         = WC_AJAX::get_endpoint('%%endpoint%%');
         $checkout_localize_params['i18n_checkout_error'] =
-            esc_attr__('Error processing pagantis checkout. Please try again.', 'woocommerce');
+            esc_attr__('Error processing pagantis checkout. Please try again.', 'pagantis');
 
         wp_localize_script('pagantis-checkout', 'pagantis_params', $checkout_localize_params);
 
@@ -120,14 +141,25 @@ class WcPagantisGateway extends WC_Payment_Gateway
         return $mofile;
     }
 
+    /**
+     * Initialise Gateway Settings Form Fields.
+     *
+     * @see WC_Settings_API
+     */
+    public function init_form_fields()
+    {
+        $this->form_fields = include(plugin_dir_path(__FILE__) . '../includes/settings-pagantis.php');
+    }
+
     /***********
-     *
      * HOOKS
-     *
      ***********/
 
+
     /**
-     * PANEL - Display admin panel -> Hook: woocommerce_update_options_payment_gateways_pagantis
+     * PANEL - Display admin setting panel
+     *
+     * @hook woocommerce_update_options_payment_gateways_pagantis
      */
     public function admin_options()
     {
@@ -136,7 +168,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             'button1_label'     => __('Login to your panel', 'pagantis'),
             'button2_label'     => __('Documentation', 'pagantis'),
             'logo'              => $this->icon,
-            'settings'          => $this->generate_settings_html($this->form_fields, false)
+            'settings'          => $this->generate_settings_html($this->form_fields, false),
         );
         wc_get_template('admin_header.php', $template_fields, '', $this->template_path);
     }
@@ -144,18 +176,31 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
     /**
      * PANEL - Check admin panel fields -> Hook: admin_notices
+     *
+     * @deprecated since 8.3.7
      */
     public function pagantisCheckFields()
     {
         _deprecated_function(__METHOD__, '8.3.7', 'check_dependencies');
-
     }
 
     private function check_deprecated_arguments()
     {
-        _deprecated_argument($this->mainFileLocation, '8.3.7',
-            '$this->mainFileLocation has been deprecated please use PAGANTIS_VERSION');
-        _deprecated_argument($this->plugin_info, '8.3.7', ' $this->plugin_info has been deprecated please use PAGANTIS_VERSION');
+        _deprecated_argument(
+            $this->mainFileLocation,
+            '8.3.7',
+            '$this->mainFileLocation has been deprecated please use PAGANTIS_VERSION'
+        );
+        _deprecated_argument(
+            $this->plugin_info,
+            '8.3.7',
+            ' $this->plugin_info has been deprecated please use PAGANTIS_VERSION'
+        );
+        _deprecated_argument(
+            PAGANTIS_PLUGIN_ID,
+            '8.3.7',
+            ' METHOD_ID has been deprecated please use PAGANTIS_PLUGIN_ID'
+        );
     }
 
     /**
@@ -163,9 +208,10 @@ class WcPagantisGateway extends WC_Payment_Gateway
      *
      * @param $order_id
      *
+     * @hook woocommerce_receipt_pagantis
      * @throws Exception
      */
-    public function pagantisReceiptPage($order_id)
+    public function get_wc_order_received_page($order_id)
     {
         try {
             require_once(__ROOT__ . '/vendor/autoload.php');
@@ -174,13 +220,13 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $order->set_payment_method(ucfirst($this->id));
             $order->save();
 
-            if ( ! isset($order)) {
-                throw new Exception(_("Order not found"));
+            if (! isset($order)) {
+                throw new Exception(__('Order not found', 'pagantis'));
             }
 
             $shippingAddress = $order->get_address('shipping');
             $billingAddress  = $order->get_address('billing');
-            if ($shippingAddress['address_1'] == '') {
+            if ($shippingAddress['address_1'] === '') {
                 $shippingAddress = $billingAddress;
             }
 
@@ -188,29 +234,34 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $tax_id      = $this->getTaxId($order);
 
             $userAddress = new Address();
-            $userAddress->setZipCode($shippingAddress['postcode'])->setFullName($shippingAddress['first_name'] . " "
-                                                                                . $shippingAddress['last_name'])
-                        ->setCountryCode($shippingAddress['country'] != '' ? strtoupper($shippingAddress['country'])
-                            : strtoupper($this->language))->setCity($shippingAddress['city'])
-                        ->setAddress($shippingAddress['address_1'] . " " . $shippingAddress['address_2']);
+            $userAddress->setZipCode($shippingAddress['postcode'])->setFullName($shippingAddress['first_name'] . ' '
+            . $shippingAddress['last_name'])
+                        ->setCountryCode($shippingAddress['country'] !== '' ? strtoupper($shippingAddress['country'])
+                        : strtoupper($this->language))->setCity($shippingAddress['city'])
+                        ->setAddress($shippingAddress['address_1'] . ' ' . $shippingAddress['address_2']);
             $orderShippingAddress = new Address();
-            $orderShippingAddress->setZipCode($shippingAddress['postcode'])->setFullName($shippingAddress['first_name'] . " "
-                                                                                         . $shippingAddress['last_name'])
-                                 ->setCountryCode($shippingAddress['country'] != '' ? strtoupper($shippingAddress['country'])
-                                     : strtoupper($this->language))->setCity($shippingAddress['city'])
-                                 ->setAddress($shippingAddress['address_1'] . " " . $shippingAddress['address_2'])
+            $orderShippingAddress->setZipCode($shippingAddress['postcode'])->setFullName($shippingAddress['first_name']
+                                                                                         . ' '
+            . $shippingAddress['last_name'])
+                                ->setCountryCode($shippingAddress['country'] !== ''
+                                ? strtoupper($shippingAddress['country']) : strtoupper($this->language))
+                                ->setCity($shippingAddress['city'])->setAddress($shippingAddress['address_1'] . ' '
+                                . $shippingAddress['address_2'])
                                  ->setFixPhone($shippingAddress['phone'])->setMobilePhone($shippingAddress['phone'])
                                  ->setNationalId($national_id)->setTaxId($tax_id);
             $orderBillingAddress = new Address();
-            $orderBillingAddress->setZipCode($billingAddress['postcode'])->setFullName($billingAddress['first_name'] . " "
-                                                                                       . $billingAddress['last_name'])
-                                ->setCountryCode($billingAddress['country'] != '' ? strtoupper($billingAddress['country'])
-                                    : strtoupper($this->language))->setCity($billingAddress['city'])
-                                ->setAddress($billingAddress['address_1'] . " " . $billingAddress['address_2'])
+            $orderBillingAddress->setZipCode($billingAddress['postcode'])->setFullName($billingAddress['first_name']
+                                                                                       . ' '
+            . $billingAddress['last_name'])
+                                ->setCountryCode($billingAddress['country'] !== ''
+                                ? strtoupper($billingAddress['country']) : strtoupper($this->language))
+                                ->setCity($billingAddress['city'])->setAddress($billingAddress['address_1'] . ' '
+                                . $billingAddress['address_2'])
                                 ->setFixPhone($billingAddress['phone'])->setMobilePhone($billingAddress['phone'])
                                 ->setNationalId($national_id)->setTaxId($tax_id);
             $orderUser = new User();
-            $orderUser->setAddress($userAddress)->setFullName($billingAddress['first_name'] . " " . $billingAddress['last_name'])
+            $orderUser->setAddress($userAddress)->setFullName($billingAddress['first_name'] . ' '
+            . $billingAddress['last_name'])
                       ->setBillingAddress($orderBillingAddress)->setEmail($billingAddress['email'])
                       ->setFixPhone($billingAddress['phone'])->setMobilePhone($billingAddress['phone'])
                       ->setShippingAddress($orderShippingAddress)->setNationalId($national_id)->setTaxId($tax_id);
@@ -230,7 +281,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 'pg_module'  => 'woocommerce',
                 'pg_version' => PAGANTIS_VERSION,
                 'ec_module'  => 'woocommerce',
-                'ec_version' => WC()->version
+                'ec_version' => WC()->version,
             );
 
             foreach ($metadata as $key => $metadatum) {
@@ -245,8 +296,12 @@ class WcPagantisGateway extends WC_Payment_Gateway
             foreach ($items as $key => $item) {
                 $wcProduct          = $item->get_product();
                 $product            = new Product();
-                $productDescription = sprintf('%s %s %s', $wcProduct->get_name(), $wcProduct->get_description(),
-                    $wcProduct->get_short_description());
+                $productDescription = sprintf(
+                    '%s %s %s',
+                    $wcProduct->get_name(),
+                    $wcProduct->get_description(),
+                    $wcProduct->get_short_description()
+                );
                 $productDescription = substr($productDescription, 0, 9999);
 
                 $product->setAmount(intval(100 * ($item->get_total() + $item->get_total_tax())))
@@ -254,25 +309,26 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 $details->addProduct($product);
 
                 $promotedProduct = $this->isPromoted($item->get_product_id());
-                if ($promotedProduct == 'true') {
-                    $promotedAmount  += $product->getAmount();
-                    $promotedMessage = 'Promoted Item: ' . $wcProduct->get_name() . ' - Price: ' . $item->get_total() . ' - Qty: '
-                                       . $product->getQuantity() . ' - Item ID: ' . $item['id_product'];
+                if ($promotedProduct === 'true') {
+                    $promotedAmount += $product->getAmount();
+                    $promotedMessage =
+                        'Promoted Item: ' . $wcProduct->get_name() . ' - Price: ' . $item->get_total() . ' - Qty: '
+                        . $product->getQuantity() . ' - Item ID: ' . $item['id_product'];
                     $promotedMessage = substr($promotedMessage, 0, 999);
                     $metadataOrder->addMetadata('promotedProduct', $promotedMessage);
                 }
             }
 
             $orderShoppingCart = new ShoppingCart();
-            $orderShoppingCart->setDetails($details)->setOrderReference($order->get_id())->setPromotedAmount($promotedAmount)
-                              ->setTotalAmount(intval(strval(100 * $order->total)));
+            $orderShoppingCart->setDetails($details)->setOrderReference($order->get_id())
+                              ->setPromotedAmount($promotedAmount)->setTotalAmount(intval(strval(100 * $order->total)));
             $orderConfigurationUrls = new Urls();
             $cancelUrl              = $this->getKoUrl($order);
             $callback_arg           = array(
                 'wc-api'         => 'wcpagantisgateway',
                 'key'            => $order->get_order_key(),
                 'order-received' => $order->get_id(),
-                'origin'         => ''
+                'origin'         => '',
             );
 
             $callback_arg_user           = $callback_arg;
@@ -284,16 +340,18 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $callback_url_notif           = add_query_arg($callback_arg_notif, home_url('/'));
 
             $orderConfigurationUrls->setCancel($cancelUrl)->setKo($callback_url_user)
-                                   ->setAuthorizedNotificationCallback($callback_url_notif)->setRejectedNotificationCallback(null)
-                                   ->setOk($callback_url_user);
+                                   ->setAuthorizedNotificationCallback($callback_url_notif)
+                                   ->setRejectedNotificationCallback(null)->setOk($callback_url_user);
             $orderChannel = new Channel();
             $orderChannel->setAssistedSale(false)->setType(Channel::ONLINE);
 
             $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
-            $purchaseCountry  = in_array(strtolower($this->language), $allowedCountries)
+            $purchaseCountry  = in_array(strtolower($this->language), $allowedCountries, true)
                 ? $this->language
-                : in_array(strtolower($shippingAddress['country']), $allowedCountries) ? $shippingAddress['country']
-                    : in_array(strtolower($billingAddress['country']), $allowedCountries) ? $billingAddress['country'] : null;
+                : in_array(strtolower($shippingAddress['country']), $allowedCountries, true)
+                    ? $shippingAddress['country']
+                    : in_array(strtolower($billingAddress['country']), $allowedCountries, true)
+                        ? $billingAddress['country'] : null;
 
             $orderConfiguration = new Configuration();
             $orderConfiguration->setChannel($orderChannel)->setUrls($orderConfigurationUrls)
@@ -303,7 +361,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $orderApiClient->setConfiguration($orderConfiguration)->setMetadata($metadataOrder)
                            ->setShoppingCart($orderShoppingCart)->setUser($orderUser);
 
-            if ($this->pagantis_public_key == '' || $this->pagantis_private_key == '') {
+            if ($this->pagantis_public_key === '' || $this->pagantis_private_key === '') {
                 throw new \Exception('Public and Secret Key not found');
             }
             $orderClient   = new Client($this->pagantis_public_key, $this->pagantis_private_key);
@@ -315,21 +373,21 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 throw new OrderNotFoundException();
             }
 
-            if ($url == "") {
-                throw new Exception(_("No ha sido posible obtener una respuesta de Pagantis"));
-            } elseif ($this->extraConfig['PAGANTIS_FORM_DISPLAY_TYPE'] == '0') {
+            if ($url === '') {
+                throw new Exception(__('No ha sido posible obtener una respuesta de Pagantis', 'pagantis'));
+            } elseif ($this->extraConfig['PAGANTIS_FORM_DISPLAY_TYPE'] === '0') {
                 wp_redirect($url);
                 exit;
             } else {
                 $template_fields = array(
                     'url'         => $url,
-                    'checkoutUrl' => $cancelUrl
+                    'checkoutUrl' => $cancelUrl,
                 );
                 wc_get_template('iframe.php', $template_fields, '', $this->template_path);
             }
         } catch (\Exception $exception) {
             wc_add_notice(__('Payment error ', 'pagantis') . $exception->getMessage(), 'error');
-            $this->insertLog($exception);
+            WC_Pagantis_Logger::insert_log_entry_in_wpdb($exception);
             $checkout_url = get_permalink(wc_get_page_id('checkout'));
             wp_redirect($checkout_url);
             exit;
@@ -342,26 +400,29 @@ class WcPagantisGateway extends WC_Payment_Gateway
     public function pagantisNotification()
     {
         try {
-            $origin = ($_SERVER['REQUEST_METHOD'] == 'POST') ? 'Notify' : 'Order';
+            $origin = ($_SERVER['REQUEST_METHOD'] === 'POST') ? 'Notify' : 'Order';
 
-            include_once('notifyController.php');
-            $notify = new WcPagantisNotify();
+            include_once('class-pg-notification-handler.php');
+            $notify = new WC_PG_Notification_Handler();
+
             $notify->setOrigin($origin);
-            /** @var \Pagantis\ModuleUtils\Model\Response\AbstractJsonResponse $result */
+            /**
+             * @var \Pagantis\ModuleUtils\Model\Response\AbstractJsonResponse $result
+             */
             $result = $notify->processInformation();
         } catch (Exception $exception) {
             $result['notification_message'] = $exception->getMessage();
             $result['notification_error']   = true;
         }
 
-        $paymentOrder = new WC_Order($result->getMerchantOrderId());
+        $paymentOrder = wc_get_order($result->getMerchantOrderId());
         if ($paymentOrder instanceof WC_Order) {
             $orderStatus = strtolower($paymentOrder->get_status());
         } else {
             $orderStatus = 'cancelled';
         }
         $acceptedStatus = array('processing', 'completed');
-        if (in_array($orderStatus, $acceptedStatus)) {
+        if (in_array($orderStatus, $acceptedStatus, true)) {
             $returnUrl = $this->getOkUrl($paymentOrder);
         } else {
             $returnUrl = $this->getKoUrl($paymentOrder);
@@ -382,10 +443,10 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function pagantisCompleteStatus($status, $order_id, $order)
     {
-        if ($order->get_payment_method() == self::METHOD_ID) {
-            if ($order->get_status() == 'failed') {
+        if ($order->get_payment_method() === PAGANTIS_PLUGIN_ID) {
+            if ($order->get_status() === 'failed') {
                 $status = 'processing';
-            } elseif ($order->get_status() == 'pending' && $status == 'completed') {
+            } elseif ($order->get_status() === 'pending' && $status === 'completed') {
                 $status = 'processing';
             }
         }
@@ -394,9 +455,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
     }
 
     /***********
-     *
      * REDEFINED FUNCTIONS
-     *
      ***********/
 
     /**
@@ -406,15 +465,15 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function is_available()
     {
-
         $locale           = strtolower(strstr(get_locale(), '_', true));
         $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
-        $allowedCountry   = (in_array(strtolower($locale), $allowedCountries));
+        $allowedCountry   = (in_array(strtolower($locale), $allowedCountries, true));
         $minAmount        = $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'];
         $maxAmount        = $this->extraConfig['PAGANTIS_DISPLAY_MAX_AMOUNT'];
-        $totalPrice       = (int)$this->get_order_total();
-        $validAmount      = ($totalPrice >= $minAmount && ($totalPrice <= $maxAmount || $maxAmount == '0'));
-        if ($this->enabled === 'yes' && $this->pagantis_public_key != '' && $this->pagantis_private_key != '' && $validAmount
+        $totalPrice       = (int) $this->get_order_total();
+        $validAmount      = ($totalPrice >= $minAmount && ($totalPrice <= $maxAmount || $maxAmount === '0'));
+        if ($this->enabled === 'yes' && $this->pagantis_public_key !== '' && $this->pagantis_private_key !== ''
+            && $validAmount
             && $allowedCountry
         ) {
             return true;
@@ -447,12 +506,12 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
             $redirectUrl = $order->get_checkout_payment_url(true); //pagantisReceiptPage function
             if (strpos($redirectUrl, 'order-pay=') === false) {
-                $redirectUrl .= "&order-pay=" . $order_id;
+                $redirectUrl .= '&order-pay=' . $order_id;
             }
 
             return array(
                 'result'   => 'success',
-                'redirect' => $redirectUrl
+                'redirect' => $redirectUrl,
             );
         } catch (Exception $e) {
             wc_add_notice(__('Payment error ', 'pagantis') . $e->getMessage(), 'error');
@@ -468,7 +527,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
     {
         $locale           = strtolower(strstr(get_locale(), '_', true));
         $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
-        $allowedCountry   = (in_array(strtolower($locale), $allowedCountries));
+        $allowedCountry   = (in_array(strtolower($locale), $allowedCountries, true));
         $promotedAmount   = $this->getPromotedAmount();
 
         $template_fields = array(
@@ -485,7 +544,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             'promoted_amount'       => $promotedAmount,
             'thousandSeparator'     => $this->extraConfig['PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'],
             'decimalSeparator'      => $this->extraConfig['PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'],
-            'pagantisSimulatorSkin' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SKIN']
+            'pagantisSimulatorSkin' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SKIN'],
         );
         try {
             wc_get_template('checkout_description.php', $template_fields, '', $this->template_path);
@@ -496,10 +555,24 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
 
     /***********
-     *
      * UTILS FUNCTIONS
-     *
      ***********/
+
+    /**
+     * set payment module callback urls
+     */
+    private function set_payment_urls()
+    {
+        $this->settings['ok_url'] =
+            ($this->extraConfig['PAGANTIS_URL_OK'] !== '') ? $this->extraConfig['PAGANTIS_URL_OK']
+                : $this->generateOkUrl();
+        $this->settings['ko_url'] =
+            ($this->extraConfig['PAGANTIS_URL_KO'] !== '') ? $this->extraConfig['PAGANTIS_URL_KO']
+                : $this->generateKoUrl();
+        foreach ($this->settings as $setting_key => $setting_value) {
+            $this->$setting_key = $setting_value;
+        }
+    }
 
     /**
      * PANEL KO_URL FIELD
@@ -532,12 +605,12 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $parsed_url['query'] = ! isset($parsed_url['query']) ? '' : $parsed_url['query'];
             parse_str($parsed_url['query'], $arrayParams);
             foreach ($arrayParams as $keyParam => $valueParam) {
-                if ($valueParam == '') {
+                if ($valueParam === '') {
                     $arrayParams[$keyParam] = '{{' . $keyParam . '}}';
                 }
             }
             $parsed_url['query'] = http_build_query($arrayParams);
-            $return_url          = $this->unparseUrl($parsed_url);
+            $return_url          = $this->get_unparsed_url($parsed_url);
 
             return urldecode($return_url);
         } else {
@@ -579,9 +652,10 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     private function getKeysUrl($order, $url)
     {
-        $defaultFields =
-            (get_class($order) == 'WC_Order') ? array('order-received' => $order->get_id(), 'key' => $order->get_order_key())
-                : array();
+        $defaultFields = (get_class($order) === 'WC_Order') ? array(
+            'order-received' => $order->get_id(),
+            'key'            => $order->get_order_key()
+        ) : array();
 
         $parsedUrl = parse_url($url);
         if ($parsedUrl !== false) {
@@ -591,7 +665,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             //Replace path from url
             $parsedUrl['path'] = $this->getKeysPathUrl($parsedUrl['path'], $defaultFields);
 
-            $returnUrl = $this->unparseUrl($parsedUrl);
+            $returnUrl = $this->get_unparsed_url($parsedUrl);
 
             return $returnUrl;
         }
@@ -610,6 +684,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
     private function getKeysParametersUrl($queryString, $defaultFields)
     {
         parse_str(html_entity_decode($queryString), $arrayParams);
+        var_export($queryString);
         $commonKeys = array_intersect_key($arrayParams, $defaultFields);
         if (count($commonKeys)) {
             $arrayResult = array_merge($arrayParams, $defaultFields);
@@ -630,7 +705,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     private function getKeysPathUrl($pathString, $defaultFields)
     {
-        $arrayParams = explode("/", $pathString);
+        $arrayParams = explode('/', $pathString);
         foreach ($arrayParams as $keyParam => $valueParam) {
             preg_match('#\{{.*?}\}#', $valueParam, $match);
             if (count($match)) {
@@ -649,7 +724,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
      *
      * @return string
      */
-    private function unparseUrl($parsed_url)
+    private function get_unparsed_url($parsed_url)
     {
         $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
         $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
@@ -678,7 +753,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $total_refunds   = 0;
         $partial_refunds = 0;
         if ($current_user->user_login) {
-            $is_guest        = "false";
+            $is_guest        = 'false';
             $sign_up         = substr($current_user->user_registered, 0, 10);
             $customer_orders = get_posts(array(
                 'numberposts' => -1,
@@ -688,7 +763,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 'post_status' => array('wc-completed', 'wc-processing', 'wc-refunded'),
             ));
         } else {
-            $is_guest        = "true";
+            $is_guest        = 'true';
             $customer_orders = get_posts(array(
                 'numberposts' => -1,
                 'meta_key'    => '_billing_email',
@@ -697,7 +772,9 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 'post_status' => array('wc-completed', 'wc-processing', 'wc-refunded'),
             ));
             foreach ($customer_orders as $customer_order) {
-                if (trim($sign_up) == '' || strtotime(substr($customer_order->post_date, 0, 10)) <= strtotime($sign_up)) {
+                if (trim($sign_up) === ''
+                    || strtotime(substr($customer_order->post_date, 0, 10)) <= strtotime($sign_up)
+                ) {
                     $sign_up = substr($customer_order->post_date, 0, 10);
                 }
             }
@@ -708,8 +785,9 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
 
     /**
-     * @param $wc_order_id
-     * @param $pg_order_id
+     *
+     * @param       $wc_order_id
+     * @param       $pg_order_id
      *
      * @throws Exception
      * @global wpdb $wpdb WordPress database abstraction object.
@@ -721,17 +799,24 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $tableName = $wpdb->prefix . PAGANTIS_WC_ORDERS_TABLE;
 
         //Check if id exists
-        $resultsSelect = $wpdb->get_results("select * from $tableName where id='$wc_order_id'");
+        $resultsSelect = $wpdb->get_results("SELECT * FROM $tableName WHERE id='$wc_order_id'");
         $countResults  = count($resultsSelect);
-        if ($countResults == 0) {
+        if ($countResults === 0) {
             $wpdb->insert($tableName, array('id' => $wc_order_id, 'order_id' => $pg_order_id), array('%d', '%s'));
         } else {
-            $wpdb->update($tableName, array('order_id' => $pg_order_id), array('id' => $wc_order_id), array('%s'), array('%d'));
+            $wpdb->update(
+                $tableName,
+                array('order_id' => $pg_order_id),
+                array('id' => $wc_order_id),
+                array('%s'),
+                array('%d')
+            );
         }
     }
 
     /**
      * Check if orders table exists
+     *
      * @global wpdb $wpdb WordPress database abstraction object.
      */
     private function check_if_wc_orders_db_table_exist()
@@ -739,7 +824,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         global $wpdb;
         $tableName = $wpdb->prefix . PAGANTIS_WC_ORDERS_TABLE;
 
-        if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
+        if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") !== $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
             $sql             = "CREATE TABLE $tableName ( id int, order_id varchar(50), wc_order_id varchar(50),  
                   UNIQUE KEY id (id)) $charset_collate";
@@ -757,9 +842,9 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     private function getNationalId($order)
     {
-        foreach ((array)$order->get_meta_data() as $mdObject) {
+        foreach ((array) $order->get_meta_data() as $mdObject) {
             $data = $mdObject->get_data();
-            if ($data['key'] == 'vat_number') {
+            if ($data['key'] === 'vat_number') {
                 return $data['value'];
             }
         }
@@ -774,50 +859,41 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     private function getTaxId($order)
     {
-        foreach ((array)$order->get_meta_data() as $mdObject) {
+        foreach ((array) $order->get_meta_data() as $mdObject) {
             $data = $mdObject->get_data();
-            if ($data['key'] == 'billing_cfpiva') {
+            if ($data['key'] === 'billing_cfpiva') {
                 return $data['value'];
             }
         }
     }
 
     /**
-     * @param null $exception
-     * @param null $message
-     * @global wpdb $wpdb WordPress database abstraction object.
+     * @param null  $exception
+     * @param null  $message
+     *
+     * @deprecated 8.3.7
      */
     private function insertLog($exception = null, $message = null)
     {
-        global $wpdb;
-        $this->checkDbLogTable();
-        $logEntry = new LogEntry();
+        wc_deprecated_function('insertLog', '8.3.7', 'WC_Pagantis_Logger::insert_log_entry_in_wpdb');
+
         if ($exception instanceof \Exception) {
-            $logEntry = $logEntry->error($exception);
+            WC_Pagantis_Logger::insert_log_entry_in_wpdb($exception);
         } else {
-            $logEntry = $logEntry->info($message);
+            WC_Pagantis_Logger::insert_log_entry_in_wpdb($message);
         }
-        $tableName = $wpdb->prefix . PAGANTIS_LOGS_TABLE;
-        $wpdb->insert($tableName, array('log' => $logEntry->toJson()));
     }
+
+
 
     /**
      * Check if logs table exists
-     * @global wpdb $wpdb WordPress database abstraction object.
+     *
+     * @deprecated 8.3.7
      */
     private function checkDbLogTable()
     {
-        global $wpdb;
-        $tableName = $wpdb->prefix . PAGANTIS_LOGS_TABLE;
-        if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
-            $charset_collate = $wpdb->get_charset_collate();
-            $sql             = "CREATE TABLE $tableName ( id int NOT NULL AUTO_INCREMENT, log text NOT NULL, 
-                    createdAt timestamp DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY id (id)) $charset_collate";
-            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-            dbDelta($sql);
-        }
-
-        return;
+        wc_deprecated_function('checkDbLogTable', '8.3.7', 'pg_wc_check_db_log_table');
     }
 
     /**
@@ -835,7 +911,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
     /**
      * @return int
-     *
      */
     private function getPromotedAmount()
     {
@@ -844,7 +919,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $promotedAmount = 0;
         foreach ($items as $key => $item) {
             $promotedProduct = $this->isPromoted($item['product_id']);
-            if ($promotedProduct == 'true') {
+            if ($promotedProduct === 'true') {
                 $promotedAmount += $item['line_total'] + $item['line_tax'];
             }
         }

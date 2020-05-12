@@ -53,9 +53,12 @@ services:
 
   db:
     image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_DATABASE=wordpress
+    ports:
+      - "3308:3306"
 
   db-test:
     image: mysql:5.7
