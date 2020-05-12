@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 
 class WcPagantisNotify extends WcPagantisGateway
 {
-    /** Concurrency tablename  */
+    /** Concurrency table name  */
     const CONCURRENCY_TABLE = 'pagantis_concurrency';
 
     /** Seconds to expire a locked request */
