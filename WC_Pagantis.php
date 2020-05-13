@@ -16,16 +16,14 @@
 //namespace Gateways;
 
 
-if (! defined('ABSPATH')) {
+if ( ! defined('ABSPATH')) {
     exit;
 }
 define('PAGANTIS_VERSION', '8.3.7');
 
 define('PAGANTIS_WC_MAIN_FILE', __FILE__);
-define(
-    'PAGANTIS_PLUGIN_URL',
-    untrailingslashit(plugins_url(basename(plugin_dir_path(PAGANTIS_WC_MAIN_FILE)), basename(PAGANTIS_WC_MAIN_FILE)))
-);
+define('PAGANTIS_PLUGIN_URL',
+    untrailingslashit(plugins_url(basename(plugin_dir_path(PAGANTIS_WC_MAIN_FILE)), basename(PAGANTIS_WC_MAIN_FILE))));
 define('PAGANTIS_PLUGIN_PATH', untrailingslashit(plugin_dir_path(PAGANTIS_WC_MAIN_FILE)));
 define('PAGANTIS_ORDERS_TABLE', 'cart_process');
 define('PAGANTIS_WC_ORDERS_TABLE', 'posts');
@@ -80,7 +78,8 @@ class WC_Pagantis_Plugin
         add_action('plugins_loaded', array($this, 'bootstrap'));
         load_plugin_textdomain('pagantis', false, basename(dirname(__FILE__)) . '/languages');
         add_filter('woocommerce_payment_gateways', array($this, 'add_pagantis_gateway'));
-        add_filter('woocommerce_available_payment_gateways', array($this, 'check_if_pg_is_in_available_gateways'), 9999);
+        add_filter('woocommerce_available_payment_gateways', array($this, 'check_if_pg_is_in_available_gateways'),
+            9999);
         add_filter('plugin_row_meta', array($this, 'get_plugin_row_meta_links'), 10, 2);
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'get_plugin_action_links'));
 
@@ -148,10 +147,10 @@ class WC_Pagantis_Plugin
             throw new Exception(__('Pagantis requires WooCommerce version 3.0 or greater', 'pagantis'));
         }
 
-        if (! function_exists('curl_init')) {
+        if ( ! function_exists('curl_init')) {
             throw new Exception(__('Pagantis requires cURL to be installed on your server', 'pagantis'));
         }
-        if (! version_compare(phpversion(), '5.3.0', '>=')) {
+        if ( ! version_compare(phpversion(), '5.3.0', '>=')) {
             throw new Exception(__('Pagantis requires PHP 5.3 or greater to be installed on your server', 'pagantis'));
         }
     }
@@ -265,7 +264,8 @@ class WC_Pagantis_Plugin
             dbDelta($sql);
         } else {
             //Updated value field to adapt to new length < v8.0.1
-            $query   = "select COLUMN_TYPE FROM information_schema.COLUMNS where TABLE_NAME='$tableName' AND COLUMN_NAME='value'";
+            $query   =
+                "select COLUMN_TYPE FROM information_schema.COLUMNS where TABLE_NAME='$tableName' AND COLUMN_NAME='value'";
             $results = $wpdb->get_results($query, ARRAY_A);
             if ($results['0']['COLUMN_TYPE'] === 'varchar(100)') {
                 $sql = "ALTER TABLE $tableName MODIFY value varchar(1000)";
@@ -280,24 +280,14 @@ class WC_Pagantis_Plugin
                 if ($item['config'] === 'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR') {
                     $css_price_selector = $this->preparePriceSelector($item['value']);
                     if ($item['value'] !== $css_price_selector) {
-                        $wpdb->update(
-                            $tableName,
-                            array('value' => stripslashes($css_price_selector)),
-                            array('config' => 'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'),
-                            array('%s'),
-                            array('%s')
-                        );
+                        $wpdb->update($tableName, array('value' => stripslashes($css_price_selector)),
+                            array('config' => 'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'), array('%s'), array('%s'));
                     }
                 } elseif ($item['config'] === 'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR') {
                     $css_quantity_selector = $this->prepareQuantitySelector($item['value']);
                     if ($item['value'] !== $css_quantity_selector) {
-                        $wpdb->update(
-                            $tableName,
-                            array('value' => stripslashes($css_quantity_selector)),
-                            array('config' => 'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'),
-                            array('%s'),
-                            array('%s')
-                        );
+                        $wpdb->update($tableName, array('value' => stripslashes($css_quantity_selector)),
+                            array('config' => 'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'), array('%s'), array('%s'));
                     }
                 }
             }
@@ -308,16 +298,10 @@ class WC_Pagantis_Plugin
         $query     = "select * from $tableName where config='PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'";
         $results   = $wpdb->get_results($query, ARRAY_A);
         if (count($results) === 0) {
-            $wpdb->insert(
-                $tableName,
-                array('config' => 'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR', 'value' => '.'),
-                array('%s', '%s')
-            );
-            $wpdb->insert(
-                $tableName,
-                array('config' => 'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR', 'value' => ','),
-                array('%s', '%s')
-            );
+            $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR', 'value' => '.'),
+                array('%s', '%s'));
+            $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR', 'value' => ','),
+                array('%s', '%s'));
         }
 
         //Adding new selector < v8.3.0
@@ -325,7 +309,8 @@ class WC_Pagantis_Plugin
         $query     = "select * from $tableName where config='PAGANTIS_DISPLAY_MAX_AMOUNT'";
         $results   = $wpdb->get_results($query, ARRAY_A);
         if (count($results) === 0) {
-            $wpdb->insert($tableName, array('config' => 'PAGANTIS_DISPLAY_MAX_AMOUNT', 'value' => '0'), array('%s', '%s'));
+            $wpdb->insert($tableName, array('config' => 'PAGANTIS_DISPLAY_MAX_AMOUNT', 'value' => '0'),
+                array('%s', '%s'));
         }
 
         //Adding new selector < v8.3.2
@@ -333,16 +318,10 @@ class WC_Pagantis_Plugin
         $query     = "select * from $tableName where config='PAGANTIS_SIMULATOR_DISPLAY_SITUATION'";
         $results   = $wpdb->get_results($query, ARRAY_A);
         if (count($results) === 0) {
-            $wpdb->insert(
-                $tableName,
-                array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_SITUATION', 'value' => 'default'),
-                array('%s', '%s')
-            );
-            $wpdb->insert(
-                $tableName,
-                array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION', 'value' => 'default'),
-                array('%s', '%s')
-            );
+            $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_SITUATION', 'value' => 'default'),
+                array('%s', '%s'));
+            $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION', 'value' => 'default'),
+                array('%s', '%s'));
         }
 
         //Adding new selector < v8.3.3
@@ -354,28 +333,20 @@ class WC_Pagantis_Plugin
                 'config' => 'PAGANTIS_SIMULATOR_DISPLAY_TYPE_CHECKOUT',
                 'value'  => 'sdk.simulator.types.CHECKOUT_PAGE',
             ), array('%s', '%s'));
-            $wpdb->update(
-                $tableName,
-                array('value' => 'sdk.simulator.types.PRODUCT_PAGE'),
-                array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_TYPE'),
-                array('%s'),
-                array('%s')
-            );
+            $wpdb->update($tableName, array('value' => 'sdk.simulator.types.PRODUCT_PAGE'),
+                array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_TYPE'), array('%s'), array('%s'));
         }
 
         //Adapting to variable selector < v8.3.6
-        $variableSelector = 'div.summary div.woocommerce-variation.single_variation > div.woocommerce-variation-price span.price';
+        $variableSelector =
+            'div.summary div.woocommerce-variation.single_variation > div.woocommerce-variation-price span.price';
         $tableName        = $wpdb->prefix . PAGANTIS_CONFIG_TABLE;
-        $query            = "select * from $tableName where config='PAGANTIS_SIMULATOR_SELECTOR_VARIATION' and value='default'";
+        $query            =
+            "select * from $tableName where config='PAGANTIS_SIMULATOR_SELECTOR_VARIATION' and value='default'";
         $results          = $wpdb->get_results($query, ARRAY_A);
         if (count($results) === 0) {
-            $wpdb->update(
-                $tableName,
-                array('value' => $variableSelector),
-                array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION'),
-                array('%s'),
-                array('%s')
-            );
+            $wpdb->update($tableName, array('value' => $variableSelector),
+                array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION'), array('%s'), array('%s'));
         }
 
         $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
@@ -386,7 +357,7 @@ class WC_Pagantis_Plugin
             $simpleDbConfigs[$config['config']] = $config['value'];
         }
         $newConfigs = array_diff_key(WC_Pagantis_Config::getDefaultConfig(), $simpleDbConfigs);
-        if (! empty($newConfigs)) {
+        if ( ! empty($newConfigs)) {
             foreach ($newConfigs as $key => $value) {
                 $wpdb->insert($tableName, array('config' => $key, 'value' => $value), array('%s', '%s'));
             }
@@ -395,12 +366,12 @@ class WC_Pagantis_Plugin
         //Current plugin config: pagantis_public_key => New field --- public_key => Old field
         $settings = get_option('woocommerce_pagantis_settings');
 
-        if (! isset($settings['pagantis_public_key']) && $settings['public_key']) {
+        if ( ! isset($settings['pagantis_public_key']) && $settings['public_key']) {
             $settings['pagantis_public_key'] = $settings['public_key'];
             unset($settings['public_key']);
         }
 
-        if (! isset($settings['pagantis_private_key']) && $settings['secret_key']) {
+        if ( ! isset($settings['pagantis_private_key']) && $settings['secret_key']) {
             $settings['pagantis_private_key'] = $settings['secret_key'];
             unset($settings['secret_key']);
         }
@@ -411,16 +382,12 @@ class WC_Pagantis_Plugin
 
     public function enqueue_simulator_scripts()
     {
-        if (! pg_isPluginActive()) {
+        if ( ! pg_isPluginActive()) {
             return;
         }
 
-        wp_register_script(
-            'pagantis-simulator',
-            plugins_url('assets/js/pagantis-simulator.js', PAGANTIS_PLUGIN_ID),
-            array('jquery'),
-            ''
-        );
+        wp_register_script('pagantis-simulator', plugins_url('assets/js/pagantis-simulator.js', PAGANTIS_PLUGIN_ID),
+            array('jquery'), '');
         wp_enqueue_script('pagantis-simulator');
 
         global $product;
@@ -435,8 +402,10 @@ class WC_Pagantis_Plugin
             'public_key'                => $settings['pagantis_public_key'],
             'simulator_type'            => WC_Pagantis_Config::getValueOfKey('PAGANTIS_SIMULATOR_DISPLAY_TYPE'),
             'positionSelector'          => WC_Pagantis_Config::getValueOfKey('PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'),
-            'quantitySelector'          => WC_Pagantis_Config::getValueOfKey('PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR', true),
-            'priceSelector'             => WC_Pagantis_Config::getValueOfKey('PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR', true),
+            'quantitySelector'          => WC_Pagantis_Config::getValueOfKey('PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR',
+                true),
+            'priceSelector'             => WC_Pagantis_Config::getValueOfKey('PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR',
+                true),
             'totalAmount'               => is_numeric($product->get_price()) ? $product->get_price() : 0,
             'locale'                    => $locale,
             'country'                   => $locale,
@@ -538,7 +507,7 @@ class WC_Pagantis_Plugin
      */
     public function add_pagantis_gateway($methods)
     {
-        if (! class_exists('WC_Payment_Gateway')) {
+        if ( ! class_exists('WC_Payment_Gateway')) {
             return $methods;
         }
 
@@ -558,7 +527,7 @@ class WC_Pagantis_Plugin
     public function check_if_pg_is_in_available_gateways($methods)
     {
         $pagantis = new WC_Pagantis_Gateway();
-        if (! $pagantis->is_available()) {
+        if ( ! $pagantis->is_available()) {
             unset($methods['pagantis']);
         }
 
@@ -603,8 +572,10 @@ class WC_Pagantis_Plugin
     public function get_plugin_row_meta_links($links, $file)
     {
         if ($file === plugin_basename(__FILE__)) {
-            $links[] = '<a href="' . PAGANTIS_GIT_HUB_URL . '" target="_blank">' . __('Documentation', 'pagantis') . '</a>';
-            $links[] = '<a href="' . PAGANTIS_DOC_URL . '" target="_blank">' . __('API documentation', 'pagantis') . '</a>';
+            $links[] =
+                '<a href="' . PAGANTIS_GIT_HUB_URL . '" target="_blank">' . __('Documentation', 'pagantis') . '</a>';
+            $links[] =
+                '<a href="' . PAGANTIS_DOC_URL . '" target="_blank">' . __('API documentation', 'pagantis') . '</a>';
             $links[] = '<a href="' . PAGANTIS_SUPPORT_EMAIL . '">' . __('Support', 'pagantis') . '</a>';
 
             return $links;
@@ -671,13 +642,8 @@ class WC_Pagantis_Plugin
             if (count($_POST)) {
                 foreach ($_POST as $config => $value) {
                     if (isset($this->initialConfig[$config]) && $response['status'] === null) {
-                        $wpdb->update(
-                            $tableName,
-                            array('value' => stripslashes($value)),
-                            array('config' => $config),
-                            array('%s'),
-                            array('%s')
-                        );
+                        $wpdb->update($tableName, array('value' => stripslashes($value)), array('config' => $config),
+                            array('%s'), array('%s'));
                     } else {
                         $response['status'] = 400;
                         $response['result'] = 'Bad request';
@@ -789,7 +755,7 @@ class WC_Pagantis_Plugin
     {
         if ($css_quantity_selector === 'default' || $css_quantity_selector === '') {
             $css_quantity_selector = $this->initialConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'];
-        } elseif (! unserialize($css_quantity_selector)) { //in the case of a custom string selector, we keep it
+        } elseif ( ! unserialize($css_quantity_selector)) { //in the case of a custom string selector, we keep it
             $css_quantity_selector = serialize(array($css_quantity_selector));
         }
 
@@ -805,7 +771,7 @@ class WC_Pagantis_Plugin
     {
         if ($css_price_selector === 'default' || $css_price_selector === '') {
             $css_price_selector = $this->initialConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'];
-        } elseif (! unserialize($css_price_selector)) { //in the case of a custom string selector, we keep it
+        } elseif ( ! unserialize($css_price_selector)) { //in the case of a custom string selector, we keep it
             $css_price_selector = serialize(array($css_price_selector));
         }
 

@@ -15,66 +15,66 @@ use Pagantis\ModuleUtils\Model\Response\JsonExceptionResponse;
 use Pagantis\ModuleUtils\Model\Log\LogEntry;
 use Pagantis\OrdersApiClient\Model\Order;
 
-if (!defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
 class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
 {
     /**
-    * Concurrency table name
-    */
+     * Concurrency table name
+     */
     const CONCURRENCY_TABLE = 'pagantis_concurrency';
 
     /**
-    * Seconds to expire a locked request
-    */
+     * Seconds to expire a locked request
+     */
     const CONCURRENCY_TIMEOUT = 5;
 
     /**
      * Pagantis Order Number
      *
-    * @var mixed $pagantisOrder
-    */
+     * @var mixed $pagantisOrder
+     */
     protected $pagantisOrder;
 
     /**
      *  Origin of Order
      *
-    * @var $string $origin
-    */
+     * @var $string $origin
+     */
     public $origin;
 
     /**
      * WC_Order object
      *
-    * @var $string
-    */
+     * @var $string
+     */
     public $order;
 
     /**
-    * @var mixed $woocommerceOrderId
-    */
+     * @var mixed $woocommerceOrderId
+     */
     protected $woocommerceOrderId = '';
 
     /**
-    * @var mixed $cfg
-    */
+     * @var mixed $cfg
+     */
     protected $cfg;
 
     /**
- * @var Client $orderClient
-*/
+     * @var Client $orderClient
+     */
     protected $orderClient;
 
     /**
- * @var WC_Order $woocommerceOrder
-*/
+     * @var WC_Order $woocommerceOrder
+     */
     protected $woocommerceOrder;
 
     /**
- * @var mixed $pagantisOrderId
-*/
+     * @var mixed $pagantisOrderId
+     */
     protected $pagantisOrderId = '';
 
     /**
@@ -88,7 +88,7 @@ class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
         require_once dirname(__FILE__) . '/../includes/class-wc-pagantis-logger.php';
         require_once dirname(__FILE__) . '/../includes/functions.php';
         try {
-            require_once(__ROOT__.'/vendor/autoload.php');
+            require_once(__ROOT__ . '/vendor/autoload.php');
             try {
                 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $_GET['origin'] === 'notification') {
                     return $this->buildResponse();
@@ -123,6 +123,7 @@ class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
             }
         } catch (\Exception $exception) {
             WC_Pagantis_Logger::insert_log_entry_in_wpdb($exception);
+
             return $this->buildResponse($exception);
         }
     }
@@ -166,8 +167,9 @@ class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
     {
         global $wpdb;
         $this->checkDbTable();
-        $tableName             = $wpdb->prefix.PAGANTIS_WC_ORDERS_TABLE;
-        $queryResult           = $wpdb->get_row("select order_id from $tableName where id='".$this->woocommerceOrderId."'");
+        $tableName             = $wpdb->prefix . PAGANTIS_WC_ORDERS_TABLE;
+        $queryResult           =
+            $wpdb->get_row("select order_id from $tableName where id='" . $this->woocommerceOrderId . "'");
         $this->pagantisOrderId = $queryResult->order_id;
 
         if ($this->pagantisOrderId === '') {
@@ -218,22 +220,18 @@ class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
     {
         //Order status reference => https://docs.woocommerce.com/document/managing-orders/
         $validStatus   = array('on-hold', 'pending', 'failed', 'processing', 'completed');
-        $isValidStatus = apply_filters(
-            'woocommerce_valid_order_statuses_for_payment_complete',
-            $validStatus,
-            $this
-        );
+        $isValidStatus = apply_filters('woocommerce_valid_order_statuses_for_payment_complete', $validStatus, $this);
 
-        if (!$this->woocommerceOrder->has_status($isValidStatus)) { // TO CONFIRM
-            $logMessage = 'WARNING checkMerchantOrderStatus.' .
-                          ' Merchant order id:'.$this->woocommerceOrder->get_id().
-                          ' Merchant order status:'.$this->woocommerceOrder->get_status().
-                          ' Pagantis order id:'.$this->pagantisOrder->getStatus().
-                          ' Pagantis order status:'.$this->pagantisOrder->getId();
+        if (! $this->woocommerceOrder->has_status($isValidStatus)) { // TO CONFIRM
+            $logMessage =
+                'WARNING checkMerchantOrderStatus.' . ' Merchant order id:' . $this->woocommerceOrder->get_id()
+                . ' Merchant order status:' . $this->woocommerceOrder->get_status() . ' Pagantis order id:'
+                . $this->pagantisOrder->getStatus() . ' Pagantis order status:' . $this->pagantisOrder->getId();
 
             WC_Pagantis_Logger::insert_log_entry_in_wpdb(null, $logMessage);
             $this->woocommerceOrder->add_order_note($logMessage);
             $this->woocommerceOrder->save();
+
             return false;
         }
 
@@ -274,12 +272,14 @@ class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
             if ($this->pagantisOrder->getStatus() !== Order::STATUS_CONFIRMED) {
                 throw new UnknownException($e->getMessage());
             } else {
-                $logMessage = 'Concurrency issue: Order_id '.$this->pagantisOrderId.' was confirmed by other process';
+                $logMessage =
+                    'Concurrency issue: Order_id ' . $this->pagantisOrderId . ' was confirmed by other process';
                 WC_Pagantis_Logger::insert_log_entry_in_wpdb(null, $logMessage);
             }
         }
 
         $jsonResponse = new JsonSuccessResponse();
+
         return $jsonResponse->toJson();
     }
 
@@ -287,22 +287,22 @@ class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
      * UTILS FUNCTIONS
      */
     /**
- * STEP 1 CC - Check concurrency
-*/
+     * STEP 1 CC - Check concurrency
+     */
     /**
      * Check if orders table exists
      */
     private function checkDbTable()
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.PAGANTIS_WC_ORDERS_TABLE;
+        $tableName = $wpdb->prefix . PAGANTIS_WC_ORDERS_TABLE;
 
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
             $sql             = "CREATE TABLE $tableName (id int, order_id varchar(50), wc_order_id varchar(50), 
                   UNIQUE KEY id (id)) $charset_collate";
 
-            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
+            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
             dbDelta($sql);
         }
     }
@@ -313,31 +313,32 @@ class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
     private function checkDbLogTable()
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.PAGANTIS_LOGS_TABLE;
+        $tableName = $wpdb->prefix . PAGANTIS_LOGS_TABLE;
 
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
             $sql             = "CREATE TABLE $tableName ( id int NOT NULL AUTO_INCREMENT, log text NOT NULL, 
                     createdAt timestamp DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY id (id)) $charset_collate";
 
-            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
+            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
             dbDelta($sql);
         }
+
         return;
     }
 
     /**
- * STEP 2 GMO - Get Merchant Order
-*/
+     * STEP 2 GMO - Get Merchant Order
+     */
     /**
- * STEP 3 GPOI - Get Pagantis OrderId
-*/
+     * STEP 3 GPOI - Get Pagantis OrderId
+     */
     /**
- * STEP 4 GPO - Get Pagantis Order
-*/
+     * STEP 4 GPO - Get Pagantis Order
+     */
     /**
- * STEP 5 COS - Check Order Status
-*/
+     * STEP 5 COS - Check Order Status
+     */
 
     /**
      * @param $statusArray
@@ -353,7 +354,7 @@ class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
 
         if ($this->pagantisOrder instanceof Order) {
             $payed = in_array($this->pagantisOrder->getStatus(), $pagantisStatus);
-            if (!$payed) {
+            if (! $payed) {
                 if ($this->pagantisOrder instanceof Order) {
                     $status = $this->pagantisOrder->getStatus();
                 } else {
@@ -367,14 +368,14 @@ class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
     }
 
     /**
- * STEP 6 CMOS - Check Merchant Order Status
-*/
+     * STEP 6 CMOS - Check Merchant Order Status
+     */
     /**
- * STEP 7 VA - Validate Amount
-*/
+     * STEP 7 VA - Validate Amount
+     */
     /**
- * STEP 8 PMO - Process Merchant Order
-*/
+     * STEP 8 PMO - Process Merchant Order
+     */
     /**
      * @throws \Exception
      */
@@ -414,11 +415,11 @@ class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
         global $wpdb;
 
         $this->checkDbTable();
-        $tableName = $wpdb->prefix.PAGANTIS_WC_ORDERS_TABLE;
+        $tableName = $wpdb->prefix . PAGANTIS_WC_ORDERS_TABLE;
 
         $wpdb->update(
             $tableName,
-            array('wc_order_id'=>$this->woocommerceOrderId),
+            array('wc_order_id' => $this->woocommerceOrderId),
             array('id' => $this->woocommerceOrderId),
             array('%s'),
             array('%d')
@@ -426,11 +427,14 @@ class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
     }
 
     /**
-    * STEP 9 CPO - Confirmation Pagantis Order
-    */
+     * STEP 9 CPO - Confirmation Pagantis Order
+     */
     private function rollbackMerchantOrder()
     {
-        $this->woocommerceOrder->update_status('pending', __('Pending payment', 'woocommerce')); // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
+        $this->woocommerceOrder->update_status(
+            'pending',
+            __('Pending payment', 'woocommerce')
+        ); // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
     }
 
     /**
@@ -449,7 +453,7 @@ class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
             $logEntry = $logEntry->info($message);
         }
 
-        $tableName = $wpdb->prefix.PAGANTIS_LOGS_TABLE;
+        $tableName = $wpdb->prefix . PAGANTIS_LOGS_TABLE;
         $wpdb->insert($tableName, array('log' => $logEntry->toJson()));
     }
 
@@ -461,9 +465,10 @@ class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
     private function unblockConcurrency($orderId = null)
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.PAGANTIS_CONCURRENCY_TABLE;
+        $tableName = $wpdb->prefix . PAGANTIS_CONCURRENCY_TABLE;
         if ($orderId === null) {
-            $query = "DELETE FROM $tableName WHERE createdAt<(NOW()- INTERVAL ".self::CONCURRENCY_TIMEOUT.' SECOND)';
+            $query =
+                "DELETE FROM $tableName WHERE createdAt<(NOW()- INTERVAL " . self::CONCURRENCY_TIMEOUT . ' SECOND)';
         } else {
             $query = "DELETE FROM $tableName WHERE order_id = $orderId";
         }
@@ -481,22 +486,24 @@ class WC_PG_Notification_Handler extends WC_Pagantis_Gateway
     private function blockConcurrency($orderId)
     {
         global $wpdb;
-        $tableName    = $wpdb->prefix.PAGANTIS_CONCURRENCY_TABLE;
+        $tableName    = $wpdb->prefix . PAGANTIS_CONCURRENCY_TABLE;
         $insertResult = $wpdb->insert($tableName, array('order_id' => $orderId));
         if ($insertResult === false) {
             if ($this->getOrigin() === 'Notify') {
                 throw new ConcurrencyException();
             } else {
-                $query           = sprintf(
-                    'SELECT TIMESTAMPDIFF(SECOND,NOW()-INTERVAL %s SECOND, createdAt) as rest FROM %s WHERE %s',
-                    self::CONCURRENCY_TIMEOUT,
-                    $tableName,
-                    "order_id=$orderId"
-                );
+                $query           =
+                    sprintf(
+                        'SELECT TIMESTAMPDIFF(SECOND,NOW()-INTERVAL %s SECOND, createdAt) as rest FROM %s WHERE %s',
+                        self::CONCURRENCY_TIMEOUT,
+                        $tableName,
+                        "order_id=$orderId"
+                    );
                 $resultSeconds   = $wpdb->get_row($query);
                 $restSeconds     = isset($resultSeconds) ? ($resultSeconds->rest) : 0;
-                $secondsToExpire = ($restSeconds>self::CONCURRENCY_TIMEOUT) ? self::CONCURRENCY_TIMEOUT : $restSeconds;
-                sleep($secondsToExpire+1);
+                $secondsToExpire =
+                    ($restSeconds > self::CONCURRENCY_TIMEOUT) ? self::CONCURRENCY_TIMEOUT : $restSeconds;
+                sleep($secondsToExpire + 1);
 
                 $logMessage = sprintf(
                     'User waiting %s seconds, default seconds %s, bd time to expire %s seconds',

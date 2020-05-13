@@ -164,7 +164,6 @@ class WC_Pagantis_Gateway extends WC_Payment_Gateway
      *
      * @hook   admin_notices
      * @throws Exception
-     * @todo   https://wordpress.stackexchange.com/questions/242705/how-to-stop-showing-admin-notice-after-close-button-has-been-clicked
      */
     public function check_plugin_settings()
     {
@@ -219,7 +218,7 @@ class WC_Pagantis_Gateway extends WC_Payment_Gateway
         }
 
         if ($this->settings['pagantis_public_key'] !== '' && $this->settings['pagantis_private_key'] !== ''
-                                                              || $this->settings['enabled'] === 'no'
+            || $this->settings['enabled'] === 'no'
         ) {
             WC_Admin_Notices::add_custom_notice(
                 PAGANTIS_PLUGIN_ID . 'finish_setup',
@@ -233,9 +232,9 @@ class WC_Pagantis_Gateway extends WC_Payment_Gateway
             );
         }
         if (WC_Admin_Notices::has_notice(PAGANTIS_PLUGIN_ID . 'keys_check'
-                                             && $this->settings['pagantis_public_key'] !== ''
-                                             && $this->settings['pagantis_private_key'] !== ''
-        && $this->settings['enabled'] === 'yes')
+                                         && $this->settings['pagantis_public_key'] !== ''
+                                         && $this->settings['pagantis_private_key'] !== ''
+                                         && $this->settings['enabled'] === 'yes')
         ) {
             WC_Admin_Notices::remove_notice(PAGANTIS_PLUGIN_ID . 'keys_setup');
         }
@@ -243,15 +242,16 @@ class WC_Pagantis_Gateway extends WC_Payment_Gateway
 
         if (WC_Admin_Notices::has_notice(PAGANTIS_PLUGIN_ID . 'first_setup'
                                          && $this->settings['pagantis_public_key'] === ''
-        && $this->settings['pagantis_private_key'] === '')
+                                         && $this->settings['pagantis_private_key'] === '')
         ) {
             WC_Admin_Notices::remove_notice(PAGANTIS_PLUGIN_ID . 'keys_setup');
         }
 
 
-        if (WC_Admin_Notices::has_notice(PAGANTIS_PLUGIN_ID . 'keys_check') xor WC_Admin_Notices::has_notice(PAGANTIS_PLUGIN_ID . 'first_setup')
-            && $this->settings['pagantis_public_key'] !== ''
-            || $this->settings['pagantis_private_key'] !== ''
+        if (WC_Admin_Notices::has_notice(PAGANTIS_PLUGIN_ID . 'keys_check')
+            xor WC_Admin_Notices::has_notice(PAGANTIS_PLUGIN_ID . 'first_setup')
+                && $this->settings['pagantis_public_key'] !== ''
+                || $this->settings['pagantis_private_key'] !== ''
         ) {
             WC_Admin_Notices::remove_notice(PAGANTIS_PLUGIN_ID . 'first_setup');
             WC_Admin_Notices::remove_notice(PAGANTIS_PLUGIN_ID . 'keys_check');
@@ -365,33 +365,33 @@ class WC_Pagantis_Gateway extends WC_Payment_Gateway
 
             $userAddress = new Address();
             $userAddress->setZipCode($shippingAddress['postcode'])->setFullName($shippingAddress['first_name'] . ' '
-            . $shippingAddress['last_name'])
+                                                                                . $shippingAddress['last_name'])
                         ->setCountryCode($shippingAddress['country'] !== '' ? strtoupper($shippingAddress['country'])
-                        : strtoupper($this->language))->setCity($shippingAddress['city'])
+                            : strtoupper($this->language))->setCity($shippingAddress['city'])
                         ->setAddress($shippingAddress['address_1'] . ' ' . $shippingAddress['address_2']);
             $orderShippingAddress = new Address();
             $orderShippingAddress->setZipCode($shippingAddress['postcode'])->setFullName($shippingAddress['first_name']
                                                                                          . ' '
-            . $shippingAddress['last_name'])
-                                ->setCountryCode($shippingAddress['country'] !== ''
-                                ? strtoupper($shippingAddress['country']) : strtoupper($this->language))
-                                ->setCity($shippingAddress['city'])->setAddress($shippingAddress['address_1'] . ' '
-                                . $shippingAddress['address_2'])
+                                                                                         . $shippingAddress['last_name'])
+                                 ->setCountryCode($shippingAddress['country'] !== ''
+                                     ? strtoupper($shippingAddress['country']) : strtoupper($this->language))
+                                 ->setCity($shippingAddress['city'])->setAddress($shippingAddress['address_1'] . ' '
+                                                                                 . $shippingAddress['address_2'])
                                  ->setFixPhone($shippingAddress['phone'])->setMobilePhone($shippingAddress['phone'])
                                  ->setNationalId($national_id)->setTaxId($tax_id);
             $orderBillingAddress = new Address();
             $orderBillingAddress->setZipCode($billingAddress['postcode'])->setFullName($billingAddress['first_name']
                                                                                        . ' '
-            . $billingAddress['last_name'])
+                                                                                       . $billingAddress['last_name'])
                                 ->setCountryCode($billingAddress['country'] !== ''
-                                ? strtoupper($billingAddress['country']) : strtoupper($this->language))
+                                    ? strtoupper($billingAddress['country']) : strtoupper($this->language))
                                 ->setCity($billingAddress['city'])->setAddress($billingAddress['address_1'] . ' '
-                                . $billingAddress['address_2'])
+                                                                               . $billingAddress['address_2'])
                                 ->setFixPhone($billingAddress['phone'])->setMobilePhone($billingAddress['phone'])
                                 ->setNationalId($national_id)->setTaxId($tax_id);
             $orderUser = new User();
             $orderUser->setAddress($userAddress)->setFullName($billingAddress['first_name'] . ' '
-            . $billingAddress['last_name'])
+                                                              . $billingAddress['last_name'])
                       ->setBillingAddress($orderBillingAddress)->setEmail($billingAddress['email'])
                       ->setFixPhone($billingAddress['phone'])->setMobilePhone($billingAddress['phone'])
                       ->setShippingAddress($orderShippingAddress)->setNationalId($national_id)->setTaxId($tax_id);
@@ -440,7 +440,7 @@ class WC_Pagantis_Gateway extends WC_Payment_Gateway
 
                 $promotedProduct = $this->isPromoted($item->get_product_id());
                 if ($promotedProduct === 'true') {
-                    $promotedAmount += $product->getAmount();
+                    $promotedAmount  += $product->getAmount();
                     $promotedMessage =
                         'Promoted Item: ' . $wcProduct->get_name() . ' - Price: ' . $item->get_total() . ' - Qty: '
                         . $product->getQuantity() . ' - Item ID: ' . $item['id_product'];
@@ -602,7 +602,7 @@ class WC_Pagantis_Gateway extends WC_Payment_Gateway
         $allowedCountry   = (in_array(strtolower($locale), $allowedCountries, true));
         $minAmount        = $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'];
         $maxAmount        = $this->extraConfig['PAGANTIS_DISPLAY_MAX_AMOUNT'];
-        $totalPrice       = (int) $this->get_order_total();
+        $totalPrice       = (int)$this->get_order_total();
         $validAmount      = ($totalPrice >= $minAmount && ($totalPrice <= $maxAmount || $maxAmount === '0'));
         if ($this->enabled === 'yes' && $this->pagantis_public_key !== '' && $this->pagantis_private_key !== ''
             && $validAmount
@@ -974,7 +974,7 @@ class WC_Pagantis_Gateway extends WC_Payment_Gateway
      */
     private function getNationalId($order)
     {
-        foreach ((array) $order->get_meta_data() as $mdObject) {
+        foreach ((array)$order->get_meta_data() as $mdObject) {
             $data = $mdObject->get_data();
             if ($data['key'] === 'vat_number') {
                 return $data['value'];
@@ -991,7 +991,7 @@ class WC_Pagantis_Gateway extends WC_Payment_Gateway
      */
     private function getTaxId($order)
     {
-        foreach ((array) $order->get_meta_data() as $mdObject) {
+        foreach ((array)$order->get_meta_data() as $mdObject) {
             $data = $mdObject->get_data();
             if ($data['key'] === 'billing_cfpiva') {
                 return $data['value'];
