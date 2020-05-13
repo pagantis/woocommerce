@@ -1,10 +1,14 @@
 <?php
 /**
  * Plugin Name: Pagantis
- * Plugin URI: https://www.pagantis.com/
+ * Plugin URI: https://developer.pagantis.com/platforms/#woocommerce
+ * Author: Pagantis
+ * Author URI: https://www.pagantis.com/
  * Description: Adds Pagantis as payment method to WooCommerce.
  * Version: 8.3.7
- * Author: Pagantis
+ * Requires at least: 5.3
+ * Requires PHP:      7.2
+ * Text Domain: pagantis
  * Domain Path: /languages
  * WC requires at least: 3.0
  */
@@ -50,7 +54,7 @@ class WC_Pagantis_Plugin
     /**
      * @var array $defaultConfig
      */
-    private $defaultConfig;
+    private $initialConfig;
 
     /**
      * @var array $extraConfig
