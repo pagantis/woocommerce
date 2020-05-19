@@ -1,0 +1,105 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Pagantis WooCommerce V2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-01-30 15:10+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/"
+
+#: WC_Pagantis.php:339
+msgid "Settings"
+msgstr ""
+
+#: WC_Pagantis.php:357 controllers/paymentController.php:120
+msgid "Documentation"
+msgstr ""
+
+#: WC_Pagantis.php:359
+msgid "API documentation"
+msgstr ""
+
+#: WC_Pagantis.php:360
+msgid "Support"
+msgstr ""
+
+#: includes/settings-pagantis.php:12
+msgid "Activate the module"
+msgstr ""
+
+#: includes/settings-pagantis.php:17
+msgid "Public Key"
+msgstr ""
+
+#: includes/settings-pagantis.php:19 includes/settings-pagantis.php:24
+msgid "MANDATORY. You can get in your pagantis profile"
+msgstr ""
+
+#: includes/settings-pagantis.php:22
+msgid "Secret Key"
+msgstr ""
+
+#: includes/settings-pagantis.php:27
+msgid "Product simulator"
+msgstr ""
+
+#: controllers/paymentController.php:119
+msgid "Login to your panel"
+msgstr ""
+
+#: controllers/paymentController.php:136
+msgid " is not compatible with your php and/or curl version"
+msgstr ""
+
+#: controllers/paymentController.php:139
+msgid ""
+" is not configured correctly, the fields Public Key and Secret Key are "
+"mandatory for use this plugin"
+msgstr ""
+
+#: controllers/paymentController.php:142
+msgid " only can be used in Euros"
+msgstr ""
+
+#: controllers/paymentController.php:146 controllers/paymentController.php:149
+msgid " only can be payed from 2 to 12 installments"
+msgstr ""
+
+#: controllers/paymentController.php:151
+msgid " can not have a minimum amount less than 0"
+msgstr ""
+
+#: controllers/paymentController.php:356 controllers/paymentController.php:473
+msgid "Payment error "
+msgstr ""
+
+#. Author of the plugin
+msgid "Pagantis"
+msgstr ""
+
+#. Description of the plugin
+msgid "Financiar con Pagantis"
+msgstr ""
+
+#. URI of the plugin
+msgid "http://www.pagantis.com/"
+msgstr ""
+
+msgid ""
+"Financial Payment Gateway. Enable the possibility for your customers to pay "
+"their order in confortable installments \n"
+"with Pagantis"
+msgstr ""
+
+msgid "Pago en cuotas"
+msgstr ""
+
+msgid "ó"
+msgstr ""

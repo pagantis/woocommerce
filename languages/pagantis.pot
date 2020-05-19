@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pagantis WooCommerce V2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-30 15:10+0000\n"
+"POT-Creation-Date: 2020-05-19 23:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -14,19 +14,20 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/"
 
-#: WC_Pagantis.php:339
+#: WC_Pagantis.php:413
 msgid "Settings"
 msgstr ""
 
-#: WC_Pagantis.php:357 controllers/paymentController.php:120
+#: WC_Pagantis.php:431 controllers/paymentController2.php:124
+#: controllers/paymentController.php:124
 msgid "Documentation"
 msgstr ""
 
-#: WC_Pagantis.php:359
+#: WC_Pagantis.php:433
 msgid "API documentation"
 msgstr ""
 
-#: WC_Pagantis.php:360
+#: WC_Pagantis.php:434
 msgid "Support"
 msgstr ""
 
@@ -50,33 +51,41 @@ msgstr ""
 msgid "Product simulator"
 msgstr ""
 
-#: controllers/paymentController.php:119
+#: controllers/paymentController2.php:90 controllers/paymentController.php:90
+msgid "Pago en cuotas"
+msgstr ""
+
+#: controllers/paymentController2.php:123 controllers/paymentController.php:123
 msgid "Login to your panel"
 msgstr ""
 
-#: controllers/paymentController.php:136
+#: controllers/paymentController2.php:140 controllers/paymentController.php:140
 msgid " is not compatible with your php and/or curl version"
 msgstr ""
 
-#: controllers/paymentController.php:139
+#: controllers/paymentController2.php:143 controllers/paymentController.php:143
 msgid ""
 " is not configured correctly, the fields Public Key and Secret Key are "
 "mandatory for use this plugin"
 msgstr ""
 
-#: controllers/paymentController.php:142
+#: controllers/paymentController2.php:146 controllers/paymentController.php:146
 msgid " only can be used in Euros"
 msgstr ""
 
-#: controllers/paymentController.php:146 controllers/paymentController.php:149
+#: controllers/paymentController2.php:150
+#: controllers/paymentController2.php:153 controllers/paymentController.php:150
+#: controllers/paymentController.php:153
 msgid " only can be payed from 2 to 12 installments"
 msgstr ""
 
-#: controllers/paymentController.php:151
+#: controllers/paymentController2.php:155 controllers/paymentController.php:155
 msgid " can not have a minimum amount less than 0"
 msgstr ""
 
-#: controllers/paymentController.php:356 controllers/paymentController.php:473
+#: controllers/paymentController2.php:381
+#: controllers/paymentController2.php:502 controllers/paymentController.php:381
+#: controllers/paymentController.php:502
 msgid "Payment error "
 msgstr ""
 
@@ -90,16 +99,4 @@ msgstr ""
 
 #. URI of the plugin
 msgid "http://www.pagantis.com/"
-msgstr ""
-
-msgid ""
-"Financial Payment Gateway. Enable the possibility for your customers to pay "
-"their order in confortable installments \n"
-"with Pagantis"
-msgstr ""
-
-msgid "Pago en cuotas"
-msgstr ""
-
-msgid "ó"
 msgstr ""
