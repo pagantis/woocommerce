@@ -77,6 +77,7 @@ class WcPagantis
 
         $this->extraConfig = $this->getExtraConfig();
 
+        load_plugin_textdomain('pagantis', false, dirname(plugin_basename( __FILE__)).'/languages');
 
         add_filter('woocommerce_payment_gateways', array($this, 'addPagantisGateway'));
         add_filter('woocommerce_available_payment_gateways', array($this, 'pagantisFilterGateways'), 9999);
@@ -91,8 +92,6 @@ class WcPagantis
         add_action('woocommerce_process_product_meta', array($this, 'pagantisPromotedVarSave'));
         add_action('woocommerce_product_bulk_edit_start', array($this,'pagantisPromotedBulkTemplate'));
         add_action('woocommerce_product_bulk_edit_save', array($this,'pagantisPromotedBulkTemplateSave'));
-        // i18n
-        load_plugin_textdomain('pagantis', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
     }
 
     /**
