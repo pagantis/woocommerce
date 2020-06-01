@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 
 class WcPagantisNotify extends WcPagantisGateway
 {
-    /** Concurrency tablename  */
+    /** Concurrency table name  */
     const CONCURRENCY_TABLE = 'pagantis_concurrency';
 
     /** Seconds to expire a locked request */
@@ -60,7 +60,7 @@ class WcPagantisNotify extends WcPagantisGateway
     public function processInformation()
     {
         try {
-            require_once(__ROOT__.'/vendor/autoload.php');
+            require_once(PAGANTIS_ROOT_DIR.'/vendor/autoload.php');
             try {
                 if ($_SERVER['REQUEST_METHOD'] == 'GET' && $_GET['origin'] == 'notification') {
                     return $this->buildResponse();
@@ -138,7 +138,7 @@ class WcPagantisNotify extends WcPagantisGateway
     {
         global $wpdb;
         $this->checkDbTable();
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $tableName = $wpdb->prefix.self::ORDERS_PROCESSED_TABLE;
         $queryResult = $wpdb->get_row("select order_id from $tableName where id='".$this->woocommerceOrderId."'");
         $this->pagantisOrderId = $queryResult->order_id;
 
@@ -265,7 +265,7 @@ class WcPagantisNotify extends WcPagantisGateway
     private function checkDbTable()
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $tableName = $wpdb->prefix.self::ORDERS_PROCESSED_TABLE;
 
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
@@ -352,7 +352,8 @@ class WcPagantisNotify extends WcPagantisGateway
             }
 
             $this->woocommerceOrder->add_order_note("Notification received via $this->origin");
-            $this->woocommerceOrder->reduce_order_stock();
+//            $this->woocommerceOrder->reduce_order_stock();
+            wc_maybe_reduce_stock_levels($this->woocommerceOrderId);
             $this->woocommerceOrder->save();
 
             $woocommerce->cart->empty_cart();
@@ -370,7 +371,7 @@ class WcPagantisNotify extends WcPagantisGateway
         global $wpdb;
 
         $this->checkDbTable();
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $tableName = $wpdb->prefix.self::ORDERS_PROCESSED_TABLE;
 
         $wpdb->update(
             $tableName,

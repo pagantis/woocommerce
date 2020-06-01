@@ -1,5 +1,5 @@
 <img id="pagantis_logo" src="<?php echo esc_url($logo); ?>" />
-<h3><?php echo $panel_header; ?></h3>
+<!--<h3>--><?php //echo $panel_header; ?><!--</h3>-->
 <p> <?php echo $panel_description; ?></p>
 <p><a href="https://bo.pagantis.com" target="_blank" class="button button-primary">
         <?php echo $button1_label; ?></a>

@@ -27,17 +27,17 @@ class WcPagantisGateway extends WC_Payment_Gateway
 {
     const METHOD_ID = "pagantis";
 
-    /** Orders tablename */
-    const ORDERS_TABLE = 'cart_process';
+    /** Orders table name */
+    const ORDERS_PROCESSED_TABLE = 'cart_process';
 
-    /** Concurrency tablename */
+    /** Concurrency table name */
     const LOGS_TABLE = 'pagantis_logs';
 
     const NOT_CONFIRMED = 'No se ha podido confirmar el pago';
 
     const CONFIG_TABLE = 'pagantis_config';
 
-    /** @var Array $extraConfig */
+    /** @var array $extraConfig */
     public $extraConfig;
 
     /** @var string $language */
@@ -65,7 +65,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $this->icon = 'https://cdn.digitalorigin.com/assets/master/logos/pg-130x30.svg';
 
         //Panel form fields
-        $this->form_fields = include(plugin_dir_path(__FILE__).'../includes/settings-pagantis.php');//Panel options
+        $this->init_form_fields(); //Panel options
         $this->init_settings();
 
         $this->extraConfig = $this->getExtraConfig();
@@ -85,6 +85,16 @@ class WcPagantisGateway extends WC_Payment_Gateway
         add_action('woocommerce_api_wcpagantisgateway', array($this, 'pagantisNotification'));      //Json Notification
         add_filter('woocommerce_payment_complete_order_status', array($this,'pagantisCompleteStatus'), 10, 3);
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
+    }
+
+
+    /**
+     * Initialise Gateway Settings Form Fields
+     */
+    public function init_form_fields()
+    {
+
+        $this->form_fields = include(PAGANTIS_ROOT_DIR . '/includes/settings-pagantis.php');
     }
 
     /**
@@ -167,7 +177,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
     public function pagantisReceiptPage($order_id)
     {
         try {
-            require_once(__ROOT__.'/vendor/autoload.php');
+            require_once(PAGANTIS_ROOT_DIR.'/vendor/autoload.php');
             global $woocommerce;
             $order = new WC_Order($order_id);
             $order->set_payment_method(ucfirst($this->id));
@@ -736,7 +746,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
     {
         global $wpdb;
         $this->checkDbTable();
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $tableName = $wpdb->prefix.self::ORDERS_PROCESSED_TABLE;
 
         //Check if id exists
         $resultsSelect = $wpdb->get_results("select * from $tableName where id='$orderId'");
@@ -764,7 +774,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
     private function checkDbTable()
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $tableName = $wpdb->prefix.self::ORDERS_PROCESSED_TABLE;
 
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
