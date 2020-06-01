@@ -20,13 +20,14 @@ defined('ABSPATH') || exit;
 //formatter:off
 define('PAGANTIS_PLUGIN_ID', 'pagantis');
 define('PG_VERSION', '8.3.8');
-define('PAGANTIS_ROOT_DIR', dirname( __FILE__ ) . '/');         // Root dir.
+define('PAGANTIS_ROOT_DIR', trailingslashit(dirname(__FILE__)));         // Root dir.
 define('PG_WC_MAIN_FILE', __FILE__);
 define('PG_ABSPATH', dirname(PG_WC_MAIN_FILE) . '/');
-define('PG_PLUGIN_URL', untrailingslashit(plugins_url(basename(plugin_dir_path(PG_WC_MAIN_FILE)), basename(PG_WC_MAIN_FILE))));
+define('PG_PLUGIN_URL',
+    untrailingslashit(plugins_url(basename(plugin_dir_path(PG_WC_MAIN_FILE)), basename(PG_WC_MAIN_FILE))));
 define('PG_PLUGIN_PATH', untrailingslashit(plugin_dir_path(PG_WC_MAIN_FILE)));
-define('PG_INCLUDES_PATH', PG_PLUGIN_PATH . '/includes');
-define('PG_TEMPLATE_PATH', PG_PLUGIN_PATH . '/templates/');
+define('PG_INCLUDES_PATH', PAGANTIS_ROOT_DIR . 'includes/');
+define('PG_TEMPLATE_PATH', PAGANTIS_ROOT_DIR . 'templates/');
 define('PG_CART_PROCESSING_TABLE_NAME', 'cart_process');
 define('PG_WC_ORDERS_TABLE_NAME', 'posts');
 define('PG_LOGS_TABLE_NAME', 'pagantis_logs');
@@ -107,7 +108,7 @@ class WcPagantis
         add_filter('plugin_row_meta', array($this, 'pagantisRowMeta'), 10, 2);
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'pagantisActionLinks'));
         add_action('woocommerce_after_add_to_cart_form', array($this, 'pagantisAddProductSimulator'));
-        add_action('wp_enqueue_scripts', array($this, 'add_pagantis_widget_js'));
+        add_action('wp_enqueue_scripts', 'add_pagantis_widget_js');
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
         register_activation_hook(__FILE__, array($this, 'pagantisActivation'));
@@ -158,12 +159,12 @@ class WcPagantis
         global $post;
         $_product = get_post_meta($post->ID);
         woocommerce_wp_checkbox(array(
-                'id'      => 'pagantis_promoted',
-                'label'   => __('Pagantis promoted', 'woocommerce'),
-                'value'   => $_product['custom_product_pagantis_promoted']['0'],
-                'cbvalue' => 'yes',
-                'echo'    => true
-            ));
+            'id'      => 'pagantis_promoted',
+            'label'   => __('Pagantis promoted', 'woocommerce'),
+            'value'   => $_product['custom_product_pagantis_promoted']['0'],
+            'cbvalue' => 'yes',
+            'echo'    => true
+        ));
     }
 
     /**
@@ -387,7 +388,7 @@ class WcPagantis
             'productType'               => $product->get_type()
         );
 
-        wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
+        wc_get_template('product_simulator.php', $template_fields, '', PG_TEMPLATE_PATH);
     }
 
     /**
@@ -597,28 +598,28 @@ class WcPagantis
     public function pagantisRegisterEndpoint()
     {
         register_rest_route('pagantis/v1', '/logs/(?P<secret>\w+)/(?P<from>\d+)/(?P<to>\d+)', array(
-                'methods'  => 'GET',
-                'callback' => array(
-                    $this,
-                    'readLogs'
-                )
-            ), true);
+            'methods'  => 'GET',
+            'callback' => array(
+                $this,
+                'readLogs'
+            )
+        ), true);
 
         register_rest_route('pagantis/v1', '/configController/(?P<secret>\w+)', array(
-                'methods'  => 'GET, POST',
-                'callback' => array(
-                    $this,
-                    'updateExtraConfig'
-                )
-            ), true);
+            'methods'  => 'GET, POST',
+            'callback' => array(
+                $this,
+                'updateExtraConfig'
+            )
+        ), true);
 
         register_rest_route('pagantis/v1', '/api/(?P<secret>\w+)/(?P<from>\w+)/(?P<to>\w+)', array(
-                'methods'  => 'GET',
-                'callback' => array(
-                    $this,
-                    'readApi'
-                )
-            ), true);
+            'methods'  => 'GET',
+            'callback' => array(
+                $this,
+                'readApi'
+            )
+        ), true);
     }
 
     /**
@@ -682,14 +683,15 @@ class WcPagantis
                 && $metaProduct['custom_product_pagantis_promoted']['0'] === 'yes') ? 'true' : 'false';
     }
 
-    /**
-     * Add widget Js
-     **/
-    public function add_pagantis_widget_js()
-    {
-        wp_enqueue_script('pgSDK', 'https://cdn.pagantis.com/js/pg-v2/sdk.js', '', '', true);
-    }
 }
 
 
-$WcPagantis = new WcPagantis();
+/**
+ * Add widget Js
+ **/
+function add_pagantis_widget_js()
+{
+    wp_enqueue_script('pgSDK', 'https://cdn.pagantis.com/js/pg-v2/sdk.js', '', '', true);
+}
+
+new WcPagantis();

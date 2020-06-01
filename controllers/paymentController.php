@@ -129,7 +129,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             'logo' => $this->icon,
             'settings' => $this->generate_settings_html($this->form_fields, false)
         );
-        wc_get_template('admin_header.php', $template_fields, '', $this->template_path);
+        wc_get_template('admin_header.php', $template_fields, '', PG_TEMPLATE_PATH);
     }
 
     /**

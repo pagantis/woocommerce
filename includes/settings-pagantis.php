@@ -1,6 +1,6 @@
 <?php
 
-if (! defined('ABSPATH')) {
+if ( ! defined('ABSPATH')) {
     exit;
 }
 
@@ -26,11 +26,7 @@ $settings_array = array(
         'default' => 'yes'
     )
 );
-$logsUrl        = esc_url(add_query_arg(
-    'log_file',
-    wc_get_log_file_name(PAGANTIS_PLUGIN_ID),
-    admin_url('admin.php?page=wc-status&tab=logs')
-));
+
 if (in_array(strtolower((string)WP_DEBUG_LOG), array('true', '1'), true)) {
     $settings_array['debug'] = array(
         'title'       => __('Debug log', 'woocommerce'),
@@ -39,14 +35,15 @@ if (in_array(strtolower((string)WP_DEBUG_LOG), array('true', '1'), true)) {
         'default'     => 'yes',
         'desc_tip'    => false,
         /* translators: %s: URL */
-        'description' => sprintf(__(
-            '<div class="woocommerce-info"> <p>Log Pagantis events to troubleshoot. </p><p> Log Location %s </p>
-                    <p> <a href="%s">You can also see the logs in this menu</a> </p>
+        'description' => sprintf(__('<div class="woocommerce-info"> <p>Log Pagantis events to troubleshoot. </p><p> Log Location %s </p>
+            <p><a class="woocommerce-BlankState-cta button-primary button" target="_blank" href="%s">You can also see the logs in this menu</a></p>
                     <p>Note: this may log personal information.</p> 
                     <p>We recommend using this for debugging purposes only and deleting the logs when finished.</p></div>',
-            'woocommerce'
-        ), '<code>' . wc_get_log_file_name(PAGANTIS_PLUGIN_ID) . '</code>', $logsUrl)
+            'woocommerce'), '<code>' . wc_get_log_file_name(PAGANTIS_PLUGIN_ID) . '</code>',
+            esc_url(add_query_arg('log_file', wc_get_log_file_name(PAGANTIS_PLUGIN_ID),
+                admin_url('admin.php?page=wc-status&tab=logs'))))
     );
 }
+
 
 return $settings_array;
