@@ -501,7 +501,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 'result'   => 'success',
                 'redirect' => $redirectUrl
             );
-
         } catch (Exception $e) {
             wc_add_notice(__('Payment error ', 'pagantis') . $e->getMessage(), 'error');
             return array();

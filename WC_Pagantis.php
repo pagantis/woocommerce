@@ -23,8 +23,10 @@ define('PG_VERSION', '8.3.8');
 define('PAGANTIS_ROOT_DIR', trailingslashit(dirname(__FILE__)));         // Root dir.
 define('PG_WC_MAIN_FILE', __FILE__);
 define('PG_ABSPATH', dirname(PG_WC_MAIN_FILE) . '/');
-define('PG_PLUGIN_URL',
-    untrailingslashit(plugins_url(basename(plugin_dir_path(PG_WC_MAIN_FILE)), basename(PG_WC_MAIN_FILE))));
+define(
+    'PG_PLUGIN_URL',
+    untrailingslashit(plugins_url(basename(plugin_dir_path(PG_WC_MAIN_FILE)), basename(PG_WC_MAIN_FILE)))
+);
 define('PG_PLUGIN_PATH', untrailingslashit(plugin_dir_path(PG_WC_MAIN_FILE)));
 define('PG_INCLUDES_PATH', PAGANTIS_ROOT_DIR . 'includes/');
 define('PG_TEMPLATE_PATH', PAGANTIS_ROOT_DIR . 'templates/');
@@ -243,14 +245,24 @@ class WcPagantis
                 if ($item['config'] == 'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR') {
                     $css_price_selector = $this->preparePriceSelector($item['value']);
                     if ($item['value'] != $css_price_selector) {
-                        $wpdb->update($tableName, array('value' => stripslashes($css_price_selector)),
-                            array('config' => 'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'), array('%s'), array('%s'));
+                        $wpdb->update(
+                            $tableName,
+                            array('value' => stripslashes($css_price_selector)),
+                            array('config' => 'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'),
+                            array('%s'),
+                            array('%s')
+                        );
                     }
                 } elseif ($item['config'] == 'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR') {
                     $css_quantity_selector = $this->prepareQuantitySelector($item['value']);
                     if ($item['value'] != $css_quantity_selector) {
-                        $wpdb->update($tableName, array('value' => stripslashes($css_quantity_selector)),
-                            array('config' => 'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'), array('%s'), array('%s'));
+                        $wpdb->update(
+                            $tableName,
+                            array('value' => stripslashes($css_quantity_selector)),
+                            array('config' => 'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'),
+                            array('%s'),
+                            array('%s')
+                        );
                     }
                 }
             }
@@ -261,10 +273,16 @@ class WcPagantis
         $query     = "select * from $tableName where config='PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'";
         $results   = $wpdb->get_results($query, ARRAY_A);
         if (count($results) == 0) {
-            $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR', 'value' => '.'),
-                array('%s', '%s'));
-            $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR', 'value' => ','),
-                array('%s', '%s'));
+            $wpdb->insert(
+                $tableName,
+                array('config' => 'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR', 'value' => '.'),
+                array('%s', '%s')
+            );
+            $wpdb->insert(
+                $tableName,
+                array('config' => 'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR', 'value' => ','),
+                array('%s', '%s')
+            );
         }
 
         //Adding new selector < v8.3.0
@@ -272,8 +290,11 @@ class WcPagantis
         $query     = "select * from $tableName where config='PAGANTIS_DISPLAY_MAX_AMOUNT'";
         $results   = $wpdb->get_results($query, ARRAY_A);
         if (count($results) == 0) {
-            $wpdb->insert($tableName, array('config' => 'PAGANTIS_DISPLAY_MAX_AMOUNT', 'value' => '0'),
-                array('%s', '%s'));
+            $wpdb->insert(
+                $tableName,
+                array('config' => 'PAGANTIS_DISPLAY_MAX_AMOUNT', 'value' => '0'),
+                array('%s', '%s')
+            );
         }
 
         //Adding new selector < v8.3.2
@@ -281,10 +302,16 @@ class WcPagantis
         $query     = "select * from $tableName where config='PAGANTIS_SIMULATOR_DISPLAY_SITUATION'";
         $results   = $wpdb->get_results($query, ARRAY_A);
         if (count($results) == 0) {
-            $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_SITUATION', 'value' => 'default'),
-                array('%s', '%s'));
-            $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION', 'value' => 'default'),
-                array('%s', '%s'));
+            $wpdb->insert(
+                $tableName,
+                array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_SITUATION', 'value' => 'default'),
+                array('%s', '%s')
+            );
+            $wpdb->insert(
+                $tableName,
+                array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION', 'value' => 'default'),
+                array('%s', '%s')
+            );
         }
 
         //Adding new selector < v8.3.3
@@ -296,8 +323,13 @@ class WcPagantis
                 'config' => 'PAGANTIS_SIMULATOR_DISPLAY_TYPE_CHECKOUT',
                 'value'  => 'sdk.simulator.types.CHECKOUT_PAGE'
             ), array('%s', '%s'));
-            $wpdb->update($tableName, array('value' => 'sdk.simulator.types.PRODUCT_PAGE'),
-                array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_TYPE'), array('%s'), array('%s'));
+            $wpdb->update(
+                $tableName,
+                array('value' => 'sdk.simulator.types.PRODUCT_PAGE'),
+                array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_TYPE'),
+                array('%s'),
+                array('%s')
+            );
         }
 
         //Adapting to variable selector < v8.3.6
@@ -308,8 +340,13 @@ class WcPagantis
             "select * from $tableName where config='PAGANTIS_SIMULATOR_SELECTOR_VARIATION' and value='default'";
         $results          = $wpdb->get_results($query, ARRAY_A);
         if (count($results) == 0) {
-            $wpdb->update($tableName, array('value' => $variableSelector),
-                array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION'), array('%s'), array('%s'));
+            $wpdb->update(
+                $tableName,
+                array('value' => $variableSelector),
+                array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION'),
+                array('%s'),
+                array('%s')
+            );
         }
 
         $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
@@ -320,7 +357,7 @@ class WcPagantis
             $simpleDbConfigs[$config['config']] = $config['value'];
         }
         $newConfigs = array_diff_key($this->defaultConfigs, $simpleDbConfigs);
-        if ( ! empty($newConfigs)) {
+        if (! empty($newConfigs)) {
             foreach ($newConfigs as $key => $value) {
                 $wpdb->insert($tableName, array('config' => $key, 'value' => $value), array('%s', '%s'));
             }
@@ -329,12 +366,12 @@ class WcPagantis
         //Current plugin config: pagantis_public_key => New field --- public_key => Old field
         $settings = get_option('woocommerce_pagantis_settings');
 
-        if ( ! isset($settings['pagantis_public_key']) && $settings['public_key']) {
+        if (! isset($settings['pagantis_public_key']) && $settings['public_key']) {
             $settings['pagantis_public_key'] = $settings['public_key'];
             unset($settings['public_key']);
         }
 
-        if ( ! isset($settings['pagantis_private_key']) && $settings['secret_key']) {
+        if (! isset($settings['pagantis_private_key']) && $settings['secret_key']) {
             $settings['pagantis_private_key'] = $settings['secret_key'];
             unset($settings['secret_key']);
         }
@@ -400,7 +437,7 @@ class WcPagantis
      */
     public function addPagantisGateway($methods)
     {
-        if ( ! class_exists('WC_Payment_Gateway')) {
+        if (! class_exists('WC_Payment_Gateway')) {
             return $methods;
         }
 
@@ -420,7 +457,7 @@ class WcPagantis
     public function pagantisFilterGateways($methods)
     {
         $pagantis = new WcPagantisGateway();
-        if ( ! $pagantis->is_available()) {
+        if (! $pagantis->is_available()) {
             unset($methods['pagantis']);
         }
 
@@ -521,8 +558,13 @@ class WcPagantis
             if (count($_POST)) {
                 foreach ($_POST as $config => $value) {
                     if (isset($this->defaultConfigs[$config]) && $response['status'] == null) {
-                        $wpdb->update($tableName, array('value' => stripslashes($value)), array('config' => $config),
-                            array('%s'), array('%s'));
+                        $wpdb->update(
+                            $tableName,
+                            array('value' => stripslashes($value)),
+                            array('config' => $config),
+                            array('%s'),
+                            array('%s')
+                        );
                     } else {
                         $response['status'] = 400;
                         $response['result'] = 'Bad request';
@@ -647,7 +689,7 @@ class WcPagantis
     {
         if ($css_quantity_selector == 'default' || $css_quantity_selector == '') {
             $css_quantity_selector = $this->defaultConfigs['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'];
-        } elseif ( ! unserialize($css_quantity_selector)) { //in the case of a custom string selector, we keep it
+        } elseif (! unserialize($css_quantity_selector)) { //in the case of a custom string selector, we keep it
             $css_quantity_selector = serialize(array($css_quantity_selector));
         }
 
@@ -663,7 +705,7 @@ class WcPagantis
     {
         if ($css_price_selector == 'default' || $css_price_selector == '') {
             $css_price_selector = $this->defaultConfigs['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'];
-        } elseif ( ! unserialize($css_price_selector)) { //in the case of a custom string selector, we keep it
+        } elseif (! unserialize($css_price_selector)) { //in the case of a custom string selector, we keep it
             $css_price_selector = serialize(array($css_price_selector));
         }
 
@@ -682,7 +724,6 @@ class WcPagantis
         return (array_key_exists('custom_product_pagantis_promoted', $metaProduct)
                 && $metaProduct['custom_product_pagantis_promoted']['0'] === 'yes') ? 'true' : 'false';
     }
-
 }
 
 

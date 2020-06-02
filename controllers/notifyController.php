@@ -460,7 +460,6 @@ class WcPagantisNotify extends WcPagantisGateway
                     $restSeconds
                 );
                 $this->insertLog(null, $logMessage);
-
             }
         }
     }
