@@ -1,5 +1,6 @@
 <script>
-    function findPriceSelector() {
+    function findPriceSelector()
+    {
         var priceSelectors = <?php echo json_encode($priceSelector);?>;
         return priceSelectors.find(function (candidateSelector) {
             var priceDOM = document.querySelector(candidateSelector);
@@ -8,7 +9,8 @@
 
     }
 
-    function findPositionSelector() {
+    function findPositionSelector()
+    {
         var positionSelector = '<?php echo $positionSelector;?>';
         if (positionSelector === 'default') {
             positionSelector = '.pagantisSimulator';
@@ -17,11 +19,12 @@
         return positionSelector;
     }
 
-    function findQuantitySelector() {
+    function findQuantitySelector()
+    {
         var quantitySelectors = <?php echo json_encode($quantitySelector);?>;
-        return quantitySelectors.find(function (candidateSelector) {
+        return quantitySelectors.find(function(candidateSelector) {
             var priceDOM = document.querySelector(candidateSelector);
-            return (priceDOM != null);
+            return (priceDOM != null );
         });
     }
 
@@ -34,7 +37,7 @@
         var simulatorLoaded = false;
         var positionSelector = findPositionSelector();
         var pgDiv = document.querySelectorAll(positionSelector);
-        if (pgDiv.length > 0 && typeof window.WCSimulatorId != 'undefined') {
+        if (pgDiv.length > 0 && typeof window.WCSimulatorId!='undefined') {
             var pgElement = pgDiv[0];
             if (pgElement.innerHTML != '') {
                 simulatorLoaded = true;
@@ -43,7 +46,8 @@
         return simulatorLoaded;
     }
 
-    function findDestinationSim() {
+    function findDestinationSim()
+    {
         var destinationSim = '<?php echo $finalDestination;?>';
         if (destinationSim === 'default' || destinationSim == '') {
             destinationSim = 'woocommerce-product-details__short-description';
@@ -52,15 +56,16 @@
         return destinationSim;
     }
 
-    function moveToPrice() {
+    function moveToPrice()
+    {
         if ('<?php echo $simulator_type; ?>' === 'sdk.simulator.types.SELECTABLE_TEXT_CUSTOM'
-            || '<?php echo $simulator_type; ?>' === 'sdk.simulator.types.PRODUCT_PAGE') {
+          ||  '<?php echo $simulator_type; ?>' === 'sdk.simulator.types.PRODUCT_PAGE') {
             var simnode = document.querySelector(findPositionSelector());
 
             var detailnode = document.getElementsByClassName(findDestinationSim());
             detailnode = detailnode['0'];
 
-            detailnode.parentNode.insertBefore(simnode, detailnode)
+            detailnode.parentNode.insertBefore(simnode,detailnode)
         }
     }
 
@@ -69,12 +74,15 @@
         return (window.attempts > 4)
     }
 
-    function loadSimulatorPagantis() {
-        if (typeof pgSDK == 'undefined') {
+    function loadSimulatorPagantis()
+    {
+        if(typeof pgSDK == 'undefined')
+        {
             return false;
         }
 
-        if (checkAttempts() || checkSimulatorContent()) {
+        if (checkAttempts() || checkSimulatorContent())
+        {
             return finishInterval();
         }
 
@@ -95,12 +103,12 @@
             locale: locale,
             country: country,
             itemAmountSelector: priceSelector,
-            amountParserConfig: {
+            amountParserConfig :  {
                 thousandSeparator: '<?php echo $thousandSeparator;?>',
                 decimalSeparator: '<?php echo $decimalSeparator;?>'
             },
-            numInstalments: '<?php echo $pagantisQuotesStart;?>',
-            skin: <?php echo $pagantisSimulatorSkin;?>,
+            numInstalments : '<?php echo $pagantisQuotesStart;?>',
+            skin : <?php echo $pagantisSimulatorSkin;?>,
             position: <?php echo $pagantisSimulatorPosition;?>
         };
 
@@ -111,7 +119,8 @@
 
         if (typeof window.pgSDK != 'undefined') {
             window.WCSimulatorId = window.pgSDK.simulator.init(simulator_options);
-            if (window.WCSimulatorId != '') {
+            if (window.WCSimulatorId!='')
+            {
                 moveToPrice();
             }
 
@@ -125,16 +134,20 @@
     }, 2000);
 
     window.lastPrice = '';
-
-    function updateSimulator() {
-        if (window.WCSimulatorId != '') {
+    function updateSimulator()
+    {
+        if (window.WCSimulatorId != '')
+        {
             var updateSelector = '<?php echo $variationSelector;?>';
 
             var productType = '<?php echo $productType;?>';
 
-            if (updateSelector == 'default' || updateSelector === '' || productType !== 'variable') {
+            if (updateSelector == 'default' || updateSelector === '' || productType!=='variable')
+            {
                 clearInterval(window.variationInterval);
-            } else {
+            }
+            else
+            {
                 var priceDOM = document.querySelector(updateSelector);
                 if (priceDOM != null) {
                     var newPrice = priceDOM.innerText;
@@ -155,7 +168,7 @@
 
 </script>
 <style>
-    .pg-no-interest {
+    .pg-no-interest{
         color: #00c1d5
     }
 </style>
@@ -163,8 +176,5 @@
 if ($promoted == 'true') {
     echo $promotedMessage;
 }
-require PG_INCLUDES_PATH . 'class-pg-wc-logger.php';
-PG_WC_Logger::log($quantitySelector);
 ?>
-<br/>
-<div class="pagantisSimulator"></div><br/><br/>
+<br/><div class="pagantisSimulator"></div><br/><br/>
