@@ -83,8 +83,8 @@ class WcPagantis
         add_filter('woocommerce_available_payment_gateways', array($this, 'pagantisFilterGateways'), 9999);
         add_filter('plugin_row_meta', array($this, 'pagantisRowMeta'), 10, 2);
         add_filter('plugin_action_links_'.plugin_basename(__FILE__), array($this, 'pagantisActionLinks'));
-        add_action('woocommerce_before_add_to_cart_form', array($this, 'pagantisAddProductSimulatorBeforeCart'));
-        add_action('woocommerce_after_add_to_cart_form', array($this, 'pagantisAddProductSimulatorAfterCart'));
+        add_action('woocommerce_before_add_to_cart_form', array($this, 'pagantisAddProductSimulatorAfterPrice'));
+        add_action('woocommerce_after_add_to_cart_form', array($this, 'pagantisAddProductSimulatorAfterCartButton'));
         add_action('wp_enqueue_scripts', 'add_pagantis_widget_js');
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
@@ -318,7 +318,7 @@ class WcPagantis
     /**
      * Product simulator PP o SELECTABLE
      */
-    public function pagantisAddProductSimulatorBeforeCart()
+    public function pagantisAddProductSimulatorAfterPrice()
     {
         $simType = strtolower($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']);
         $validTypes = array('sdk.simulator.types.selectable_text_custom','sdk.simulator.types.product_page');
@@ -332,7 +332,7 @@ class WcPagantis
     /**
      * Product simulator
      */
-    public function pagantisAddProductSimulatorAfterCart()
+    public function pagantisAddProductSimulatorAfterCartButton()
     {
         $simType = strtolower($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']);
         $validTypes = array('sdk.simulator.types.selectable_text_custom','sdk.simulator.types.product_page');
