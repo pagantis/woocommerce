@@ -103,7 +103,10 @@
             locale: locale,
             country: country,
             itemAmountSelector: priceSelector,
-
+            amountParserConfig :  {
+                thousandSeparator: '<?php echo $thousandSeparator;?>',
+                decimalSeparator: '<?php echo $decimalSeparator;?>'
+            },
             numInstalments : '<?php echo $pagantisQuotesStart;?>',
             skin : <?php echo $pagantisSimulatorSkin;?>,
             position: <?php echo $pagantisSimulatorPosition;?>
