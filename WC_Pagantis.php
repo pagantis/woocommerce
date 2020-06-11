@@ -83,7 +83,7 @@ class WcPagantis
         add_filter('woocommerce_available_payment_gateways', array($this, 'pagantisFilterGateways'), 9999);
         add_filter('plugin_row_meta', array($this, 'pagantisRowMeta'), 10, 2);
         add_filter('plugin_action_links_'.plugin_basename(__FILE__), array($this, 'pagantisActionLinks'));
-        add_action('woocommerce_before_add_to_cart_form', array($this, 'pagantisAddProductSimulatorAfterPrice'));
+        add_filter('woocommerce_get_price_html', array($this,'pagantisAddProductSimulatorAfterPrice'), 1);
         add_action('woocommerce_after_add_to_cart_form', array($this, 'pagantisAddProductSimulatorAfterCartButton'));
         add_action('wp_enqueue_scripts', 'add_pagantis_widget_js');
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
@@ -316,17 +316,19 @@ class WcPagantis
     }
 
     /**
-     * Product simulator PP o SELECTABLE
+     * @param $price
+     *
+     * @return string
      */
-    public function pagantisAddProductSimulatorAfterPrice()
+    public function pagantisAddProductSimulatorAfterPrice($price)
     {
         $simType = strtolower($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']);
         $validTypes = array('sdk.simulator.types.selectable_text_custom','sdk.simulator.types.product_page');
         if (in_array($simType, $validTypes)) {
-            return $this->pagantisAddProductSimulator();
+            $price.=$this->pagantisAddProductSimulator(true);
         }
 
-        return false;
+        return $price;
     }
 
     /**
@@ -344,9 +346,9 @@ class WcPagantis
     }
 
     /**
-     * Product simulator
+     * @param bool $output
      */
-    private function pagantisAddProductSimulator()
+    private function pagantisAddProductSimulator($output = false)
     {
         global $product;
 
@@ -386,7 +388,11 @@ class WcPagantis
             'productType' => $product->get_type()
         );
 
-        wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
+        if ($output) {
+            return wc_get_template_html('product_simulator.php', $template_fields, '', $this->template_path);
+        } else {
+                wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
+        }
     }
 
     /**
