@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.3.7
+ * Version: 8.3.8
  * Author: Pagantis
  *
  * Text Domain: pagantis
@@ -83,7 +83,8 @@ class WcPagantis
         add_filter('woocommerce_available_payment_gateways', array($this, 'pagantisFilterGateways'), 9999);
         add_filter('plugin_row_meta', array($this, 'pagantisRowMeta'), 10, 2);
         add_filter('plugin_action_links_'.plugin_basename(__FILE__), array($this, 'pagantisActionLinks'));
-        add_action('woocommerce_after_add_to_cart_form', array($this, 'pagantisAddProductSimulator'));
+        add_filter('woocommerce_get_price_html', array($this,'pagantisAddProductSimulatorAfterPrice'), 1);
+        add_action('woocommerce_after_add_to_cart_form', array($this, 'pagantisAddProductSimulatorAfterCartButton'));
         add_action('wp_enqueue_scripts', 'add_pagantis_widget_js');
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
@@ -315,9 +316,39 @@ class WcPagantis
     }
 
     /**
+     * @param $price
+     *
+     * @return string
+     */
+    public function pagantisAddProductSimulatorAfterPrice($price)
+    {
+        $simType = strtolower($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']);
+        $validTypes = array('sdk.simulator.types.selectable_text_custom','sdk.simulator.types.product_page');
+        if (in_array($simType, $validTypes)) {
+            $price.=$this->pagantisAddProductSimulator(true);
+        }
+
+        return $price;
+    }
+
+    /**
      * Product simulator
      */
-    public function pagantisAddProductSimulator()
+    public function pagantisAddProductSimulatorAfterCartButton()
+    {
+        $simType = strtolower($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']);
+        $validTypes = array('sdk.simulator.types.selectable_text_custom','sdk.simulator.types.product_page');
+        if (!in_array($simType, $validTypes)) {
+            return $this->pagantisAddProductSimulator();
+        }
+
+        return false;
+    }
+
+    /**
+     * @param bool $output
+     */
+    private function pagantisAddProductSimulator($output = false)
     {
         global $product;
 
@@ -357,7 +388,11 @@ class WcPagantis
             'productType' => $product->get_type()
         );
 
-        wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
+        if ($output) {
+            return wc_get_template_html('product_simulator.php', $template_fields, '', $this->template_path);
+        } else {
+                wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
+        }
     }
 
     /**

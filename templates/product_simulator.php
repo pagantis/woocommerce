@@ -56,19 +56,6 @@
         return destinationSim;
     }
 
-    function moveToPrice()
-    {
-        if ('<?php echo $simulator_type; ?>' === 'sdk.simulator.types.SELECTABLE_TEXT_CUSTOM'
-          ||  '<?php echo $simulator_type; ?>' === 'sdk.simulator.types.PRODUCT_PAGE') {
-            var simnode = document.querySelector(findPositionSelector());
-
-            var detailnode = document.getElementsByClassName(findDestinationSim());
-            detailnode = detailnode['0'];
-
-            detailnode.parentNode.insertBefore(simnode,detailnode)
-        }
-    }
-
     function checkAttempts() {
         window.attempts = window.attempts + 1;
         return (window.attempts > 4)
@@ -119,10 +106,6 @@
 
         if (typeof window.pgSDK != 'undefined') {
             window.WCSimulatorId = window.pgSDK.simulator.init(simulator_options);
-            if (window.WCSimulatorId!='')
-            {
-                moveToPrice();
-            }
 
             return false;
         }
