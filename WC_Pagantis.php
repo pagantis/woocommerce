@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.3.8
+ * Version: 8.3.9
  * Author: Pagantis
  *
  * Text Domain: pagantis
