@@ -69,28 +69,28 @@ class WcPagantis
     const ORDERS_TABLE = 'posts';
 
     public $defaultConfigs = array(
-        'PAGANTIS_TITLE'                           => 'Pago en cuotas',
-        'PAGANTIS_SIMULATOR_DISPLAY_TYPE'          => 'sdk.simulator.types.PRODUCT_PAGE',
-        'PAGANTIS_SIMULATOR_DISPLAY_TYPE_CHECKOUT' => 'sdk.simulator.types.CHECKOUT_PAGE',
-        'PAGANTIS_SIMULATOR_DISPLAY_SKIN'          => 'sdk.simulator.skins.BLUE',
-        'PAGANTIS_SIMULATOR_DISPLAY_POSITION'      => 'hookDisplayProductButtons',
-        'PAGANTIS_SIMULATOR_START_INSTALLMENTS'    => 3,
-        'PAGANTIS_SIMULATOR_MAX_INSTALLMENTS'      => 12,
-        'PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR' => 'default',
-        'PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'  => 'sdk.simulator.positions.INNER',
-        'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'    => 'a:3:{i:0;s:48:"div.summary *:not(del)>.woocommerce-Price-amount";i:1;s:54:"div.entry-summary *:not(del)>.woocommerce-Price-amount";i:2;s:36:"*:not(del)>.woocommerce-Price-amount";}',
-        'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR' => 'a:2:{i:0;s:22:"div.quantity input.qty";i:1;s:18:"div.quantity>input";}',
-        'PAGANTIS_FORM_DISPLAY_TYPE'               => 0,
-        'PAGANTIS_DISPLAY_MIN_AMOUNT'              => 1,
-        'PAGANTIS_DISPLAY_MAX_AMOUNT'              => 0,
-        'PAGANTIS_URL_OK'                          => '',
-        'PAGANTIS_URL_KO'                          => '',
-        'PAGANTIS_ALLOWED_COUNTRIES'               => 'a:3:{i:0;s:2:"es";i:1;s:2:"it";i:2;s:2:"fr";}',
-        'PAGANTIS_PROMOTION_EXTRA'                 => '<p>Finance this product <span class="pg-no-interest">without interest!</span></p>',
-        'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'   => '.',
-        'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'     => ',',
-        'PAGANTIS_SIMULATOR_DISPLAY_SITUATION'     => 'default',
-        'PAGANTIS_SIMULATOR_SELECTOR_VARIATION'    => 'default'
+        'PAGANTIS_TITLE'=>'Pago en cuotas',
+        'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'sdk.simulator.types.PRODUCT_PAGE',
+        'PAGANTIS_SIMULATOR_DISPLAY_TYPE_CHECKOUT'=>'sdk.simulator.types.CHECKOUT_PAGE',
+        'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'sdk.simulator.skins.BLUE',
+        'PAGANTIS_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
+        'PAGANTIS_SIMULATOR_START_INSTALLMENTS'=>3,
+        'PAGANTIS_SIMULATOR_MAX_INSTALLMENTS'=>12,
+        'PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'=>'default',
+        'PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'=>'sdk.simulator.positions.INNER',
+        'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'=>'a:3:{i:0;s:48:"div.summary *:not(del)>.woocommerce-Price-amount";i:1;s:54:"div.entry-summary *:not(del)>.woocommerce-Price-amount";i:2;s:36:"*:not(del)>.woocommerce-Price-amount";}',
+        'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'=>'a:2:{i:0;s:22:"div.quantity input.qty";i:1;s:18:"div.quantity>input";}',
+        'PAGANTIS_FORM_DISPLAY_TYPE'=>0,
+        'PAGANTIS_DISPLAY_MIN_AMOUNT'=>1,
+        'PAGANTIS_DISPLAY_MAX_AMOUNT'=>0,
+        'PAGANTIS_URL_OK'=>'',
+        'PAGANTIS_URL_KO'=>'',
+        'PAGANTIS_ALLOWED_COUNTRIES' => 'a:3:{i:0;s:2:"es";i:1;s:2:"it";i:2;s:2:"fr";}',
+        'PAGANTIS_PROMOTION_EXTRA' => '<p>Finance this product <span class="pg-no-interest">without interest!</span></p>',
+        'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR' => '.',
+        'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR' => ',',
+        'PAGANTIS_SIMULATOR_DISPLAY_SITUATION' => 'default',
+        'PAGANTIS_SIMULATOR_SELECTOR_VARIATION' => 'default'
     );
 
     /** @var Array $extraConfig */
@@ -128,7 +128,6 @@ class WcPagantis
         add_action('woocommerce_product_bulk_edit_start', array($this, 'pagantisPromotedBulkTemplate'));
         add_action('woocommerce_product_bulk_edit_save', array($this, 'pagantisPromotedBulkTemplateSave'));
         add_action( 'init', array( $this, 'check_wc_price_settings') );
-
     }
 
 
@@ -433,11 +432,8 @@ class WcPagantis
         $maxAmount        = $this->extraConfig['PAGANTIS_DISPLAY_MAX_AMOUNT'];
         $totalPrice       = $product->get_price();
         $validAmount      = ($totalPrice >= $minAmount && ($totalPrice <= $maxAmount || $maxAmount == '0'));
-        if ($cfg['enabled'] !== 'yes' || $cfg['pagantis_public_key'] == '' || $cfg['pagantis_private_key'] == ''
-            || $cfg['simulator'] !== 'yes'
-            || ! $allowedCountry
-            || ! $validAmount
-        ) {
+        if ($cfg['enabled'] !== 'yes' || $cfg['pagantis_public_key'] == '' || $cfg['pagantis_private_key'] == '' ||
+            $cfg['simulator'] !== 'yes'  || !$allowedCountry || !$validAmount) {
             return;
         }
 
@@ -668,7 +664,6 @@ class WcPagantis
 
     /**
      * ENDPOINT - Read logs -> Hook: rest_api_init
-     *
      * @return mixed
      */
     public function pagantisRegisterEndpoint()
@@ -677,25 +672,28 @@ class WcPagantis
             'methods'  => 'GET',
             'callback' => array(
                 $this,
-                'readLogs'
-            )
-        ), true);
+                    'readLogs')
+            ),
+            true
+        );
 
         register_rest_route('pagantis/v1', '/configController/(?P<secret>\w+)', array(
             'methods'  => 'GET, POST',
             'callback' => array(
                 $this,
-                'updateExtraConfig'
-            )
-        ), true);
+                    'updateExtraConfig')
+            ),
+            true
+        );
 
         register_rest_route('pagantis/v1', '/api/(?P<secret>\w+)/(?P<from>\w+)/(?P<to>\w+)', array(
             'methods'  => 'GET',
             'callback' => array(
                 $this,
-                'readApi'
-            )
-        ), true);
+                    'readApi')
+            ),
+            true
+        );
     }
 
     /**
@@ -754,9 +752,8 @@ class WcPagantis
     private function isPromoted($product_id)
     {
         $metaProduct = get_post_meta($product_id);
-
-        return (array_key_exists('custom_product_pagantis_promoted', $metaProduct)
-                && $metaProduct['custom_product_pagantis_promoted']['0'] === 'yes') ? 'true' : 'false';
+        return (array_key_exists('custom_product_pagantis_promoted', $metaProduct) &&
+                $metaProduct['custom_product_pagantis_promoted']['0'] === 'yes') ? 'true' : 'false';
     }
 }
 
