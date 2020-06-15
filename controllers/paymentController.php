@@ -48,7 +48,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function __construct()
     {
-
         //Mandatory vars for plugin
         $this->id = WcPagantisGateway::METHOD_ID;
         $this->has_fields = true;
