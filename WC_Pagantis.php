@@ -58,7 +58,7 @@ class WcPagantis
        'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR' => '.',
        'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR' => ',',
        'PAGANTIS_SIMULATOR_DISPLAY_SITUATION' => 'default',
-       'PAGANTIS_SIMULATOR_SELECTOR_VARIATION' => 'default'
+       'PAGANTIS_SIMULATOR_SELECTOR_VARIATION' => 'div.woocommerce-variation-price *:not(del)>.woocommerce-Price-amount'
     );
 
     /** @var Array $extraConfig */
