@@ -282,10 +282,10 @@ class WcPagantis
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_SITUATION', 'value'  => 'default'), array('%s', '%s'));
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION', 'value'  => 'default'), array('%s', '%s'));
         }
-        if (! areDecimalSeparatorEqual()) {
+        if (!areDecimalSeparatorEqual()) {
             updateDecimalSeparatorDbConfig();
         }
-        if (areThousandsSeparatorEqual()) {
+        if (!areThousandsSeparatorEqual()) {
             updateThousandsSeparatorDbConfig();
         }
 
