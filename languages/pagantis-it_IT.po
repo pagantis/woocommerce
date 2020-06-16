@@ -79,7 +79,7 @@ msgstr " può essere utilizzato solo in euro"
 #: controllers/paymentController2.php:153 controllers/paymentController.php:150
 #: controllers/paymentController.php:153
 msgid " only can be payed from 2 to 12 installments"
-msgstr " solo può essere pagato da 2 a 12 rate"
+msgstr " può essere pagato solo da 2 a 12 rate"
 
 #: controllers/paymentController2.php:155 controllers/paymentController.php:155
 msgid " can not have a minimum amount less than 0"
@@ -100,5 +100,5 @@ msgid "Financiar con Pagantis"
 msgstr "Finanza con Pagantis"
 
 #. URI of the plugin
-msgid "http://www.pagantis.com/"
-msgstr "http://www.pagantis.com/"
+msgid "https://www.pagantis.com/"
+msgstr "https://www.pagantis.com/"
