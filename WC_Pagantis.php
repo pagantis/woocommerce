@@ -18,6 +18,20 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (! defined('PG_WC_MAIN_FILE')) {
+    define('PG_WC_MAIN_FILE', __FILE__);
+}
+if (! defined('PG_CONFIG_TABLE_NAME')) {
+    define('PG_CONFIG_TABLE_NAME', 'pagantis_config');
+}
+if (! defined('PG_LOGS_TABLE_NAME')) {
+    define('PG_LOGS_TABLE_NAME', 'pagantis_logs');
+}
+
+if (! defined('PG_ABSPATH')) {
+    define('PG_ABSPATH', trailingslashit(dirname(PG_WC_MAIN_FILE)));
+}
+
 class WcPagantis
 {
     const GIT_HUB_URL = 'https://github.com/pagantis/woocommerce';
@@ -70,6 +84,7 @@ class WcPagantis
     public function __construct()
     {
         require_once(plugin_dir_path(__FILE__).'/vendor/autoload.php');
+        require_once(PG_ABSPATH . '/includes/pg-functions.php');
 
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
@@ -93,6 +108,7 @@ class WcPagantis
         add_action('woocommerce_process_product_meta', array($this, 'pagantisPromotedVarSave'));
         add_action('woocommerce_product_bulk_edit_start', array($this,'pagantisPromotedBulkTemplate'));
         add_action('woocommerce_product_bulk_edit_save', array($this,'pagantisPromotedBulkTemplateSave'));
+        add_action('init', array($this, 'check_wc_price_settings'));
     }
 
     /**
@@ -266,6 +282,12 @@ class WcPagantis
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_SITUATION', 'value'  => 'default'), array('%s', '%s'));
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION', 'value'  => 'default'), array('%s', '%s'));
         }
+        if (! areDecimalSeparatorEqual()) {
+            updateDecimalSeparatorDbConfig();
+        }
+        if (areThousandsSeparatorEqual()) {
+            updateThousandsSeparatorDbConfig();
+        }
 
         //Adding new selector < v8.3.3
         $tableName = $wpdb->prefix.self::CONFIG_TABLE;
@@ -315,6 +337,43 @@ class WcPagantis
         update_option('woocommerce_pagantis_settings', $settings);
     }
 
+    /**
+     * Checks the WC settings to know if we should modify our config
+     */
+    public function check_wc_price_settings()
+    {
+        if (! is_product() || ! is_shop()) {
+            return;
+        }
+        $this->check_wc_decimal_separator_settings();
+        $this->check_wc_thousands_separator_settings();
+    }
+
+    /**
+     * Check woocommerce_price_thousand_sep and update our config if necessary
+     */
+    private function check_wc_thousands_separator_settings()
+    {
+        if (areThousandsSeparatorEqual()) {
+            return;
+        }
+        if (areThousandsSeparatorEqual()) {
+            updateThousandsSeparatorDbConfig();
+        }
+    }
+
+    /**
+     * Check woocommerce_price_decimal_sep and update our config if necessary
+     */
+    private function check_wc_decimal_separator_settings()
+    {
+        if (areDecimalSeparatorEqual()) {
+            return;
+        }
+        if (! areDecimalSeparatorEqual()) {
+            updateDecimalSeparatorDbConfig();
+        }
+    }
     /**
      * @param $price
      *
