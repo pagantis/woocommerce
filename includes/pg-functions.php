@@ -17,7 +17,9 @@ function isPgLogsTableCreated()
 }
 
 
-
+/**
+ *
+ */
 function createPgLogsTable()
 {
     global $wpdb;
@@ -107,6 +109,9 @@ function getPgSimulatorDecimalSeparatorConfig()
     return $result;
 }
 
+/**
+ * Updates PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR config in the database
+ */
 function updateThousandsSeparatorDbConfig()
 {
     global $wpdb;
@@ -123,6 +128,9 @@ function updateThousandsSeparatorDbConfig()
     ));
 }
 
+/**
+ * Updates PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR config in the database
+ */
 function updateDecimalSeparatorDbConfig()
 {
     global $wpdb;

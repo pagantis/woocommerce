@@ -14,41 +14,22 @@
 //namespace Gateways;
 
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
-
-//formatter:off
-
-if ( ! defined('PG_VERSION')) {
-    define('PG_VERSION', '8.3.9');
+if (! defined('PG_WC_MAIN_FILE')) {
+    define('PG_WC_MAIN_FILE', __FILE__);
 }
-if ( ! defined('PG_WC_MAIN_FILE')) {
-    define('PG_WC_MAIN_FILE',__FILE__);
-}
-if ( ! defined('PG_CONFIG_TABLE_NAME')) {
+if (! defined('PG_CONFIG_TABLE_NAME')) {
     define('PG_CONFIG_TABLE_NAME', 'pagantis_config');
 }
-if ( ! defined('PG_LOGS_TABLE_NAME')) {
+if (! defined('PG_LOGS_TABLE_NAME')) {
     define('PG_LOGS_TABLE_NAME', 'pagantis_logs');
 }
-if ( ! defined('PAGANTIS_ROOT_DIR')) {
-    define('PG_ROOT_DIR', trailingslashit(dirname(PG_WC_MAIN_FILE)));
-}
 
-if ( ! defined('PG_ABSPATH')) {
+if (! defined('PG_ABSPATH')) {
     define('PG_ABSPATH', trailingslashit(dirname(PG_WC_MAIN_FILE)));
 }
-if ( ! defined('PG_PLUGIN_PATH')) {
-    define('PG_PLUGIN_PATH', untrailingslashit(plugin_dir_path(PG_WC_MAIN_FILE)));
-}
-if ( ! defined('PG_INCLUDES_PATH')) {
-    define('PG_INCLUDES_PATH', PG_ROOT_DIR . 'includes');
-}
-
-
-//formatter:on
-
 
 class WcPagantis
 {
@@ -127,8 +108,7 @@ class WcPagantis
         add_action('woocommerce_process_product_meta', array($this, 'pagantisPromotedVarSave'));
         add_action('woocommerce_product_bulk_edit_start', array($this, 'pagantisPromotedBulkTemplate'));
         add_action('woocommerce_product_bulk_edit_save', array($this, 'pagantisPromotedBulkTemplateSave'));
-        add_action( 'init', array( $this, 'check_wc_price_settings') );
-
+        add_action('init', array($this, 'check_wc_price_settings'));
     }
 
 
@@ -149,7 +129,6 @@ class WcPagantis
 
     /**
      * Php code to save our meta after a bulk admin edit
-     *
      * @param $product
      */
     public function pagantisPromotedBulkTemplateSave($product)
@@ -183,7 +162,6 @@ class WcPagantis
 
     /**
      *  Php code to save our meta after a PRODUCT admin edit
-     *
      * @param $post_id
      */
     public function pagantisPromotedVarSave($post_id)
@@ -301,12 +279,10 @@ class WcPagantis
             $wpdb->update($tableName, array('value' => 'sdk.simulator.types.PRODUCT_PAGE'), array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_TYPE'), array('%s'), array('%s'));
         }
 
-        if (!areDecimalSeparatorEqual())
-        {
+        if (! areDecimalSeparatorEqual()) {
             updateDecimalSeparatorDbConfig();
         }
-        if(areThousandsSeparatorEqual())
-        {
+        if (areThousandsSeparatorEqual()) {
             updateThousandsSeparatorDbConfig();
         }
 
@@ -327,7 +303,7 @@ class WcPagantis
             $simpleDbConfigs[$config['config']] = $config['value'];
         }
         $newConfigs = array_diff_key($this->defaultConfigs, $simpleDbConfigs);
-        if ( ! empty($newConfigs)) {
+        if (! empty($newConfigs)) {
             foreach ($newConfigs as $key => $value) {
                 $wpdb->insert($tableName, array('config' => $key, 'value' => $value), array('%s', '%s'));
             }
@@ -336,12 +312,12 @@ class WcPagantis
         //Current plugin config: pagantis_public_key => New field --- public_key => Old field
         $settings = get_option('woocommerce_pagantis_settings');
 
-        if ( ! isset($settings['pagantis_public_key']) && $settings['public_key']) {
+        if (! isset($settings['pagantis_public_key']) && $settings['public_key']) {
             $settings['pagantis_public_key'] = $settings['public_key'];
             unset($settings['public_key']);
         }
 
-        if ( ! isset($settings['pagantis_private_key']) && $settings['secret_key']) {
+        if (! isset($settings['pagantis_private_key']) && $settings['secret_key']) {
             $settings['pagantis_private_key'] = $settings['secret_key'];
             unset($settings['secret_key']);
         }
@@ -349,44 +325,44 @@ class WcPagantis
         update_option('woocommerce_pagantis_settings', $settings);
     }
 
-
+    /**
+     * Checks the WC settings to know if we should modify our config
+     */
     public function check_wc_price_settings()
     {
-
-        if (!is_product() || !is_shop()){
+        if (! is_product() || ! is_shop()) {
             return;
         }
         $this->check_wc_decimal_separator_settings();
         $this->check_wc_thousands_separator_settings();
-
     }
 
+    /**
+     * Check woocommerce_price_thousand_sep and update our config if necessary
+     */
     private function check_wc_thousands_separator_settings()
     {
-        if (areThousandsSeparatorEqual() ){
+        if (areThousandsSeparatorEqual()) {
             return;
         }
-
-        if(areThousandsSeparatorEqual())
-        {
+        if (areThousandsSeparatorEqual()) {
             updateThousandsSeparatorDbConfig();
         }
-
     }
 
-
+    /**
+     * Check woocommerce_price_decimal_sep and update our config if necessary
+     */
     private function check_wc_decimal_separator_settings()
     {
-
-        if (areDecimalSeparatorEqual()){
+        if (areDecimalSeparatorEqual()) {
             return;
         }
-
-        if (!areDecimalSeparatorEqual())
-        {
+        if (! areDecimalSeparatorEqual()) {
             updateDecimalSeparatorDbConfig();
         }
     }
+
     /**
      * @param $price
      *
@@ -394,7 +370,6 @@ class WcPagantis
      */
     public function pagantisAddProductSimulatorAfterPrice($price)
     {
-
         $simType    = strtolower($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']);
         $validTypes = array('sdk.simulator.types.selectable_text_custom', 'sdk.simulator.types.product_page');
         if (in_array($simType, $validTypes)) {
@@ -411,7 +386,7 @@ class WcPagantis
     {
         $simType    = strtolower($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']);
         $validTypes = array('sdk.simulator.types.selectable_text_custom', 'sdk.simulator.types.product_page');
-        if ( ! in_array($simType, $validTypes)) {
+        if (! in_array($simType, $validTypes)) {
             return $this->pagantisAddProductSimulator();
         }
 
@@ -477,7 +452,7 @@ class WcPagantis
      */
     public function addPagantisGateway($methods)
     {
-        if ( ! class_exists('WC_Payment_Gateway')) {
+        if (! class_exists('WC_Payment_Gateway')) {
             return $methods;
         }
 
@@ -497,7 +472,7 @@ class WcPagantis
     public function pagantisFilterGateways($methods)
     {
         $pagantis = new WcPagantisGateway();
-        if ( ! $pagantis->is_available()) {
+        if (! $pagantis->is_available()) {
             unset($methods['pagantis']);
         }
 
@@ -722,7 +697,7 @@ class WcPagantis
     {
         if ($css_quantity_selector == 'default' || $css_quantity_selector == '') {
             $css_quantity_selector = $this->defaultConfigs['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'];
-        } elseif ( ! unserialize($css_quantity_selector)) { //in the case of a custom string selector, we keep it
+        } elseif (! unserialize($css_quantity_selector)) { //in the case of a custom string selector, we keep it
             $css_quantity_selector = serialize(array($css_quantity_selector));
         }
 
@@ -738,7 +713,7 @@ class WcPagantis
     {
         if ($css_price_selector == 'default' || $css_price_selector == '') {
             $css_price_selector = $this->defaultConfigs['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'];
-        } elseif ( ! unserialize($css_price_selector)) { //in the case of a custom string selector, we keep it
+        } elseif (! unserialize($css_price_selector)) { //in the case of a custom string selector, we keep it
             $css_price_selector = serialize(array($css_price_selector));
         }
 
