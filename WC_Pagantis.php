@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.3.8
+ * Version: 8.3.9
  * Author: Pagantis
  *
  * Text Domain: pagantis
@@ -282,7 +282,6 @@ class WcPagantis
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_SITUATION', 'value'  => 'default'), array('%s', '%s'));
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION', 'value'  => 'default'), array('%s', '%s'));
         }
-
         if (!areDecimalSeparatorEqual()) {
             updateDecimalSeparatorDbConfig();
         }
@@ -343,7 +342,7 @@ class WcPagantis
      */
     public function check_wc_price_settings()
     {
-        if (!is_product() || !is_shop()) {
+        if (! is_product() || ! is_shop()) {
             return;
         }
         $this->check_wc_decimal_separator_settings();
@@ -358,7 +357,7 @@ class WcPagantis
         if (areThousandsSeparatorEqual()) {
             return;
         }
-        if (!areThousandsSeparatorEqual()) {
+        if (areThousandsSeparatorEqual()) {
             updateThousandsSeparatorDbConfig();
         }
     }
@@ -371,7 +370,7 @@ class WcPagantis
         if (areDecimalSeparatorEqual()) {
             return;
         }
-        if (!areDecimalSeparatorEqual()) {
+        if (! areDecimalSeparatorEqual()) {
             updateDecimalSeparatorDbConfig();
         }
     }
