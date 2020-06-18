@@ -56,7 +56,7 @@ function insertLogEntry($exception = null, $message = null)
 function areDecimalSeparatorEqual()
 {
     $pgDecimalSeparator = getPgSimulatorDecimalSeparatorConfig();
-    $wc_decimal_sep= stripslashes(get_option('woocommerce_price_decimal_sep'));
+    $wc_decimal_sep= get_option('woocommerce_price_decimal_sep');
     if (stripslashes($wc_decimal_sep) == stripslashes($pgDecimalSeparator)) {
         return true;
     } else {
@@ -71,7 +71,7 @@ function areDecimalSeparatorEqual()
 function areThousandsSeparatorEqual()
 {
     $pgThousandSeparator = getPgSimulatorThousandsSeparator();
-    $wc_price_thousand = stripslashes(get_option('woocommerce_price_thousand_sep'));
+    $wc_price_thousand = get_option('woocommerce_price_thousand_sep');
     if (stripslashes($wc_price_thousand)== stripslashes($pgThousandSeparator)) {
         return true;
     } else {
