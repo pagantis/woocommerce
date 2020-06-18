@@ -357,7 +357,7 @@ class WcPagantis
         if (areThousandsSeparatorEqual()) {
             return;
         }
-        if (areThousandsSeparatorEqual()) {
+        if (!areThousandsSeparatorEqual()) {
             updateThousandsSeparatorDbConfig();
         }
     }
@@ -370,7 +370,7 @@ class WcPagantis
         if (areDecimalSeparatorEqual()) {
             return;
         }
-        if (! areDecimalSeparatorEqual()) {
+        if (!areDecimalSeparatorEqual()) {
             updateDecimalSeparatorDbConfig();
         }
     }
