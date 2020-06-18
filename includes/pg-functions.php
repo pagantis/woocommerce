@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * Check if logs table exists
  */
@@ -12,10 +11,8 @@ function isPgLogsTableCreated()
     if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") == $tableName) {
         return true;
     }
-
     return false;
 }
-
 
 
 function createPgLogsTable()
@@ -40,7 +37,7 @@ function createPgLogsTable()
 function insertLogEntry($exception = null, $message = null)
 {
     global $wpdb;
-    if (! isPgLogsTableCreated()) {
+    if (!isPgLogsTableCreated()) {
         createPgLogsTable();
     }
     $logEntry = new Pagantis\ModuleUtils\Model\Log\LogEntry();
@@ -58,9 +55,9 @@ function insertLogEntry($exception = null, $message = null)
  */
 function areDecimalSeparatorEqual()
 {
-    $decimalSeparator                = getPgSimulatorDecimalSeparatorConfig();
-    $wc_get_number_of_price_decimals = get_option('woocommerce_price_decimal_sep');
-    if ($wc_get_number_of_price_decimals == $decimalSeparator) {
+    $pgDecimalSeparator = getPgSimulatorDecimalSeparatorConfig();
+    $wc_decimal_sep= stripslashes(get_option('woocommerce_price_decimal_sep'));
+    if (stripslashes($wc_decimal_sep) == stripslashes($pgDecimalSeparator)) {
         return true;
     } else {
         return false;
@@ -73,10 +70,9 @@ function areDecimalSeparatorEqual()
  */
 function areThousandsSeparatorEqual()
 {
-    $thousandSeparator               = getPgSimulatorThousandsSeparator();
-    $wc_get_price_thousand_separator = get_option('woocommerce_price_thousand_sep');
-
-    if ($wc_get_price_thousand_separator == $thousandSeparator) {
+    $pgThousandSeparator = getPgSimulatorThousandsSeparator();
+    $wc_price_thousand = stripslashes(get_option('woocommerce_price_thousand_sep'));
+    if (stripslashes($wc_price_thousand)== stripslashes($pgThousandSeparator)) {
         return true;
     } else {
         return false;
@@ -90,9 +86,9 @@ function getPgSimulatorThousandsSeparator()
 {
     global $wpdb;
     $tableName = $wpdb->prefix . PG_CONFIG_TABLE_NAME;
-    $query     = "SELECT * FROM $tableName WHERE config='PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'";
-    $result    = $wpdb->get_results($query, ARRAY_A);
-    return $result;
+    $query     = "SELECT value FROM $tableName WHERE config='PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'";
+    $result    = $wpdb->get_row($query, ARRAY_A);
+    return $result['value'];
 }
 
 /**
@@ -102,9 +98,9 @@ function getPgSimulatorDecimalSeparatorConfig()
 {
     global $wpdb;
     $tableName = $wpdb->prefix . PG_CONFIG_TABLE_NAME;
-    $query     = "SELECT * FROM $tableName WHERE config='PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'";
-    $result    = $wpdb->get_results($query, ARRAY_A);
-    return $result;
+    $query     = "SELECT value FROM $tableName WHERE config='PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'";
+    $result    = $wpdb->get_row($query, ARRAY_A);
+    return $result['value'];
 }
 
 function updateThousandsSeparatorDbConfig()
@@ -116,7 +112,6 @@ function updateThousandsSeparatorDbConfig()
     $tableName         = $wpdb->prefix . PG_CONFIG_TABLE_NAME;
     $thousandSeparator = get_option('woocommerce_price_thousand_sep');
     $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR', 'value' => $thousandSeparator), array('%s', '%s'));
-    $logEntry = $thousandSeparator;
     insertLogEntry(array(
         'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR has been updated to' => $thousandSeparator,
         'woocommerce_price_thousand_sep '                            => $thousandSeparator

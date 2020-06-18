@@ -108,7 +108,7 @@ class WcPagantis
         add_action('woocommerce_process_product_meta', array($this, 'pagantisPromotedVarSave'));
         add_action('woocommerce_product_bulk_edit_start', array($this,'pagantisPromotedBulkTemplate'));
         add_action('woocommerce_product_bulk_edit_save', array($this,'pagantisPromotedBulkTemplateSave'));
-        add_action('init', array($this, 'check_wc_price_settings'));
+        add_action('init', array($this, 'checkWcPriceSettings'));
     }
 
     /**
@@ -340,7 +340,7 @@ class WcPagantis
     /**
      * Checks the WC settings to know if we should modify our config
      */
-    public function check_wc_price_settings()
+    public function checkWcPriceSettings()
     {
         if (! is_product() || ! is_shop()) {
             return;
