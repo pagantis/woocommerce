@@ -306,17 +306,10 @@ class WcPagantis
         //Adding WC price separator verifications to adapt extra config dynamically < v8.3.9
         if (!areDecimalSeparatorEqual()) {
             updateDecimalSeparatorDbConfig();
-            insertLogEntry(array(
-                'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR has been updated to' => get_option('woocommerce_price_decimal_sep'),
-            ));
         }
         if (!areThousandsSeparatorEqual()) {
             updateThousandsSeparatorDbConfig();
-            insertLogEntry(array(
-                'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR has been updated to' => get_option('woocommerce_price_thousand_sep'),
-            ));
         }
-
         $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
 
         // Convert a multimple dimension array for SQL insert statements into a simple key/value
