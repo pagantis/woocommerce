@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.3.8
+ * Version: 8.3.9
  * Author: Pagantis
  *
  * Text Domain: pagantis
@@ -16,6 +16,20 @@
 
 if (!defined('ABSPATH')) {
     exit;
+}
+
+if (! defined('PG_WC_MAIN_FILE')) {
+    define('PG_WC_MAIN_FILE', __FILE__);
+}
+if (! defined('PG_CONFIG_TABLE_NAME')) {
+    define('PG_CONFIG_TABLE_NAME', 'pagantis_config');
+}
+if (! defined('PG_LOGS_TABLE_NAME')) {
+    define('PG_LOGS_TABLE_NAME', 'pagantis_logs');
+}
+
+if (! defined('PG_ABSPATH')) {
+    define('PG_ABSPATH', trailingslashit(dirname(PG_WC_MAIN_FILE)));
 }
 
 class WcPagantis
@@ -70,6 +84,7 @@ class WcPagantis
     public function __construct()
     {
         require_once(plugin_dir_path(__FILE__).'/vendor/autoload.php');
+        require_once(PG_ABSPATH . '/includes/pg-functions.php');
 
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
@@ -93,6 +108,7 @@ class WcPagantis
         add_action('woocommerce_process_product_meta', array($this, 'pagantisPromotedVarSave'));
         add_action('woocommerce_product_bulk_edit_start', array($this,'pagantisPromotedBulkTemplate'));
         add_action('woocommerce_product_bulk_edit_save', array($this,'pagantisPromotedBulkTemplateSave'));
+        add_action('init', array($this, 'checkWcPriceSettings'));
     }
 
     /**
@@ -267,6 +283,7 @@ class WcPagantis
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION', 'value'  => 'default'), array('%s', '%s'));
         }
 
+
         //Adding new selector < v8.3.3
         $tableName = $wpdb->prefix.self::CONFIG_TABLE;
         $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_DISPLAY_TYPE_CHECKOUT'";
@@ -285,6 +302,14 @@ class WcPagantis
             $wpdb->update($tableName, array('value' => $variableSelector), array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION'), array('%s'), array('%s'));
         }
 
+
+        //Adding WC price separator verifications to adapt extra config dynamically < v8.3.9
+        if (!areDecimalSeparatorEqual()) {
+            updateDecimalSeparatorDbConfig();
+        }
+        if (!areThousandsSeparatorEqual()) {
+            updateThousandsSeparatorDbConfig();
+        }
         $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
 
         // Convert a multimple dimension array for SQL insert statements into a simple key/value
@@ -315,6 +340,43 @@ class WcPagantis
         update_option('woocommerce_pagantis_settings', $settings);
     }
 
+    /**
+     * Checks the WC settings to know if we should modify our config
+     */
+    public function checkWcPriceSettings()
+    {
+        if (!is_product() || !is_shop()) {
+            return;
+        }
+        $this->checkWcDecimalSeparatorSettings();
+        $this->checkWcThousandsSeparatorSettings();
+    }
+
+    /**
+     * Check woocommerce_price_thousand_sep and update our config if necessary
+     */
+    private function checkWcThousandsSeparatorSettings()
+    {
+        if (areThousandsSeparatorEqual()) {
+            return;
+        }
+        if (!areThousandsSeparatorEqual()) {
+            updateThousandsSeparatorDbConfig();
+        }
+    }
+
+    /**
+     * Check woocommerce_price_decimal_sep and update our config if necessary
+     */
+    private function checkWcDecimalSeparatorSettings()
+    {
+        if (areDecimalSeparatorEqual()) {
+            return;
+        }
+        if (!areDecimalSeparatorEqual()) {
+            updateDecimalSeparatorDbConfig();
+        }
+    }
     /**
      * @param $price
      *
