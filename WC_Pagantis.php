@@ -282,18 +282,7 @@ class WcPagantis
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_DISPLAY_SITUATION', 'value'  => 'default'), array('%s', '%s'));
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION', 'value'  => 'default'), array('%s', '%s'));
         }
-        if (!areDecimalSeparatorEqual()) {
-            updateDecimalSeparatorDbConfig();
-            insertLogEntry(array(
-                'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR has been updated to' => get_option('woocommerce_price_decimal_sep'),
-            ));
-        }
-        if (!areThousandsSeparatorEqual()) {
-            updateThousandsSeparatorDbConfig();
-            insertLogEntry(array(
-                'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR has been updated to' => get_option('woocommerce_price_thousand_sep'),
-            ));
-        }
+
 
         //Adding new selector < v8.3.3
         $tableName = $wpdb->prefix.self::CONFIG_TABLE;
@@ -311,6 +300,21 @@ class WcPagantis
         $results = $wpdb->get_results($query, ARRAY_A);
         if (count($results) == 0) {
             $wpdb->update($tableName, array('value' => $variableSelector), array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION'), array('%s'), array('%s'));
+        }
+
+
+        //Adding WC price separator verifications to adapt extra config dynamically < v8.3.9
+        if (!areDecimalSeparatorEqual()) {
+            updateDecimalSeparatorDbConfig();
+            insertLogEntry(array(
+                'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR has been updated to' => get_option('woocommerce_price_decimal_sep'),
+            ));
+        }
+        if (!areThousandsSeparatorEqual()) {
+            updateThousandsSeparatorDbConfig();
+            insertLogEntry(array(
+                'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR has been updated to' => get_option('woocommerce_price_thousand_sep'),
+            ));
         }
 
         $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
