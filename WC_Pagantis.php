@@ -284,9 +284,15 @@ class WcPagantis
         }
         if (!areDecimalSeparatorEqual()) {
             updateDecimalSeparatorDbConfig();
+            insertLogEntry(array(
+                'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR has been updated to' => get_option('woocommerce_price_decimal_sep'),
+            ));
         }
         if (!areThousandsSeparatorEqual()) {
             updateThousandsSeparatorDbConfig();
+            insertLogEntry(array(
+                'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR has been updated to' => get_option('woocommerce_price_thousand_sep'),
+            ));
         }
 
         //Adding new selector < v8.3.3
@@ -342,17 +348,17 @@ class WcPagantis
      */
     public function checkWcPriceSettings()
     {
-        if (! is_product() || ! is_shop()) {
+        if (!is_product() || !is_shop()) {
             return;
         }
-        $this->check_wc_decimal_separator_settings();
-        $this->check_wc_thousands_separator_settings();
+        $this->checkWcDecimalSeparatorSettings();
+        $this->checkWcThousandsSeparatorSettings();
     }
 
     /**
      * Check woocommerce_price_thousand_sep and update our config if necessary
      */
-    private function check_wc_thousands_separator_settings()
+    private function checkWcThousandsSeparatorSettings()
     {
         if (areThousandsSeparatorEqual()) {
             return;
@@ -365,7 +371,7 @@ class WcPagantis
     /**
      * Check woocommerce_price_decimal_sep and update our config if necessary
      */
-    private function check_wc_decimal_separator_settings()
+    private function checkWcDecimalSeparatorSettings()
     {
         if (areDecimalSeparatorEqual()) {
             return;
