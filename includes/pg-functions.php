@@ -1,9 +1,6 @@
 <?php
 
 
-require_once(PG_ABSPATH . '/includes/class-pg-wc-logger.php');
-
-
 /**
  * Check if logs table exists
  */
@@ -115,7 +112,6 @@ function updateThousandsSeparatorDbConfig()
     $tableName         = $wpdb->prefix . PG_CONFIG_TABLE_NAME;
     $thousandSeparator = get_option('woocommerce_price_thousand_sep');
     $wpdb->update($tableName, array('value' => $thousandSeparator), array('config' => 'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'), array('%s'), array('%s'));
-
 }
 
 function updateDecimalSeparatorDbConfig()
