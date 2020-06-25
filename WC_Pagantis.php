@@ -237,7 +237,8 @@ class WcPagantis
                         $wpdb->update(
                             $tableName,
                             array('value' => stripslashes($css_price_selector)),
-                            array('config' => 'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'),array('%s'),
+                            array('config' => 'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'),
+                            array('%s'),
                             array('%s')
                         );
                     }
