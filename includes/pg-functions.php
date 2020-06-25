@@ -111,8 +111,7 @@ function updateThousandsSeparatorDbConfig()
     }
     $tableName         = $wpdb->prefix . PG_CONFIG_TABLE_NAME;
     $thousandSeparator = get_option('woocommerce_price_thousand_sep');
-    $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR', 'value' => $thousandSeparator), array('%s', '%s'));
-
+    $wpdb->update($tableName, array('value' => $thousandSeparator), array('config' => 'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'), array('%s'), array('%s'));
 }
 
 function updateDecimalSeparatorDbConfig()
@@ -123,6 +122,5 @@ function updateDecimalSeparatorDbConfig()
     }
     $tableName        = $wpdb->prefix . PG_CONFIG_TABLE_NAME;
     $decimalSeparator = get_option('woocommerce_price_decimal_sep');
-    $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR', 'value' => $decimalSeparator), array('%s', '%s'));
-
+    $wpdb->update($tableName, array('value' => $decimalSeparator), array('config' => 'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'), array('%s'), array('%s'));
 }
