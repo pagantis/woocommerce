@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.3.9
+ * Version: 8.3.10
  * Author: Pagantis
  *
  * Text Domain: pagantis
@@ -237,8 +237,7 @@ class WcPagantis
                         $wpdb->update(
                             $tableName,
                             array('value' => stripslashes($css_price_selector)),
-                            array('config' => 'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'),
-                            array('%s'),
+                            array('config' => 'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'),array('%s'),
                             array('%s')
                         );
                     }
