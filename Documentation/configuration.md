@@ -4,13 +4,13 @@
 
 To access to Pagantis admin panel, we need to open the Woocommerce admin panel and follow the next steps:
 
-1. Woocommerce => Ajustes/Settings
+1. Woocommerce => Ajustes/Settings  
 ![Step 1](./woocommerce_configuration_1.png?raw=true "Step 1")
 
-2. Pagos/Payments => Pagantis
+2. Pagos/Payments => Pagantis  
 ![Step 2](./woocommerce_configuration_2.png?raw=true "Step 2")
 
-3. Pagantis
+3. Pagantis  
 ![Step 3](./woocommerce_configuration_3.png?raw=true "Step 3")
 
 ## :clipboard: Options
@@ -100,30 +100,29 @@ You have to ways to edit your settings:
 
 To modify the configuration you only need to make a post to:
 
-<strong>{your-domain-url}/?rest_route=/pagantis/v1/configController/{your-secret-key}</strong>
+> <strong>{your-domain-url}/?rest_route=/pagantis/v1/configController/{your-secret-key}</strong>
 
-Sending in the form data the key of the config you want to change and the new value.
+Sending in the form data the key of the option you want to change and the new value.
 
-1. Open the application
+1. Open the application  
 ![Step 1](./postman_step1.png?raw=true "Step 1")
 
 2. Set the mode of the request  
 2.1 - Click on BODY tag  
-2.2 - Click on x-www-form-urlencoded
+2.2 - Click on x-www-form-urlencoded  
 ![Step 2](./postman_step2.png?raw=true "Step 2")
 
 3. Set your request  
 3.1 - On the upper-left side, you need to set a POST request    
 3.2 - Fill the url field, setting your domain and your secret key which is located on your [Pagantis profile](https://bo.pagantis.com/shop).   
 3.3 - Set the config key to modify. [List of config keys](./configuration.md#list-of-settings-and-their-description).  
-3.4 - Set the value for the selected key  
-
+3.4 - Set the value for the selected key   
 ![Step 3](./postman_step3.png?raw=true "Step 3")
 
-4. Press SEND
+4. Press SEND  
 ![Step 4](./postman_step4.png?raw=true "Step 4")
 
-5. If everything works correctly, you should see the edited config as show below 
+5. If everything works correctly, you should see the edited config as show below  
 ![Step 5](./postman_step5.png?raw=true "Step 5")
 
 6. Finally you can see the change in checkout page:  

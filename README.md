@@ -1,4 +1,4 @@
-# Module installation <img src="https://www.pagantis.com/wp-content/uploads/2019/02/cropped-pagantis_logo-1.png" width="100" align="right">
+# Module installation <img src="https://developer.pagantis.com/logos/pagantis_rgb_color.png" width="100" align="right">
 
 CircleCI: [![CircleCI](https://circleci.com/gh/pagantis/woocommerce/tree/master.svg?style=svg)](https://circleci.com/gh/pagantis/woocommerce/tree/master)
 <!---
@@ -8,10 +8,14 @@ CircleCI: [![CircleCI](https://circleci.com/gh/pagantis/woocommerce/tree/master.
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pagantis/woocommerce/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/pagantis/woocommerce/?branch=master)
 
 ## :hand: Requirements
-Wordpress and Woocommerce plugin enabled.
+
+The following needs to be installed and setup
+
+* Wordpress
+* WooCommerce
 
 ## :floppy_disk: Installation
-To install the plugin of Pagantis in your Woocommerce shop
+To install Pagantis in your Woocommerce shop
 
 #### Installation using zip file
 1. Navigate to plugins dashboard
@@ -20,16 +24,14 @@ To install the plugin of Pagantis in your Woocommerce shop
 4. Click 'Upload plugin'
 5. Select the downloaded file and click 'Open'.
 6. Click on 'Install'
-7. Activate the plugin on the plugins dashboard
+7. Activate the plugin on the WooCommerce plugins dashboard
 
-For more information about how to install the plugin, see our [installation section](/Documentation/installation.md).
+For more detailed information on how to install the plugin, see our [installation section](/Documentation/installation.md).
 
 ## :gear: Configuration
-Configure the plugin in Woocommerce admin panel using the information found in your [Pagantis profile](https://bo.pagantis.com/shop). 
+Configure the plugin in Woocommerce admin panel using the information found in your [Pagantis profile](https://bo.pagantis.com/shop) and our [configuration section](/Documentation/configuration.md).
 
-For more information about how to config the module, see our [configuration section](/Documentation/configuration.md).
+## :arrow_forward: Usage
+To use in a real environment your Pagantis account should be enabled accordingly.
 
-## :arrow_forward: Use
-To use in a real environment you should enable your Pagantis account.
-
-For more information about how to use the module, see our [use section](/Documentation/use.md).
+For more information, see our [usage section](/Documentation/usage.md).
