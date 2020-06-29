@@ -1,11 +1,9 @@
-# Use
+# Usage
 
 ## :eyes: Checkout
 
-If the plugin is enabled and configured rightly, you can see Pagantis like new payment method in checkout.
+If the module has been enabled and configured correctly, Pagantis will be visible in the checkout as a payment method.
 
-In Pagantis admin panel we can modify title, description and installment simulator.
+For more information about how to config the module, see our [configuration section](./configuration.md).
 
-![Step 1](./woocommerce_checkout.png?raw=true "Step 1")
-
-After press "Place order" button, the user will be redirected to Pagantis side or watch our form in a pop-up over checkout page, according with the configuration in our Pagantis admin panel.
+After pressing the "Place order" button, the user will be redirected to Pagantis payment process, he will be redirected to your store afterwards.
