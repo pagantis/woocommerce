@@ -154,7 +154,7 @@ class WcPagantisNotify extends WcPagantisGateway
     {
         try {
             $this->cfg = get_option('woocommerce_pagantis_settings');
-            $this->orderClient = new Client($this->cfg['pagantis_public_key'], $this->cfg['pagantis_private_key']);
+            $this->orderClient = new Client(trim($this->cfg['pagantis_public_key']), trim($this->cfg['pagantis_private_key']));
             $this->pagantisOrder = $this->orderClient->getOrder($this->pagantisOrderId);
         } catch (\Exception $e) {
             throw new OrderNotFoundException();
