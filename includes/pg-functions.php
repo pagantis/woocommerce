@@ -124,3 +124,49 @@ function updateDecimalSeparatorDbConfig()
     $decimalSeparator = get_option('woocommerce_price_decimal_sep');
     $wpdb->update($tableName, array('value' => $decimalSeparator), array('config' => 'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'), array('%s'), array('%s'));
 }
+
+/**
+ * @param $simulatorType
+ * @param $validSimulatorTypes array
+ *
+ * @return bool
+ */
+function isSimulatorTypeValid($simulatorType, $validSimulatorTypes)
+{
+
+    if (in_array($simulatorType, $validSimulatorTypes)) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @param $currentTemplateName
+ *
+ * @param $validTemplateNames array
+ *
+ * @return bool
+ */
+function isTemplatePresent($currentTemplateName, $validTemplateNames)
+{
+    if (in_array($currentTemplateName, (array) $validTemplateNames)) {
+        return true;
+    }
+        return false;
+}
+
+
+/**
+ * Get HTML for Simulator
+ *
+ * @return mixed|void
+ */
+function pgGetSimulatorHtml()
+{
+    $html = '<p style="margin: 0.5em auto 0.5em;"><p>DEBUG</p><div class="pagantisSimulator"></div></p>';
+
+    return apply_filters('pagantis_get_simulator_html', '<p style="margin: 0.5em auto 0.5em;"><p>DEBUG</p><div class="pagantisSimulator"></div></p>');
+}
+
+
+

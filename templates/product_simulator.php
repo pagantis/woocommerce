@@ -160,4 +160,6 @@ if ($promoted == 'true') {
     echo $promotedMessage;
 }
 ?>
-<br/><div class="pagantisSimulator"></div><br/><br/>
+
+<p style="margin: 0.5em auto 0.5em;"><p>DEBUG product_simulator.php</p><div class="pagantisSimulator"></div></p>
+<!--<br/><div class="pagantisSimulator"></div><br/><br/>-->
