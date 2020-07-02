@@ -149,7 +149,7 @@ function isSimulatorTypeValid($simulatorType, $validSimulatorTypes)
  */
 function isTemplatePresent($currentTemplateName, $validTemplateNames)
 {
-    if (in_array($currentTemplateName, (array) $validTemplateNames)) {
+    if (in_array($currentTemplateName, $validTemplateNames)) {
         return true;
     }
         return false;

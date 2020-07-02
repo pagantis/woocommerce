@@ -389,35 +389,36 @@ class WcPagantis
      */
     public function addPagantisSimulatorHtmlDiv($template_name)
     {
-        require_once(PG_ABSPATH . '/includes/class-pg-wc-logger.php');
+//        require_once(PG_ABSPATH . '/includes/class-pg-wc-logger.php');
 
         $areSimulatorTypesValid = isSimulatorTypeValid(strtolower($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']), array('sdk.simulator.types.selectable_text_custom','sdk.simulator.types.product_page'));
         $isPriceTemplate = isTemplatePresent($template_name, array('single-product/price.php'));
         $isAddToCartTemplate = isTemplatePresent($template_name, array('single-product/add-to-cart/variation-add-to-cart-button.php'));
-        PG_WC_Logger::log(array(
-            "Function: " => __FUNCTION__,
-            "Line: " =>__LINE__,
-            "File: " => __FILE__,
-            "Class: " => __CLASS__,
-            array( $areSimulatorTypesValid ,$isPriceTemplate,$isAddToCartTemplate)));
+//        PG_WC_Logger::log(array(
+//            "Function: " => __FUNCTION__,
+//            "Line: " =>__LINE__,
+//            "File: " => __FILE__,
+//            "Class: " => __CLASS__,
+//            array( $areSimulatorTypesValid ,$isPriceTemplate,$isAddToCartTemplate)));
         try {
             if ($areSimulatorTypesValid && $isPriceTemplate) {
-                PG_WC_Logger::log(array(
-                    "Function: " => __FUNCTION__,
-                    "Line: " =>__LINE__,
-                    "File: " => __FILE__,
-                    "Class: " => __CLASS__,
-                    'Args :' => array( $areSimulatorTypesValid ,$isPriceTemplate,$isAddToCartTemplate)));
-                return apply_filters('pagantis_get_simulator_html', '<p style="margin: 0.5em auto 0.5em;"><p>DEBUG</p><div class="pagantisSimulator"></div></p>');
+//                PG_WC_Logger::log(array(
+//                    "Function: " => __FUNCTION__,
+//                    "Line: " =>__LINE__,
+//                    "File: " => __FILE__,
+//                    "Class: " => __CLASS__,
+//                    'Args :' => array( $areSimulatorTypesValid ,$isPriceTemplate,$isAddToCartTemplate)));
+                echo '<p style="margin: 0.5em auto 0.5em;"><p>DEBUG isPriceTemplate </p><div class="pagantisSimulator"></div></p>';
+
             }
 
             if (!$areSimulatorTypesValid && $isAddToCartTemplate) {
-                PG_WC_Logger::log(array(
-                    "Function: " => __FUNCTION__,
-                    "Line: " =>__LINE__,
-                    "File: " => __FILE__,
-                    "Class: " => __CLASS__));
-                return apply_filters('pagantis_get_simulator_html', '<p style="margin: 0.5em auto 0.5em;"><p>DEBUG</p><div class="pagantisSimulator"></div></p>');
+//                PG_WC_Logger::log(array(
+//                    "Function: " => __FUNCTION__,
+//                    "Line: " =>__LINE__,
+//                    "File: " => __FILE__,
+//                    "Class: " => __CLASS__));
+                echo '<p style="margin: 0.5em auto 0.5em;"><p>DEBUG isAddToCartTemplate</p><div class="pagantisSimulator"></div></p>';
             }
             global $product;
             if (is_null($product)) {
@@ -430,7 +431,7 @@ class WcPagantis
                     '$isAddToCartTemplate' => $isAddToCartTemplate,
                     '$areSimulatorTypesValid' => $areSimulatorTypesValid);
                 insertLogEntry($logMessage);
-                PG_WC_Logger::log('line 61 ' . $logMessage);
+//                PG_WC_Logger::log('line 61 ' . $logMessage);
             }
 
         } catch (\Exception $exception) {
