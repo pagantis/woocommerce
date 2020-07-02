@@ -8,6 +8,7 @@
  *
  * Text Domain: pagantis
  * Domain Path: /languages/
+ *
  */
 
 //namespace Gateways;
@@ -37,24 +38,16 @@ class WcPagantis
     const PAGANTIS_DOC_URL = 'https://developer.pagantis.com';
     const SUPPORT_EML = 'mailto:integrations@pagantis.com?Subject=woocommerce_plugin';
 
-    /**
- * Concurrency tablename
-*/
+    /** Concurrency tablename */
     const LOGS_TABLE = 'pagantis_logs';
 
-    /**
- * Config tablename
-*/
+    /** Config tablename */
     const CONFIG_TABLE = 'pagantis_config';
 
-    /**
- * Concurrency tablename
-*/
+    /** Concurrency tablename  */
     const CONCURRENCY_TABLE = 'pagantis_concurrency';
 
-    /**
- * Config tablename
-*/
+    /** Config tablename */
     const ORDERS_TABLE = 'posts';
 
     public $defaultConfigs = array(
@@ -82,9 +75,7 @@ class WcPagantis
        'PAGANTIS_SIMULATOR_SELECTOR_VARIATION' => 'default'
     );
 
-    /**
-     * @var Array $extraConfig
-     */
+    /** @var Array $extraConfig */
     public $extraConfig;
 
     /**
@@ -92,8 +83,8 @@ class WcPagantis
      */
     public function __construct()
     {
-        include_once plugin_dir_path(__FILE__).'/vendor/autoload.php';
-        include_once PG_ABSPATH . '/includes/pg-functions.php';
+        require_once(plugin_dir_path(__FILE__).'/vendor/autoload.php');
+        require_once(PG_ABSPATH . '/includes/pg-functions.php');
 
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
@@ -137,7 +128,6 @@ class WcPagantis
 
     /**
      * Php code to save our meta after a bulk admin edit
-     *
      * @param $product
      */
     public function pagantisPromotedBulkTemplateSave($product)
@@ -173,7 +163,6 @@ class WcPagantis
 
     /**
      *  Php code to save our meta after a PRODUCT admin edit
-     *
      * @param $post_id
      */
     public function pagantisPromotedVarSave($post_id)
@@ -210,7 +199,7 @@ class WcPagantis
             $charset_collate = $wpdb->get_charset_collate();
             $sql = "CREATE TABLE $tableName ( order_id int NOT NULL,  
                     createdAt timestamp DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY id (order_id)) $charset_collate";
-            include_once ABSPATH.'wp-admin/includes/upgrade.php';
+            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
             dbDelta($sql);
         }
 
@@ -226,7 +215,7 @@ class WcPagantis
                                 value varchar(1000) NOT NULL, 
                                 UNIQUE KEY id(id)) $charset_collate";
 
-            include_once ABSPATH.'wp-admin/includes/upgrade.php';
+            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
             dbDelta($sql);
         } else {
             //Updated value field to adapt to new length < v8.0.1
@@ -423,7 +412,6 @@ class WcPagantis
 
 
     /**
-     *
      * @return string|void
      */
     public function pagantisAddProductSimulator()
@@ -438,9 +426,8 @@ class WcPagantis
         $maxAmount = $this->extraConfig['PAGANTIS_DISPLAY_MAX_AMOUNT'];
         $totalPrice = $product->get_price();
         $validAmount = ($totalPrice>=$minAmount && ($totalPrice<=$maxAmount || $maxAmount=='0'));
-        if ($cfg['enabled'] !== 'yes' || $cfg['pagantis_public_key'] == '' || $cfg['pagantis_private_key'] == ''
-            || $cfg['simulator'] !== 'yes'  || !$allowedCountry || !$validAmount
-        ) {
+        if ($cfg['enabled'] !== 'yes' || $cfg['pagantis_public_key'] == '' || $cfg['pagantis_private_key'] == '' ||
+            $cfg['simulator'] !== 'yes'  || !$allowedCountry || !$validAmount) {
             return;
         }
 
@@ -483,7 +470,7 @@ class WcPagantis
             return $methods;
         }
 
-        include_once 'controllers/paymentController.php';
+        include_once('controllers/paymentController.php');
         $methods[] = 'WcPagantisGateway';
 
         return $methods;
@@ -674,7 +661,6 @@ class WcPagantis
 
     /**
      * ENDPOINT - Read logs -> Hook: rest_api_init
-     *
      * @return mixed
      */
     public function pagantisRegisterEndpoint()
