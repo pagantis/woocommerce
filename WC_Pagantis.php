@@ -373,6 +373,7 @@ class WcPagantis
         if (areDecimalSeparatorEqual()) {
             return;
         }
+
         if (!areDecimalSeparatorEqual()) {
             updateDecimalSeparatorDbConfig();
         }
@@ -393,19 +394,18 @@ class WcPagantis
         $areSimulatorTypesValid = isSimulatorTypeValid(strtolower($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']), array('sdk.simulator.types.selectable_text_custom','sdk.simulator.types.product_page'));
         $isPriceTemplate = isTemplatePresent($template_name, array('single-product/price.php'));
         $isAddToCartTemplate = isTemplatePresent($template_name, array('single-product/add-to-cart/variation-add-to-cart-button.php','single-product/add-to-cart/variation.php','single-product/add-to-cart/simple.php'));
+        $html = apply_filters('pagantis_simulator_selector_html', '<div class="pagantisSimulator"></div>');
+        $settings = get_option('woocommerce_pagantis_settings');
+        if ($settings['enabled'] !== 'yes' || $settings['pagantis_public_key'] == '' || $settings['pagantis_private_key'] == '' ||
+            $settings['simulator'] !== 'yes') {
+            return;
+        }
+        if ($areSimulatorTypesValid && $isPriceTemplate) {
+            echo $html;
+        }
 
-        try {
-            if ($areSimulatorTypesValid && $isPriceTemplate) {
-                echo '<p style="margin: 3px auto 3px;"><div class="pagantisSimulator"></div></p>';
-            }
-
-            if (!$areSimulatorTypesValid && $isAddToCartTemplate) {
-                echo '<p style="margin: 3px auto 3px;"><div class="pagantisSimulator"></div></p>';
-            }
-        } catch (\Exception $exception) {
-            insertLogEntry($exception->getMessage());
-            $exception->getMessage();
-            return false;
+        if (!$areSimulatorTypesValid && $isAddToCartTemplate) {
+            echo $html;
         }
     }
 

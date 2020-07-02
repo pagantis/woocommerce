@@ -154,16 +154,3 @@ function isTemplatePresent($currentTemplateName, $validTemplateNames)
     }
         return false;
 }
-
-
-/**
- * Get HTML for Simulator
- *
- * @return mixed|void
- */
-function pgGetSimulatorHtml()
-{
-    $html = '<p style="margin: 0.5em auto 0.5em;"><p><div class="pagantisSimulator"></div></p>';
-
-    return apply_filters('pagantis_get_simulator_html', '<p style="margin: 0.5em auto 0.5em;"><p>DEBUG</p><div class="pagantisSimulator"></div></p>');
-}
