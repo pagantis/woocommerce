@@ -161,5 +161,3 @@ if ($promoted == 'true') {
 }
 ?>
 
-<!--<p style="margin: 0.5em auto 0.5em;"><p>DEBUG product_simulator.php</p><div class="pagantisSimulator"></div></p>-->
-<!--<br/><div class="pagantisSimulator"></div><br/><br/>-->
