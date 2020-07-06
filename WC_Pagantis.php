@@ -99,6 +99,7 @@ class WcPagantis
         add_filter('plugin_row_meta', array($this, 'pagantisRowMeta'), 10, 2);
         add_filter('plugin_action_links_'.plugin_basename(__FILE__), array($this, 'pagantisActionLinks'));
         add_action('woocommerce_after_template_part', array($this, 'pagantisAddSimulatorHtmlDiv'));
+        add_filter('woocommerce_get_price_html', array($this,'pagantisAddProductSimulatorAfterPrice'), 2);
         add_action('woocommerce_after_add_to_cart_form', array($this, 'pagantisAddProductSimulator'));
         add_action('wp_enqueue_scripts', 'add_pagantis_widget_js');
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
@@ -379,6 +380,34 @@ class WcPagantis
         }
     }
 
+    /**
+     * @param $price
+     *
+     * @param $instance
+     *
+     * @return string
+     */
+    public function pagantisAddProductSimulatorAfterPrice($price, $instance)
+    {
+        $html = apply_filters('pagantis_simulator_selector_html', '<div class="pagantisSimulator"></div>');
+
+        if (($instance instanceof WC_Product_Grouped || $instance instanceof WC_Product_Simple || $instance instanceof WC_Product_Variable) && is_product()) {
+            $areSimulatorTypesValid = isSimulatorTypeValid(strtolower($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']), array('sdk.simulator.types.selectable_text_custom','sdk.simulator.types.product_page'));
+
+
+            if ($areSimulatorTypesValid) {
+                if ($areSimulatorTypesValid) {
+                    echo $html;
+                }
+
+                if (!$areSimulatorTypesValid) {
+                    echo $html;
+                }
+            }
+
+            return $price;
+        }
+    }
 
     /**
      *  Place the simulator div on the product summary depending on the config
@@ -390,7 +419,6 @@ class WcPagantis
      */
     public function pagantisAddSimulatorHtmlDiv($template_name)
     {
-
         $areSimulatorTypesValid = isSimulatorTypeValid(strtolower($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']), array('sdk.simulator.types.selectable_text_custom','sdk.simulator.types.product_page'));
         $isPriceTemplate = isTemplatePresent($template_name, array('single-product/price.php'));
         $isAddToCartTemplate = isTemplatePresent($template_name, array('single-product/add-to-cart/variation-add-to-cart-button.php','single-product/add-to-cart/variation.php','single-product/add-to-cart/simple.php'));
@@ -412,6 +440,7 @@ class WcPagantis
 
 
     /**
+     * Initialized the product simulator
      * @return string|void
      */
     public function pagantisAddProductSimulator()
