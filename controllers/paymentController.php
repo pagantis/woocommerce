@@ -350,7 +350,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             if ($this->pagantis_public_key=='' || $this->pagantis_private_key=='') {
                 throw new \Exception('Public and Secret Key not found');
             }
-            $orderClient = new Client(trim($this->pagantis_public_key), trim($this->pagantis_private_key));
+            $orderClient = new Client($this->pagantis_public_key, $this->pagantis_private_key);
             $pagantisOrder = $orderClient->createOrder($orderApiClient);
             if ($pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
                 $url = $pagantisOrder->getActionUrls()->getForm();
