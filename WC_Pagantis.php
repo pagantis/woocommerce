@@ -425,43 +425,40 @@ class WcPagantis
     {
         global $product;
 
-        $cfg              = get_option('woocommerce_pagantis_settings');
-        $locale           = strtolower(strstr(get_locale(), '_', true));
+        $cfg = get_option('woocommerce_pagantis_settings');
+        $locale = strtolower(strstr(get_locale(), '_', true));
         $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
-        $allowedCountry   = (in_array(strtolower($locale), $allowedCountries));
-        $minAmount        = $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'];
-        $maxAmount        = $this->extraConfig['PAGANTIS_DISPLAY_MAX_AMOUNT'];
-        $totalPrice       = $product->get_price();
-        $validAmount      = ($totalPrice >= $minAmount && ($totalPrice <= $maxAmount || $maxAmount == '0'));
-        if ($cfg['enabled'] !== 'yes' || $cfg['pagantis_public_key'] == '' || $cfg['pagantis_private_key'] == ''
-            || $cfg['simulator'] !== 'yes'
-            || ! $allowedCountry
-            || ! $validAmount
-        ) {
+        $allowedCountry = (in_array(strtolower($locale), $allowedCountries));
+        $minAmount = $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'];
+        $maxAmount = $this->extraConfig['PAGANTIS_DISPLAY_MAX_AMOUNT'];
+        $totalPrice = $product->get_price();
+        $validAmount = ($totalPrice>=$minAmount && ($totalPrice<=$maxAmount || $maxAmount=='0'));
+        if ($cfg['enabled'] !== 'yes' || $cfg['pagantis_public_key'] == '' || $cfg['pagantis_private_key'] == '' ||
+            $cfg['simulator'] !== 'yes'  || !$allowedCountry || !$validAmount) {
             return;
         }
 
-        $post_id         = $product->get_id();
+        $post_id = $product->get_id();
         $template_fields = array(
-            'total'                     => is_numeric($product->get_price()) ? $product->get_price() : 0,
-            'public_key'                => $cfg['pagantis_public_key'],
-            'simulator_type'            => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
-            'positionSelector'          => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'],
-            'quantitySelector'          => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR']),
-            'priceSelector'             => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR']),
-            'totalAmount'               => is_numeric($product->get_price()) ? $product->get_price() : 0,
-            'locale'                    => $locale,
-            'country'                   => $locale,
-            'promoted'                  => $this->isPromoted($post_id),
-            'promotedMessage'           => $this->extraConfig['PAGANTIS_PROMOTION_EXTRA'],
-            'thousandSeparator'         => $this->extraConfig['PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'],
-            'decimalSeparator'          => $this->extraConfig['PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'],
-            'pagantisQuotesStart'       => $this->extraConfig['PAGANTIS_SIMULATOR_START_INSTALLMENTS'],
-            'pagantisSimulatorSkin'     => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SKIN'],
+            'total'    => is_numeric($product->get_price()) ? $product->get_price() : 0,
+            'public_key' => $cfg['pagantis_public_key'],
+            'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
+            'positionSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'],
+            'quantitySelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR']),
+            'priceSelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR']),
+            'totalAmount' => is_numeric($product->get_price()) ? $product->get_price() : 0,
+            'locale' => $locale,
+            'country' => $locale,
+            'promoted' => $this->isPromoted($post_id),
+            'promotedMessage' => $this->extraConfig['PAGANTIS_PROMOTION_EXTRA'],
+            'thousandSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'],
+            'decimalSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'],
+            'pagantisQuotesStart' => $this->extraConfig['PAGANTIS_SIMULATOR_START_INSTALLMENTS'],
+            'pagantisSimulatorSkin' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SKIN'],
             'pagantisSimulatorPosition' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'],
-            'finalDestination'          => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SITUATION'],
-            'variationSelector'         => $this->extraConfig['PAGANTIS_SIMULATOR_SELECTOR_VARIATION'],
-            'productType'               => $product->get_type()
+            'finalDestination' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SITUATION'],
+            'variationSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_SELECTOR_VARIATION'],
+            'productType' => $product->get_type()
         );
 
         if ($output) {
