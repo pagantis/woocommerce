@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.3.10
+ * Version: 8.3.11
  * Author: Pagantis
  *
  * Text Domain: pagantis
@@ -51,28 +51,28 @@ class WcPagantis
     const ORDERS_TABLE = 'posts';
 
     public $defaultConfigs = array(
-       'PAGANTIS_TITLE'=>'Pago en cuotas',
-       'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'sdk.simulator.types.PRODUCT_PAGE',
-       'PAGANTIS_SIMULATOR_DISPLAY_TYPE_CHECKOUT'=>'sdk.simulator.types.CHECKOUT_PAGE',
-       'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'sdk.simulator.skins.BLUE',
-       'PAGANTIS_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
-       'PAGANTIS_SIMULATOR_START_INSTALLMENTS'=>3,
-       'PAGANTIS_SIMULATOR_MAX_INSTALLMENTS'=>12,
-       'PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'=>'default',
-       'PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'=>'sdk.simulator.positions.INNER',
-       'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'=>'a:3:{i:0;s:48:"div.summary *:not(del)>.woocommerce-Price-amount";i:1;s:54:"div.entry-summary *:not(del)>.woocommerce-Price-amount";i:2;s:36:"*:not(del)>.woocommerce-Price-amount";}',
-       'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'=>'a:2:{i:0;s:22:"div.quantity input.qty";i:1;s:18:"div.quantity>input";}',
-       'PAGANTIS_FORM_DISPLAY_TYPE'=>0,
-       'PAGANTIS_DISPLAY_MIN_AMOUNT'=>1,
-       'PAGANTIS_DISPLAY_MAX_AMOUNT'=>0,
-       'PAGANTIS_URL_OK'=>'',
-       'PAGANTIS_URL_KO'=>'',
-       'PAGANTIS_ALLOWED_COUNTRIES' => 'a:3:{i:0;s:2:"es";i:1;s:2:"it";i:2;s:2:"fr";}',
-       'PAGANTIS_PROMOTION_EXTRA' => '<p>Finance this product <span class="pg-no-interest">without interest!</span></p>',
-       'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR' => '.',
-       'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR' => ',',
-       'PAGANTIS_SIMULATOR_DISPLAY_SITUATION' => 'default',
-       'PAGANTIS_SIMULATOR_SELECTOR_VARIATION' => 'default'
+        'PAGANTIS_TITLE'=>'Pago en cuotas',
+        'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'sdk.simulator.types.PRODUCT_PAGE',
+        'PAGANTIS_SIMULATOR_DISPLAY_TYPE_CHECKOUT'=>'sdk.simulator.types.CHECKOUT_PAGE',
+        'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'sdk.simulator.skins.BLUE',
+        'PAGANTIS_SIMULATOR_DISPLAY_POSITION'=>'hookDisplayProductButtons',
+        'PAGANTIS_SIMULATOR_START_INSTALLMENTS'=>3,
+        'PAGANTIS_SIMULATOR_MAX_INSTALLMENTS'=>12,
+        'PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'=>'default',
+        'PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'=>'sdk.simulator.positions.INNER',
+        'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'=>'a:3:{i:0;s:48:"div.summary *:not(del)>.woocommerce-Price-amount";i:1;s:54:"div.entry-summary *:not(del)>.woocommerce-Price-amount";i:2;s:36:"*:not(del)>.woocommerce-Price-amount";}',
+        'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'=>'a:2:{i:0;s:22:"div.quantity input.qty";i:1;s:18:"div.quantity>input";}',
+        'PAGANTIS_FORM_DISPLAY_TYPE'=>0,
+        'PAGANTIS_DISPLAY_MIN_AMOUNT'=>1,
+        'PAGANTIS_DISPLAY_MAX_AMOUNT'=>0,
+        'PAGANTIS_URL_OK'=>'',
+        'PAGANTIS_URL_KO'=>'',
+        'PAGANTIS_ALLOWED_COUNTRIES' => 'a:3:{i:0;s:2:"es";i:1;s:2:"it";i:2;s:2:"fr";}',
+        'PAGANTIS_PROMOTION_EXTRA' => '<p>Finance this product <span class="pg-no-interest">without interest!</span></p>',
+        'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR' => '.',
+        'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR' => ',',
+        'PAGANTIS_SIMULATOR_DISPLAY_SITUATION' => 'default',
+        'PAGANTIS_SIMULATOR_SELECTOR_VARIATION' => 'default'
     );
 
     /** @var Array $extraConfig */
@@ -92,14 +92,14 @@ class WcPagantis
 
         $this->extraConfig = $this->getExtraConfig();
 
-        load_plugin_textdomain('pagantis', false, dirname(plugin_basename( __FILE__)).'/languages');
+        load_plugin_textdomain('pagantis', false, dirname(plugin_basename(__FILE__)).'/languages');
 
         add_filter('woocommerce_payment_gateways', array($this, 'addPagantisGateway'));
         add_filter('woocommerce_available_payment_gateways', array($this, 'pagantisFilterGateways'), 9999);
         add_filter('plugin_row_meta', array($this, 'pagantisRowMeta'), 10, 2);
         add_filter('plugin_action_links_'.plugin_basename(__FILE__), array($this, 'pagantisActionLinks'));
-        add_filter('woocommerce_get_price_html', array($this,'pagantisAddProductSimulatorAfterPrice'), 1);
-        add_action('woocommerce_after_add_to_cart_form', array($this, 'pagantisAddProductSimulatorAfterCartButton'));
+        add_filter('woocommerce_get_price_html', array($this,'pagantisAddProductSimulatorAfterPrice'), 10, 2);
+        add_action('woocommerce_after_add_to_cart_form', array($this,'pagantisAddProductSimulatorAfterCartButton'));
         add_action('wp_enqueue_scripts', 'add_pagantis_widget_js');
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
@@ -373,21 +373,29 @@ class WcPagantis
         if (areDecimalSeparatorEqual()) {
             return;
         }
+
         if (!areDecimalSeparatorEqual()) {
             updateDecimalSeparatorDbConfig();
         }
     }
+
     /**
+     * pagantisAddProductSimulatorAfterPrice
+     *
      * @param $price
+     * @param $instance
      *
      * @return string
      */
-    public function pagantisAddProductSimulatorAfterPrice($price)
+    public function pagantisAddProductSimulatorAfterPrice($price, $instance)
     {
-        $simType = strtolower($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']);
-        $validTypes = array('sdk.simulator.types.selectable_text_custom','sdk.simulator.types.product_page');
-        if (in_array($simType, $validTypes)) {
-            $price.=$this->pagantisAddProductSimulator(true);
+        $validInstance = (get_class($instance) == 'WC_Product_Simple')
+                         || (get_class($instance) == 'WC_Product_Variable')
+                         || (get_class($instance) == 'WC_Product_Grouped');
+        $simType       = strtolower($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']);
+        $validTypes    = array('sdk.simulator.types.selectable_text_custom', 'sdk.simulator.types.product_page');
+        if (in_array($simType, $validTypes) && $validInstance && is_product()) {
+            $price .= $this->pagantisAddProductSimulator(true);
         }
 
         return $price;
@@ -407,8 +415,11 @@ class WcPagantis
         return false;
     }
 
+
     /**
      * @param bool $output
+     *
+     * @return string|void
      */
     private function pagantisAddProductSimulator($output = false)
     {
@@ -453,7 +464,7 @@ class WcPagantis
         if ($output) {
             return wc_get_template_html('product_simulator.php', $template_fields, '', $this->template_path);
         } else {
-                wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
+            wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
         }
     }
 
