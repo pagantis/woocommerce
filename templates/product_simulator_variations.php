@@ -5,10 +5,13 @@
         if (window.WCSimulatorId != '')
         {
             var updateSelector = '<?php echo $variationSelector;?>';
+            if (updateSelector === 'default') {
+                updateSelector = 'div.woocommerce-variation-price span.price span.woocommerce-Price-amount';
+            }
 
             var productType = '<?php echo $productType;?>';
 
-            if (updateSelector == 'default' || updateSelector === '' || productType!=='variable')
+            if (productType!=='variable')
             {
                 clearInterval(window.variationInterval);
             }
