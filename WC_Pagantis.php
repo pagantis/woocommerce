@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.3.11
+ * Version: 8.3.12
  * Author: Pagantis
  *
  * Text Domain: pagantis
@@ -100,6 +100,7 @@ class WcPagantis
         add_filter('plugin_action_links_'.plugin_basename(__FILE__), array($this, 'pagantisActionLinks'));
         add_filter('woocommerce_get_price_html', array($this,'pagantisAddProductSimulatorAfterPrice'), 10, 2);
         add_action('woocommerce_after_add_to_cart_form', array($this,'pagantisAddProductSimulatorAfterCartButton'));
+        add_action('woocommerce_single_variation', array($this,'pagantisAddProductSnippetForVariations'));
         add_action('wp_enqueue_scripts', 'add_pagantis_widget_js');
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
@@ -415,6 +416,29 @@ class WcPagantis
         return false;
     }
 
+    public function pagantisAddProductSnippetForVariations()
+    {
+        global $product;
+
+        $cfg = get_option('woocommerce_pagantis_settings');
+        $locale = strtolower(strstr(get_locale(), '_', true));
+        $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
+        $allowedCountry = (in_array(strtolower($locale), $allowedCountries));
+        $minAmount = $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'];
+        $maxAmount = $this->extraConfig['PAGANTIS_DISPLAY_MAX_AMOUNT'];
+        $totalPrice = $product->get_price();
+        $validAmount = ($totalPrice>=$minAmount && ($totalPrice<=$maxAmount || $maxAmount=='0'));
+        if ($cfg['enabled'] !== 'yes' || $cfg['pagantis_public_key'] == '' || $cfg['pagantis_private_key'] == '' ||
+            $cfg['simulator'] !== 'yes'  || !$allowedCountry || !$validAmount) {
+            return;
+        }
+
+        $template_fields = array(
+            'variationSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_SELECTOR_VARIATION'],
+            'productType' => $product->get_type()
+        );
+        wc_get_template('product_simulator_variations.php', $template_fields, '', $this->template_path);
+    }
 
     /**
      * @param bool $output
