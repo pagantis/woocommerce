@@ -19,6 +19,7 @@ done
 
 # Prepare environment and build package
 docker-compose down
+docker ps -aq --no-trunc -f status=exited | xargs docker rm
 docker-compose up -d --build ${container}
 docker-compose up -d selenium
 npm install

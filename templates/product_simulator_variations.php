@@ -1,9 +1,4 @@
 <script>
-    window.attempts = 0;
-    window.loadingSimulator = setInterval(function () {
-        loadSimulatorPagantis();
-    }, 2000);
-
     window.lastPrice = '';
     function updateSimulator()
     {
