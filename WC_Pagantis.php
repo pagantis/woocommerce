@@ -99,7 +99,7 @@ class WcPagantis
         add_filter('plugin_action_links_'.plugin_basename(__FILE__), array($this, 'pagantisActionLinks'));
         add_action('init', array($this, 'checkWcPriceSettings'), 10);
         add_action('woocommerce_after_template_part', array($this, 'pagantisAddSimulatorHtmlDiv'), 10);
-        add_action('woocommerce_single_product_summary', array($this,'pagantisEnqueueProductSimulator'), 20);
+        add_action('woocommerce_single_product_summary', array($this, 'pagantisInitProductSimulator'), 20);
         add_action('woocommerce_single_variation', array($this,'pagantisAddProductSnippetForVariations'), 30);
         add_action('wp_enqueue_scripts', 'add_pagantis_widget_js');
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
@@ -427,7 +427,7 @@ class WcPagantis
      * @return string|void
      * @todo fetch country from frontend
      */
-    public function pagantisEnqueueProductSimulator()
+    public function pagantisInitProductSimulator()
     {
         $suffix = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '' : '.min';
         wp_enqueue_style('pg-simulator-style', plugins_url('assets/css/pg-simulator-style.css', __FILE__), array(), '', true);
