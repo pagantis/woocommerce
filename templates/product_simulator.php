@@ -65,6 +65,7 @@
     {
         if(typeof pgSDK == 'undefined')
         {
+            console.warn(typeof pgSDK)
             return false;
         }
 
@@ -104,9 +105,9 @@
             simulator_options.itemPromotedAmountSelector = priceSelector;
         }
 
-        if (typeof window.pgSDK != 'undefined') {
+        if (typeof window.pgSDK !== 'undefined') {
             window.WCSimulatorId = window.pgSDK.simulator.init(simulator_options);
-
+            console.trace();
             return false;
         }
     }
@@ -122,8 +123,9 @@
     }
 </style>
 <?php
+echo "LOADING OR NOT";
 if ($promoted == 'true') {
     echo $promotedMessage;
 }
 ?>
-<br/><div class="pagantisSimulator"></div><br/><br/>
+<!--<br/><div class="pagantisSimulator"></div><br/><br/>-->
