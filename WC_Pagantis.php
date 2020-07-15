@@ -85,8 +85,6 @@ class WcPagantis
     {
         require_once(plugin_dir_path(__FILE__).'/vendor/autoload.php');
         require_once(PG_ABSPATH . '/includes/pg-functions.php');
-        require_once(PG_ABSPATH . '/includes/class-pg-wc-logger.php');
-
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
         $this->pagantisActivation();
@@ -99,13 +97,10 @@ class WcPagantis
         add_filter('woocommerce_available_payment_gateways', array($this, 'pagantisFilterGateways'), 9999);
         add_filter('plugin_row_meta', array($this, 'pagantisRowMeta'), 10, 2);
         add_filter('plugin_action_links_'.plugin_basename(__FILE__), array($this, 'pagantisActionLinks'));
-        add_action('init', array($this, 'checkWcPriceSettings'),10);
-        add_action('woocommerce_after_template_part', array($this, 'pagantisAddSimulatorHtmlDiv'));
-//        add_action('woocommerce_single_product_summary', array($this, 'pagantisAddProductSimulator'));
-//        add_filter('woocommerce_get_price_html', array($this,'pagantisAddProductSimulatorAfterPrice'), 10, 2);
-        add_action('woocommerce_after_add_to_cart_form', array($this,'initProductSimulator'));
-        add_action('woocommerce_single_product_summary', array($this,'pagantisEnqueueProductSimulator'));
-        add_action('woocommerce_single_variation', array($this,'pagantisAddProductSnippetForVariations'));
+        add_action('init', array($this, 'checkWcPriceSettings'), 10);
+        add_action('woocommerce_after_template_part', array($this, 'pagantisAddSimulatorHtmlDiv'), 10);
+        add_action('woocommerce_single_product_summary', array($this,'pagantisEnqueueProductSimulator'), 20);
+        add_action('woocommerce_single_variation', array($this,'pagantisAddProductSnippetForVariations'), 30);
         add_action('wp_enqueue_scripts', 'add_pagantis_widget_js');
         add_action('rest_api_init', array($this, 'pagantisRegisterEndpoint')); //Endpoint
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
@@ -385,28 +380,6 @@ class WcPagantis
     }
 
     /**
-     * pagantisAddProductSimulatorAfterPrice
-     *
-     * @param $price
-     * @param $instance
-     *
-     * @return string
-     */
-    public function pagantisAddProductSimulatorAfterPrice($price, $instance)
-    {
-        $validInstance = (get_class($instance) == 'WC_Product_Simple')
-                         || (get_class($instance) == 'WC_Product_Variable')
-                         || (get_class($instance) == 'WC_Product_Grouped');
-        $simType       = strtolower($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']);
-        $validTypes    = array('sdk.simulator.types.selectable_text_custom', 'sdk.simulator.types.product_page');
-        if (in_array($simType, $validTypes) && $validInstance && is_product()) {
-            $price .= $this->pagantisAddProductSimulator(true);
-        }
-
-        return $price;
-    }
-
-    /**
      *  Pushes the simulator div depending on the config and plugin settings
      *
      * @param $template_name
@@ -417,73 +390,25 @@ class WcPagantis
      */
     public function pagantisAddSimulatorHtmlDiv($template_name)
     {
-        $areSimulatorTypesValid = isSimulatorTypeValid($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'], array('sdk.simulator.types.selectable_text_custom','sdk.simulator.types.product_page'));
+        $areSimulatorTypesValid = isSimulatorTypeValid(getConfigValue('PAGANTIS_SIMULATOR_DISPLAY_TYPE'), array('sdk.simulator.types.selectable_text_custom','sdk.simulator.types.product_page'));
         $isPriceTplPresent = isTemplatePresent($template_name, array('single-product/price.php'));
         $isAtcTplPresent = isTemplatePresent($template_name, array('single-product/add-to-cart/variation-add-to-cart-button.php','single-product/add-to-cart/variation.php','single-product/add-to-cart/simple.php'));
-        $html = apply_filters('pagantis_simulator_selector_html', '<div class="pagantisSimulator">DEBUG</div>');
+        $html = apply_filters('pagantis_simulator_selector_html', '<div class="pagantisSimulator"></div>');
         if (!isPluginEnabled() || !areMerchantKeysSet() || !isSimulatorEnabled()) {
             return;
         }
-        $args = array(
-            'isPluginEnabled()' => isPluginEnabled() ,
-            'areMerchantKeysSet' => areMerchantKeysSet(),
-            'isSimulatorEnabled' => isSimulatorEnabled(),
-            '$isAtcTplPresent' => $isAtcTplPresent,
-            '$isPriceTplPresent' => $isPriceTplPresent,
-            '$areSimulatorTypesValid' => $areSimulatorTypesValid,
-
-        );
-
-        if ($areSimulatorTypesValid && $isPriceTplPresent ) {
-            echo '<div class="pagantisSimulator">$isPriceTplPresent</div>';
-            self::debugLog(wp_json_encode(__LINE__ . '\n'));
-            self::debugLog(wp_json_encode($args. '\n'));
-            self::debugLog(wp_json_encode($template_name. '\n'));
+        if ($areSimulatorTypesValid && $isPriceTplPresent) {
+            echo $html;
         }
-        if (!$areSimulatorTypesValid && $isAtcTplPresent ) {
-            echo '<div class="pagantisSimulator">$isAtcTplPresent</div>';
-            self::debugLog(wp_json_encode(__LINE__ . '\n'));
-            self::debugLog(json_encode($args));
-            self::debugLog(wp_json_encode($template_name. '\n'));
+        if (!$areSimulatorTypesValid && $isAtcTplPresent) {
+            echo $html;
         }
     }
+
 
     /**
-     * @param $template_name
-     * @hooked woocommerce_after_template_part - 10
-     * @see wc_get_template
+     * @todo REFACTOR WITH wc_localize_script
      */
-    public function initProductSimulator($template_name)
-    {
-        global $product;
-        if (!isPluginEnabled() || !areMerchantKeysSet() || !isSimulatorEnabled() || !isCountryShopContextValid() || !isProductAmountValid()) {
-            return;
-        }
-        self::debugLog(wp_json_encode(__LINE__ . '\n'));
-        self::debugLog(wp_json_encode($product. '\n'));
-        self::debugLog(wp_json_encode($template_name. '\n'));
-
-        $this->pagantisAddProductSimulator();
-
-//
-//        if($isAddToCartTemplate){
-//            $this->pagantisAddProductSnippetForVariations();
-//        }
-
-    }
-    /**
-     * Product simulator
-     */
-    public function pagantisAddProductSimulatorAfterCartButton()
-    {
-        $simType = strtolower($this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE']);
-        $validTypes = array('sdk.simulator.types.selectable_text_custom','sdk.simulator.types.product_page');
-        if (!in_array($simType, $validTypes)) {
-            return $this->pagantisAddProductSimulator();
-        }
-
-        return false;
-    }
 
     public function pagantisAddProductSnippetForVariations()
     {
@@ -491,19 +416,8 @@ class WcPagantis
         if (!isPluginEnabled() || !areMerchantKeysSet() || !isSimulatorEnabled() || !isCountryShopContextValid() || !isProductAmountValid()) {
             return;
         }
-        $args = array(
-            'isPluginEnabled()' =>isPluginEnabled() ,
-            'areMerchantKeysSet' => areMerchantKeysSet(),
-            'isSimulatorEnabled' => isSimulatorEnabled(),
-            'isCountryShopContextValid' => isCountryShopContextValid(),
-            'isProductAmountValid' => isProductAmountValid(),
-            '$product' => $product,
-
-        );
-        self::debugLog(wp_json_encode(__LINE__));
-        self::debugLog(wp_json_encode($args));
         $template_fields = array(
-            'variationSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_SELECTOR_VARIATION'],
+            'variationSelector' => getConfigValue('PAGANTIS_SIMULATOR_SELECTOR_VARIATION'),
             'productType' => $product->get_type()
         );
         wc_get_template('product_simulator_variations.php', $template_fields, '', $this->template_path);
@@ -511,98 +425,44 @@ class WcPagantis
 
     /**
      * @return string|void
-     */
-    public function pagantisAddProductSimulator()
-    {
-        global $product;
-
-        $cfg = get_option('woocommerce_pagantis_settings');
-        $locale = strtolower(strstr(get_locale(), '_', true));
-        $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
-        $allowedCountry = (in_array(strtolower($locale), $allowedCountries));
-        $minAmount = $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'];
-        $maxAmount = $this->extraConfig['PAGANTIS_DISPLAY_MAX_AMOUNT'];
-        $totalPrice = $product->get_price();
-        $validAmount = ($totalPrice>=$minAmount && ($totalPrice<=$maxAmount || $maxAmount=='0'));
-//        if ($cfg['enabled'] !== 'yes' || $cfg['pagantis_public_key'] == '' || $cfg['pagantis_private_key'] == '' ||
-//            $cfg['simulator'] !== 'yes'  || !$allowedCountry || !$validAmount) {
-//            return;
-//        }
-
-        $post_id = $product->get_id();
-        $template_fields = array(
-            'total'    => is_numeric($product->get_price()) ? $product->get_price() : 0,
-            'public_key' => $cfg['pagantis_public_key'],
-            'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
-            'positionSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'],
-            'quantitySelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR']),
-            'priceSelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR']),
-            'totalAmount' => is_numeric($product->get_price()) ? $product->get_price() : 0,
-            'locale' => $locale,
-            'country' => $locale,
-            'promoted' => $this->isPromoted($post_id),
-            'promotedMessage' => $this->extraConfig['PAGANTIS_PROMOTION_EXTRA'],
-            'thousandSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'],
-            'decimalSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'],
-            'pagantisQuotesStart' => $this->extraConfig['PAGANTIS_SIMULATOR_START_INSTALLMENTS'],
-            'pagantisSimulatorSkin' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SKIN'],
-            'pagantisSimulatorPosition' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'],
-            'finalDestination' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SITUATION'],
-            'variationSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_SELECTOR_VARIATION'],
-            'productType' => $product->get_type()
-        );
-        self::debugLog(wp_json_encode(__LINE__ . '\n'));
-        self::debugLog(json_encode($template_fields));
-        self::debugLog(wp_json_encode($post_id. '\n'));
-         wc_get_template('product_simulator.php', $template_fields, '', $this->template_path);
-
-    }  /**
-     * @return string|void
+     * @todo fetch country from frontend
      */
     public function pagantisEnqueueProductSimulator()
     {
-        $suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-        wp_enqueue_style( 'pg-simulator-style',plugins_url('assets/css/pg-simulator-style.css',__FILE__), array(), '', true );
-        wp_register_script( 'pg-product-simulator', plugins_url('assets/js/pg-product-simulator.js',__FILE__) , array(), '', true );
-
+        $suffix = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '' : '.min';
+        wp_enqueue_style('pg-simulator-style', plugins_url('assets/css/pg-simulator-style.css', __FILE__), array(), '', true);
+        wp_register_script('pg-product-simulator', plugins_url('assets/js/pg-product-simulator.js', __FILE__), array(), '', true);
         global $product;
-        $cfg = get_option('woocommerce_pagantis_settings');
+        $settings = get_option('woocommerce_pagantis_settings');
         $locale = strtolower(strstr(get_locale(), '_', true));
-        $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
-        $allowedCountry = (in_array(strtolower($locale), $allowedCountries));
-        $minAmount = $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'];
-        $maxAmount = $this->extraConfig['PAGANTIS_DISPLAY_MAX_AMOUNT'];
-        $totalPrice = $product->get_price();
-        $validAmount = ($totalPrice>=$minAmount && ($totalPrice<=$maxAmount || $maxAmount=='0'));
-//        if ($cfg['enabled'] !== 'yes' || $cfg['pagantis_public_key'] == '' || $cfg['pagantis_private_key'] == '' ||
-//            $cfg['simulator'] !== 'yes'  || !$allowedCountry || !$validAmount) {
-//            return;
-//        }
+        if (!isPluginEnabled() || !areMerchantKeysSet() || !isSimulatorEnabled() || !isCountryShopContextValid() || !isProductAmountValid()) {
+            return;
+        }
 
         $post_id = $product->get_id();
         $simulatorData = array(
             'total'    => is_numeric($product->get_price()) ? $product->get_price() : 0,
-            'public_key' => $cfg['pagantis_public_key'],
-            'simulator_type' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_TYPE'],
-            'positionSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'],
+            'public_key' => $settings['pagantis_public_key'],
+            'simulator_type' => getConfigValue('PAGANTIS_SIMULATOR_DISPLAY_TYPE'),
+            'positionSelector' => getConfigValue('PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'),
             'quantitySelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR']),
             'priceSelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR']),
             'totalAmount' => is_numeric($product->get_price()) ? $product->get_price() : 0,
             'locale' => $locale,
             'country' => $locale,
             'promoted' => $this->isPromoted($post_id),
-            'promotedMessage' => $this->extraConfig['PAGANTIS_PROMOTION_EXTRA'],
-            'thousandSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'],
-            'decimalSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'],
-            'pagantisQuotesStart' => $this->extraConfig['PAGANTIS_SIMULATOR_START_INSTALLMENTS'],
-            'pagantisSimulatorSkin' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SKIN'],
-            'pagantisSimulatorPosition' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'],
-            'finalDestination' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SITUATION'],
-            'variationSelector' => $this->extraConfig['PAGANTIS_SIMULATOR_SELECTOR_VARIATION'],
+            'promotedMessage' => getConfigValue('PAGANTIS_PROMOTION_EXTRA'),
+            'thousandSeparator' => getConfigValue('PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'),
+            'decimalSeparator' => getConfigValue('PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'),
+            'pagantisQuotesStart' => getConfigValue('PAGANTIS_SIMULATOR_START_INSTALLMENTS'),
+            'pagantisSimulatorSkin' => getConfigValue('PAGANTIS_SIMULATOR_DISPLAY_SKIN'),
+            'pagantisSimulatorPosition' => getConfigValue('PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'),
+            'finalDestination' => getConfigValue('PAGANTIS_SIMULATOR_DISPLAY_SITUATION'),
+            'variationSelector' => getConfigValue('PAGANTIS_SIMULATOR_SELECTOR_VARIATION'),
             'productType' => $product->get_type()
         );
-        wp_localize_script( 'pg-product-simulator', 'simulatorData', $simulatorData );
-        wp_enqueue_script( 'pg-product-simulator' );
+        wp_localize_script('pg-product-simulator', 'simulatorData', $simulatorData);
+        wp_enqueue_script('pg-product-simulator');
     }
 
     /**
@@ -908,27 +768,6 @@ class WcPagantis
         $metaProduct = get_post_meta($product_id);
         return (array_key_exists('custom_product_pagantis_promoted', $metaProduct) &&
                 $metaProduct['custom_product_pagantis_promoted']['0'] === 'yes') ? 'true' : 'false';
-    }
-    /**
-     * Logging method. Using this to log a string will store it in a file that is accessible
-     * from "WooCommerce > System Status > Logs" in the WordPress admin. No FTP access required.
-     *
-     * @param 	string	$message	The message to log.
-     * @uses	WC_Logger::add()
-     */
-    public static function debugLog($message) {
-        static $wc_ppec_logger;
-
-        if ( ! isset( $wc_ppec_logger ) ) {
-            $wc_ppec_logger = new WC_Logger();
-        }
-
-        $wc_ppec_logger->debug( 'pagantis', $message );
-
-        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-            error_log( $message );
-        }
-
     }
 }
 

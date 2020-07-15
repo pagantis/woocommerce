@@ -135,10 +135,10 @@ function updateDecimalSeparatorDbConfig()
 function isSimulatorTypeValid($simulatorType, $validSimulatorTypes)
 {
 
-    if (in_array($simulatorType, $validSimulatorTypes)) {
-        return true;
+    if (!in_array($simulatorType, $validSimulatorTypes)) {
+        return false;
     }
-    return false;
+    return true;
 }
 
 /**
@@ -150,44 +150,28 @@ function isSimulatorTypeValid($simulatorType, $validSimulatorTypes)
  */
 function isTemplatePresent($currentTemplateName, $validTemplateNames)
 {
-    if (!in_array($currentTemplateName, $validTemplateNames)) {
-        return false;
+    if (in_array($currentTemplateName, $validTemplateNames)) {
+        return true;
     }
-    return true;
+    return false;
 }
 
-
-/**
- * Get HTML for Simulator
- *
- * @return mixed|void
- */
-function getSimulatorHtml()
-{
-    $html = '';
-    $html .= apply_filters( 'pagantis_simulator_preceding_paragraph_html', '<p style="margin: 5px auto 5px">');
-    $html .= apply_filters( 'pagantis_simulator_div_html', '<div class="pagantisSimulator"></div></p>' );
-
-    echo apply_filters( 'pagantis_simulator_placeholder_html', $html );
-
-}
 
 function areMerchantKeysSet()
 {
     $settings              = get_option('woocommerce_pagantis_settings');
-    $publicKey = ! empty( $settings['pagantis_public_key'] ) ? $settings['pagantis_public_key'] : '';
-    $privateKey = ! empty( $settings['pagantis_private_key'] ) ? $settings['pagantis_private_key'] : '';
-    if ((empty($publicKey) && empty( $privateKey)) || (empty($publicKey) || empty( $privateKey))){
+    $publicKey = ! empty($settings['pagantis_public_key']) ? $settings['pagantis_public_key'] : '';
+    $privateKey = ! empty($settings['pagantis_private_key']) ? $settings['pagantis_private_key'] : '';
+    if ((empty($publicKey) && empty($privateKey)) || (empty($publicKey) || empty($privateKey))) {
         return false;
     }
     return true;
-
 }
 
 function isSimulatorEnabled()
 {
     $settings              = get_option('woocommerce_pagantis_settings');
-    if (( ! empty( $settings['simulator'] ) && 'yes' === $settings['simulator'] ) ? true : false){
+    if (( ! empty($settings['simulator']) && 'yes' === $settings['simulator'] ) ? true : false) {
         return true;
     }
     return false;
@@ -196,17 +180,18 @@ function isSimulatorEnabled()
 function isPluginEnabled()
 {
     $settings              = get_option('woocommerce_pagantis_settings');
-    if (! empty( $ettings['enabled'] ) && 'yes' === $settings['enabled'] ? 'yes' : 'no'){
+    if (! empty($ettings['enabled']) && 'yes' === $settings['enabled'] ? 'yes' : 'no') {
         return true;
     }
     return false;
 }
 
 
-function isCountryShopContextValid(){
+function isCountryShopContextValid()
+{
     $locale = strtolower(strstr(get_locale(), '_', true));
-    $allowedCountries = maybe_unserialize(getExtraConfig('PAGANTIS_ALLOWED_COUNTRIES'));
-    if(!in_array(strtolower($locale), $allowedCountries)){
+    $allowedCountries = maybe_unserialize(getConfigValue('PAGANTIS_ALLOWED_COUNTRIES'));
+    if (!in_array(strtolower($locale), $allowedCountries)) {
         return false;
     }
     return true;
@@ -215,15 +200,16 @@ function isCountryShopContextValid(){
 /**
  * @return bool
  */
-function isProductAmountValid(){
+function isProductAmountValid()
+{
 
-    $minAmount = $this->extraConfig['PAGANTIS_DISPLAY_MIN_AMOUNT'];
-    $maxAmount = $this->extraConfig['PAGANTIS_DISPLAY_MAX_AMOUNT'];
+    $minAmount = getConfigValue('PAGANTIS_DISPLAY_MIN_AMOUNT');
+    $maxAmount = getConfigValue('PAGANTIS_DISPLAY_MAX_AMOUNT');
     global $product;
-   if (method_exists($product, 'get_price')) {
+    if (method_exists($product, 'get_price')) {
         $productPrice = $product->get_price();
         $validAmount = ($productPrice>=$minAmount && ($productPrice<=$maxAmount || $maxAmount=='0'));
-        if ($validAmount){
+        if ($validAmount) {
             return true;
         }
     }
@@ -236,14 +222,10 @@ function isProductAmountValid(){
  * @return string
  * @global wpdb $wpdb WordPress database abstraction object.
  */
-function getExtraConfig($configKey)
+function getConfigValue($configKey)
 {
     global $wpdb;
-    $tableName = $wpdb->prefix . PG_CONFIG_TABLE_NAME;
-    $value = $wpdb->get_var( $wpdb->prepare( "SELECT value FROM $tableName WHERE config= %s ", $configKey) );
-    if (!empty($value)){
-        return strtolower($value);
-    }
-    return false;
+    $tableName = $wpdb->prefix. PG_CONFIG_TABLE_NAME;
+    $value = $wpdb->get_var($wpdb->prepare("SELECT value FROM $tableName WHERE config= %s ", $configKey));
+    return strtolower($value);
 }
-

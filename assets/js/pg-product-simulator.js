@@ -1,6 +1,5 @@
 /** global console, simulatorData  */
 function findPriceSelector() {
-    console.debug(simulatorData);
     var priceSelectors = simulatorData.priceSelector;
     return priceSelectors.find(function (candidateSelector) {
         var priceDOM = document.querySelector(candidateSelector);
@@ -59,8 +58,7 @@ function checkAttempts() {
 }
 
 function loadSimulatorPagantis() {
-    if (typeof pgSDK == 'undefined') {
-        console.warn(typeof pgSDK)
+    if (typeof pgSDK == 'undefined' || typeof simulatorData == 'undefined') {
         return false;
     }
 
@@ -82,8 +80,8 @@ function loadSimulatorPagantis() {
         type: simulatorData.simulator_type,
         selector: positionSelector,
         itemQuantitySelector: quantitySelector,
-        locale: "fr",
-        country: "fr",
+        locale:locale,
+        country: country,
         itemAmountSelector: priceSelector,
         amountParserConfig: {
             thousandSeparator: simulatorData.thousandSeparator,
@@ -101,9 +99,6 @@ function loadSimulatorPagantis() {
 
     if (typeof window.pgSDK !== 'undefined') {
         window.WCSimulatorId = window.pgSDK.simulator.init(simulator_options);
-        console.dir(simulator_options);
-        console.dir(window.pgSDK.simulator.$pool.getAll());
-
         return false;
     }
 }
