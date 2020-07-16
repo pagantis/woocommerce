@@ -77,7 +77,7 @@ function loadSimulatorPagantis() {
 
     var simulator_options = {
         publicKey: simulatorData.public_key,
-        type: simulatorData.simulator_type,
+        type: eval(simulatorData.simulator_type),
         selector: positionSelector,
         itemQuantitySelector: quantitySelector,
         locale:locale,
@@ -88,8 +88,8 @@ function loadSimulatorPagantis() {
             decimalSeparator: simulatorData.decimalSeparator,
         },
         numInstalments: simulatorData.pagantisQuotesStart,
-        skin: simulatorData.pagantisSimulatorSkin,
-        position: simulatorData.pagantisSimulatorPosition,
+        skin: eval(simulatorData.pagantisSimulatorSkin),
+        position: eval(simulatorData.pagantisSimulatorPosition),
     };
 
     window.pgSDK = sdk;

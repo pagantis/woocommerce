@@ -390,7 +390,7 @@ class WcPagantis
      */
     public function pagantisAddSimulatorHtmlDiv($template_name)
     {
-        $areSimulatorTypesValid = isSimulatorTypeValid(getConfigValue('PAGANTIS_SIMULATOR_DISPLAY_TYPE'), array('sdk.simulator.types.selectable_text_custom','sdk.simulator.types.product_page'));
+        $areSimulatorTypesValid = isSimulatorTypeValid(getConfigValue('PAGANTIS_SIMULATOR_DISPLAY_TYPE'), array('sdk.simulator.types.SELECTABLE_TEXT_CUSTOM','sdk.simulator.types.PRODUCT_PAGE'));
         $isPriceTplPresent = isTemplatePresent($template_name, array('single-product/price.php'));
         $isAtcTplPresent = isTemplatePresent($template_name, array('single-product/add-to-cart/variation-add-to-cart-button.php','single-product/add-to-cart/variation.php','single-product/add-to-cart/simple.php'));
         $html = apply_filters('pagantis_simulator_selector_html', '<div class="pagantisSimulator"></div>');

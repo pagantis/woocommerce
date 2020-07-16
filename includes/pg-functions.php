@@ -240,5 +240,5 @@ function getConfigValue($configKey)
     $tableName = $wpdb->prefix . PG_CONFIG_TABLE_NAME;
     $value     = $wpdb->get_var($wpdb->prepare("SELECT value FROM $tableName WHERE config= %s ", $configKey));
 
-    return strtolower($value);
+    return $value;
 }
