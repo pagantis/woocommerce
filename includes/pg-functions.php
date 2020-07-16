@@ -11,6 +11,7 @@ function isPgLogsTableCreated()
     if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") == $tableName) {
         return true;
     }
+
     return false;
 }
 
@@ -37,7 +38,7 @@ function createPgLogsTable()
 function insertLogEntry($exception = null, $message = null)
 {
     global $wpdb;
-    if (!isPgLogsTableCreated()) {
+    if ( ! isPgLogsTableCreated()) {
         createPgLogsTable();
     }
     $logEntry = new Pagantis\ModuleUtils\Model\Log\LogEntry();
@@ -56,7 +57,7 @@ function insertLogEntry($exception = null, $message = null)
 function areDecimalSeparatorEqual()
 {
     $pgDecimalSeparator = getPgSimulatorDecimalSeparatorConfig();
-    $wc_decimal_sep= get_option('woocommerce_price_decimal_sep');
+    $wc_decimal_sep     = get_option('woocommerce_price_decimal_sep');
     if (stripslashes($wc_decimal_sep) == stripslashes($pgDecimalSeparator)) {
         return true;
     } else {
@@ -71,8 +72,8 @@ function areDecimalSeparatorEqual()
 function areThousandsSeparatorEqual()
 {
     $pgThousandSeparator = getPgSimulatorThousandsSeparator();
-    $wc_price_thousand = get_option('woocommerce_price_thousand_sep');
-    if (stripslashes($wc_price_thousand)== stripslashes($pgThousandSeparator)) {
+    $wc_price_thousand   = get_option('woocommerce_price_thousand_sep');
+    if (stripslashes($wc_price_thousand) == stripslashes($pgThousandSeparator)) {
         return true;
     } else {
         return false;
@@ -88,6 +89,7 @@ function getPgSimulatorThousandsSeparator()
     $tableName = $wpdb->prefix . PG_CONFIG_TABLE_NAME;
     $query     = "SELECT value FROM $tableName WHERE config='PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'";
     $result    = $wpdb->get_row($query, ARRAY_A);
+
     return $result['value'];
 }
 
@@ -100,6 +102,7 @@ function getPgSimulatorDecimalSeparatorConfig()
     $tableName = $wpdb->prefix . PG_CONFIG_TABLE_NAME;
     $query     = "SELECT value FROM $tableName WHERE config='PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'";
     $result    = $wpdb->get_row($query, ARRAY_A);
+
     return $result['value'];
 }
 
@@ -111,7 +114,8 @@ function updateThousandsSeparatorDbConfig()
     }
     $tableName         = $wpdb->prefix . PG_CONFIG_TABLE_NAME;
     $thousandSeparator = get_option('woocommerce_price_thousand_sep');
-    $wpdb->update($tableName, array('value' => $thousandSeparator), array('config' => 'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'), array('%s'), array('%s'));
+    $wpdb->update($tableName, array('value' => $thousandSeparator), array('config' => 'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'),
+        array('%s'), array('%s'));
 }
 
 function updateDecimalSeparatorDbConfig()
@@ -122,7 +126,8 @@ function updateDecimalSeparatorDbConfig()
     }
     $tableName        = $wpdb->prefix . PG_CONFIG_TABLE_NAME;
     $decimalSeparator = get_option('woocommerce_price_decimal_sep');
-    $wpdb->update($tableName, array('value' => $decimalSeparator), array('config' => 'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'), array('%s'), array('%s'));
+    $wpdb->update($tableName, array('value' => $decimalSeparator), array('config' => 'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'),
+        array('%s'), array('%s'));
 }
 
 
@@ -134,10 +139,10 @@ function updateDecimalSeparatorDbConfig()
  */
 function isSimulatorTypeValid($simulatorType, $validSimulatorTypes)
 {
-
-    if (!in_array($simulatorType, $validSimulatorTypes)) {
+    if ( ! in_array($simulatorType, $validSimulatorTypes)) {
         return false;
     }
+
     return true;
 }
 
@@ -153,47 +158,52 @@ function isTemplatePresent($currentTemplateName, $validTemplateNames)
     if (in_array($currentTemplateName, $validTemplateNames)) {
         return true;
     }
+
     return false;
 }
 
 
 function areMerchantKeysSet()
 {
-    $settings              = get_option('woocommerce_pagantis_settings');
-    $publicKey = ! empty($settings['pagantis_public_key']) ? $settings['pagantis_public_key'] : '';
+    $settings   = get_option('woocommerce_pagantis_settings');
+    $publicKey  = ! empty($settings['pagantis_public_key']) ? $settings['pagantis_public_key'] : '';
     $privateKey = ! empty($settings['pagantis_private_key']) ? $settings['pagantis_private_key'] : '';
     if ((empty($publicKey) && empty($privateKey)) || (empty($publicKey) || empty($privateKey))) {
         return false;
     }
+
     return true;
 }
 
 function isSimulatorEnabled()
 {
-    $settings              = get_option('woocommerce_pagantis_settings');
-    if (( ! empty($settings['simulator']) && 'yes' === $settings['simulator'] ) ? true : false) {
+    $settings = get_option('woocommerce_pagantis_settings');
+    if (( ! empty($settings['simulator']) && 'yes' === $settings['simulator']) ? true : false) {
         return true;
     }
+
     return false;
 }
 
 function isPluginEnabled()
 {
-    $settings              = get_option('woocommerce_pagantis_settings');
+    $settings = get_option('woocommerce_pagantis_settings');
     if (! empty($ettings['enabled']) && 'yes' === $settings['enabled'] ? 'yes' : 'no') {
         return true;
     }
+
     return false;
 }
 
 
 function isCountryShopContextValid()
 {
-    $locale = strtolower(strstr(get_locale(), '_', true));
+    $locale           = strtolower(strstr(get_locale(), '_', true));
     $allowedCountries = maybe_unserialize(getConfigValue('PAGANTIS_ALLOWED_COUNTRIES'));
-    if (!in_array(strtolower($locale), $allowedCountries)) {
+    if ( ! in_array(strtolower($locale), $allowedCountries)) {
         return false;
     }
+
     return true;
 }
 
@@ -202,30 +212,33 @@ function isCountryShopContextValid()
  */
 function isProductAmountValid()
 {
-
     $minAmount = getConfigValue('PAGANTIS_DISPLAY_MIN_AMOUNT');
     $maxAmount = getConfigValue('PAGANTIS_DISPLAY_MAX_AMOUNT');
     global $product;
     if (method_exists($product, 'get_price')) {
         $productPrice = $product->get_price();
-        $validAmount = ($productPrice>=$minAmount && ($productPrice<=$maxAmount || $maxAmount=='0'));
+        $validAmount  = ($productPrice >= $minAmount && ($productPrice <= $maxAmount || $maxAmount == '0'));
         if ($validAmount) {
             return true;
         }
     }
-     return false;
+
+    return false;
 }
 
 /**
  * Get lowercase config value from WP DB
+ *
  * @param string $configKey
+ *
  * @return string
- * @global wpdb $wpdb WordPress database abstraction object.
+ * @global wpdb  $wpdb WordPress database abstraction object.
  */
 function getConfigValue($configKey)
 {
     global $wpdb;
-    $tableName = $wpdb->prefix. PG_CONFIG_TABLE_NAME;
-    $value = $wpdb->get_var($wpdb->prepare("SELECT value FROM $tableName WHERE config= %s ", $configKey));
+    $tableName = $wpdb->prefix . PG_CONFIG_TABLE_NAME;
+    $value     = $wpdb->get_var($wpdb->prepare("SELECT value FROM $tableName WHERE config= %s ", $configKey));
+
     return strtolower($value);
 }
