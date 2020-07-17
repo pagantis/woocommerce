@@ -1,6 +1,5 @@
 <?php if ($enabled==='yes' && isset($total) && $simulator_enabled==='yes' && $allowed_country===true) {
     ?>
-    <div class="pagantisSimulator4x"></div>
     <script>
         window.WCsimulatorId4x = null;
         window.product = "<?php echo $product;?>";
@@ -9,9 +8,6 @@
         {
             var product = "<?php echo $product;?>"
             if(typeof pgSDK == 'undefined')
-            { console.log(product+'=pgSDK undefined');
-                return false;
-            }
 
             window.attempts = window.attempts + 1;
             if (window.attempts > 4 )
@@ -19,7 +15,7 @@
                 clearInterval(loadingSimulator4x);
                 return true;
             }
-            var pgDiv = document.getElementsByClassName("pagantisSimulator4x");
+            var pgDiv = document.getElementsByClassName("mainPagantisSimulator");
             if(pgDiv.length > 0) {
                 var pgElement = pgDiv[0];
                 if(pgElement.innerHTML != '' )
@@ -39,7 +35,7 @@
                 window.WCSimulatorId4x = pgSDK.simulator.init({
                     type: <?php echo $simulator_type; ?>,
                     publicKey: '<?php echo $public_key; ?>',
-                    selector: '.pagantisSimulator4x',
+                    selector: '.mainPagantisSimulator',
                     totalAmount: '<?php echo $total; ?>',
                     totalPromotedAmount: '<?php echo $promoted_amount; ?>',
                     skin : <?php echo $pagantisSimulatorSkin;?>,

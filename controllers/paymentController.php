@@ -109,6 +109,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
     /**
      * PANEL - Display admin panel -> Hook: woocommerce_update_options_payment_gateways_pagantis
+     * @todo TM refactor with wp_localize_script
      */
     public function admin_options()
     {
@@ -367,6 +368,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 wp_redirect($url);
                 exit;
             } else {
+                // @todo TM refactor with wp_localize_script - maybe put in other function
                 $template_fields = array(
                     'url' => $url,
                     'checkoutUrl'   => $cancelUrl

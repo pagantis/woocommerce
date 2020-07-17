@@ -80,7 +80,6 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
 
         //Hooks
         add_action('woocommerce_update_options_payment_gateways_'.$this->id, array($this,'process_admin_options')); //Save plugin options
-        //add_action('admin_notices', array($this, 'pagantisCheckFields'));                          //Check config fields
         add_action('woocommerce_receipt_'.$this->id, array($this, 'pagantisReceiptPage'));          //Pagantis form
         add_action('woocommerce_api_wcpagantisgateway', array($this, 'pagantisNotification'));      //Json Notification
         add_filter('woocommerce_payment_complete_order_status', array($this,'pagantisCompleteStatus'), 10, 3);
@@ -332,6 +331,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
                 wp_redirect($url);
                 exit;
             } else {
+                // @todo TM refactor with wp_localize_script - maybe put in other function
                 $template_fields = array(
                     'url' => $url,
                     'checkoutUrl'   => $cancelUrl
@@ -467,7 +467,8 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
     }
 
     /**
-     * CHECKOUT - simulator (called by woocommerce, can't apply cammel caps)
+     * CHECKOUT - simulator (called by woocommerce, can't apply camel caps)
+     * @todo TM refactor with wp_localize_script
      */
     public function payment_fields()
     {
