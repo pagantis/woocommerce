@@ -121,7 +121,7 @@ class PagantisWc3InstallTest extends PagantisWoocommerceTest
         $this->findByLinkText('WooCommerce')->click();
         $this->findByLinkText($setString)->click();
         $this->findByLinkText($paymentString)->click();
-        $this->findByLinkText('Pagantis')->click();
+        $this->findByLinkText('Pagantis - Financiación')->click();
 
         $verify = WebDriverBy::id('woocommerce_pagantis_pagantis_public_key');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
