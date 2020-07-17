@@ -41,6 +41,6 @@ return array(
     'simulator' => array(
         'title'       => __('Simulator 12x', 'pagantis'),
         'type'        => 'checkbox',
-        'default'     => 'yes'
+        'default'     => 'no'
     )
 );
