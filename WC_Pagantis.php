@@ -312,11 +312,11 @@ class WcPagantis
         $query = "select * from $tableName where config='PAGANTIS_TITLE_4x'";
         $results = $wpdb->get_results($query, ARRAY_A);
         if (count($results) == 0) {
-            $wpdb->insert($tableName, array('config' => 'PAGANTIS_TITLE_4x', 'value'  => 'Hasta 4 pagos, sin coste'), array('%s', '%s'));
+            $wpdb->insert($tableName, array('config' => 'PAGANTIS_TITLE_4x', 'value'  => 'Until 4 installments, without fees'), array('%s', '%s'));
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_DISPLAY_MIN_AMOUNT_4x', 'value'  => 1), array('%s', '%s'));
             $wpdb->insert($tableName, array('config' => 'PAGANTIS_DISPLAY_MAX_AMOUNT_4x', 'value'  => 800), array('%s', '%s'));
 
-            $wpdb->update($tableName, array('value' => 'Financiación instantánea'), array('config' => 'PAGANTIS_TITLE'), array('%s'), array('%s'));
+            $wpdb->update($tableName, array('value' => 'Instant financing'), array('config' => 'PAGANTIS_TITLE'), array('%s'), array('%s'));
             $wpdb->update($tableName, array('value' => 1500), array('config' => 'PAGANTIS_DISPLAY_MAX_AMOUNT'), array('%s'), array('%s'));
         }
 
