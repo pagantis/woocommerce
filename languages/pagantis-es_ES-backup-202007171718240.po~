@@ -2,94 +2,94 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pagantis WooCommerce V2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-19 23:03+0000\n"
-"PO-Revision-Date: 2020-05-19 23:10+0000\n"
+"POT-Creation-Date: 2020-07-17 11:49+0000\n"
+"PO-Revision-Date: 2020-07-17 11:50+0000\n"
 "Last-Translator: \n"
-"Language-Team: French (France)\n"
-"Language: fr_FR\n"
+"Language-Team: Español\n"
+"Language: es_ES\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.3.4; wp-5.3.2"
+"X-Loco-Version: 2.4.0; wp-5.3.2"
 
 #: WC_Pagantis.php:413
 msgid "Settings"
-msgstr "Paramètres"
+msgstr "Ajustes"
 
 #: WC_Pagantis.php:431 controllers/paymentController2.php:124
 #: controllers/paymentController.php:124
 msgid "Documentation"
-msgstr "La documentation"
+msgstr "Documentación"
 
 #: WC_Pagantis.php:433
 msgid "API documentation"
-msgstr "Documentation API"
+msgstr "Documentación de la API"
 
 #: WC_Pagantis.php:434
 msgid "Support"
-msgstr "Soutien"
+msgstr "Soporte"
 
 #: includes/settings-pagantis.php:12
 msgid "Activate the module"
-msgstr "Activer le module"
+msgstr "Activar el modulo"
 
 #: includes/settings-pagantis.php:17
 msgid "Public Key"
-msgstr "Clé publique"
+msgstr "Clave Pública"
 
 #: includes/settings-pagantis.php:19 includes/settings-pagantis.php:24
 msgid "MANDATORY. You can get in your pagantis profile"
-msgstr "OBLIGATOIRE. Vous pouvez entrer dans votre profil paymastar"
+msgstr "OBLIGATORIO. Puede obtenerla en su perfil de usuario de pagantis"
 
 #: includes/settings-pagantis.php:22
 msgid "Secret Key"
-msgstr "Clé secrète"
+msgstr "Clave Privada"
 
 #: includes/settings-pagantis.php:27
 msgid "Product simulator"
-msgstr "Simulateur de produit"
+msgstr "Simulador en el producto"
 
 #: controllers/paymentController2.php:90 controllers/paymentController.php:90
 msgid "Pago en cuotas"
-msgstr "Paiement en plusieurs fois"
+msgstr "Pago en cuotas"
 
 #: controllers/paymentController2.php:123 controllers/paymentController.php:123
 msgid "Login to your panel"
-msgstr "Connectez-vous à votre panel"
+msgstr "Accede a tu panel"
 
 #: controllers/paymentController2.php:140 controllers/paymentController.php:140
 msgid " is not compatible with your php and/or curl version"
-msgstr "n'est pas compatible avec votre version php et / ou curl"
+msgstr " no es compatible con su versión de php/curl"
 
 #: controllers/paymentController2.php:143 controllers/paymentController.php:143
 msgid ""
 " is not configured correctly, the fields Public Key and Secret Key are "
 "mandatory for use this plugin"
 msgstr ""
-" n'est pas configuré correctement, les champs Clé publique et Clé secrète "
-"sont obligatoires pour utiliser ce plugin"
+" no está configurado correctamente, los campos Public Key y Secret Key son "
+"obligatorios para su uso"
 
 #: controllers/paymentController2.php:146 controllers/paymentController.php:146
 msgid " only can be used in Euros"
-msgstr " seulement peut être utilisé en euros"
+msgstr " solo puede ser usado en Euros"
 
 #: controllers/paymentController2.php:150
 #: controllers/paymentController2.php:153 controllers/paymentController.php:150
 #: controllers/paymentController.php:153
 msgid " only can be payed from 2 to 12 installments"
-msgstr " seulement peut être payé de 2 à 12 versements"
+msgstr " solo puede ser pagado de 2 a 12 plazos"
 
 #: controllers/paymentController2.php:155 controllers/paymentController.php:155
 msgid " can not have a minimum amount less than 0"
-msgstr " ne peut pas avoir un montant minimum inférieur à 0"
+msgstr " no puede tener un importe mínimo menor a 0"
 
 #: controllers/paymentController2.php:381
 #: controllers/paymentController2.php:502 controllers/paymentController.php:381
 #: controllers/paymentController.php:502
 msgid "Payment error "
-msgstr "Erreur de paiement"
+msgstr "Error en el pago "
 
 #. Author of the plugin
 msgid "Pagantis"
@@ -97,8 +97,14 @@ msgstr "Pagantis"
 
 #. Description of the plugin
 msgid "Financiar con Pagantis"
-msgstr "Financez avec Pagantis"
+msgstr "Financiar con Pagantis"
 
 #. URI of the plugin
 msgid "http://www.pagantis.com/"
 msgstr "http://www.pagantis.com/"
+
+msgid "Instant financing"
+msgstr "Financiación instantánea"
+
+msgid "or 4 installments of %s€, without fees, with "
+msgstr "o 4 cuotas de %s, sin coste, con "

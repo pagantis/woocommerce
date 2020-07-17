@@ -106,3 +106,6 @@ msgstr ""
 
 msgid "or 4 installments of %s€, without fees, with "
 msgstr ""
+
+msgid "Until 4 installments, without fees"
+msgstr ""
