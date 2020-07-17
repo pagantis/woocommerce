@@ -109,6 +109,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
     /**
      * PANEL - Display admin panel -> Hook: woocommerce_update_options_payment_gateways_pagantis
+     * @todo TM refactor with wp_localize_script
      */
     public function admin_options()
     {
@@ -307,10 +308,12 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
             $callback_arg_user = $callback_arg;
             $callback_arg_user['origin'] = 'redirect';
+            $callback_arg_user['product'] = Ucfirst(WcPagantisGateway::METHOD_ID);
             $callback_url_user = add_query_arg($callback_arg_user, home_url('/'));
 
             $callback_arg_notif = $callback_arg;
             $callback_arg_notif['origin'] = 'notification';
+            $callback_arg_notif['product'] = Ucfirst(WcPagantisGateway::METHOD_ID);
             $callback_url_notif = add_query_arg($callback_arg_notif, home_url('/'));
 
             $orderConfigurationUrls
@@ -365,6 +368,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 wp_redirect($url);
                 exit;
             } else {
+                // @todo TM refactor with wp_localize_script - maybe put in other function
                 $template_fields = array(
                     'url' => $url,
                     'checkoutUrl'   => $cancelUrl

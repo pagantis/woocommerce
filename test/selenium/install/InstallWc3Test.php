@@ -121,7 +121,11 @@ class PagantisWc3InstallTest extends PagantisWoocommerceTest
         $this->findByLinkText('WooCommerce')->click();
         $this->findByLinkText($setString)->click();
         $this->findByLinkText($paymentString)->click();
-        $this->findByLinkText('Pagantis')->click();
+        $buttonElementSearch = WebDriverBy::linkText('Pagantis');
+        $condition = WebDriverExpectedCondition::elementToBeClickable($buttonElementSearch);
+        $this->waitUntil($condition);
+        $this->webDriver->findElement($buttonElementSearch)->click();
+
 
         $verify = WebDriverBy::id('woocommerce_pagantis_pagantis_public_key');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($verify);
@@ -142,6 +146,8 @@ class PagantisWc3InstallTest extends PagantisWoocommerceTest
 
         $this->findById('woocommerce_pagantis_pagantis_public_key')->sendKeys($this->configuration['publicKey']);
         $this->findById('woocommerce_pagantis_pagantis_private_key')->sendKeys($this->configuration['secretKey']);
+        $enabledSim = $this->findById('woocommerce_pagantis_simulator')->click();
+
         $cssSelector = "form#mainform > p.submit > button.button-primary.woocommerce-save-button";
         $menuSearch = WebDriverBy::cssSelector($cssSelector);
         $menuElement = $this->webDriver->findElement($menuSearch);

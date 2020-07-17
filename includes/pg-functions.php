@@ -175,6 +175,18 @@ function areMerchantKeysSet()
     return true;
 }
 
+function areMerchantKeysSet4x()
+{
+    $settings   = get_option('woocommerce_pagantis_settings');
+    $publicKey  = ! empty($settings['pagantis_public_key_4x']) ? $settings['pagantis_public_key_4x'] : '';
+    $privateKey = ! empty($settings['pagantis_private_key_4x']) ? $settings['pagantis_private_key_4x'] : '';
+    if ((empty($publicKey) && empty($privateKey)) || (empty($publicKey) || empty($privateKey))) {
+        return false;
+    }
+
+    return true;
+}
+
 function isSimulatorEnabled()
 {
     $settings = get_option('woocommerce_pagantis_settings');
@@ -188,11 +200,13 @@ function isSimulatorEnabled()
 function isPluginEnabled()
 {
     $settings = get_option('woocommerce_pagantis_settings');
-    if (! empty($ettings['enabled']) && 'yes' === $settings['enabled'] ? 'yes' : 'no') {
-        return true;
-    }
+    return (!empty($settings['enabled']) && 'yes' === $settings['enabled']);
+}
 
-    return false;
+function isPluginEnabled4x()
+{
+    $settings = get_option('woocommerce_pagantis_settings');
+    return (!empty($settings['enabled_4x']) && 'yes' === $settings['enabled_4x']);
 }
 
 
@@ -214,6 +228,25 @@ function isProductAmountValid()
 {
     $minAmount = getConfigValue('PAGANTIS_DISPLAY_MIN_AMOUNT');
     $maxAmount = getConfigValue('PAGANTIS_DISPLAY_MAX_AMOUNT');
+    global $product;
+    if (method_exists($product, 'get_price')) {
+        $productPrice = $product->get_price();
+        $validAmount  = ($productPrice >= $minAmount && ($productPrice <= $maxAmount || $maxAmount == '0'));
+        if ($validAmount) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * @return bool
+ */
+function isProductAmountValid4x()
+{
+    $minAmount = getConfigValue('PAGANTIS_DISPLAY_MIN_AMOUNT_4x');
+    $maxAmount = getConfigValue('PAGANTIS_DISPLAY_MAX_AMOUNT_4x');
     global $product;
     if (method_exists($product, 'get_price')) {
         $productPrice = $product->get_price();

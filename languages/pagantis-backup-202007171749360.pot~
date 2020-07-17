@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pagantis WooCommerce V2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-17 17:49+0000\n"
+"POT-Creation-Date: 2020-07-17 17:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -116,7 +116,4 @@ msgstr ""
 
 #. URI of the plugin
 msgid "http://www.pagantis.com/"
-msgstr ""
-
-msgid "Until 4 installments, without fees"
 msgstr ""

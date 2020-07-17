@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pagantis WooCommerce V2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-19 23:03+0000\n"
-"PO-Revision-Date: 2020-05-19 23:10+0000\n"
+"POT-Creation-Date: 2020-07-17 17:49+0000\n"
+"PO-Revision-Date: 2020-07-17 17:50+0000\n"
 "Last-Translator: \n"
 "Language-Team: French (France)\n"
 "Language: fr_FR\n"
@@ -12,58 +12,82 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.3.4; wp-5.3.2"
+"X-Loco-Version: 2.4.0; wp-5.3.2"
 
-#: WC_Pagantis.php:413
+#: WC_Pagantis.php:511
+#, php-format
+msgid "or 4 installments of %s€, without fees, with "
+msgstr "ou 4 tranches de %s€, sans frais, avec "
+
+#: WC_Pagantis.php:600
 msgid "Settings"
 msgstr "Paramètres"
 
-#: WC_Pagantis.php:431 controllers/paymentController2.php:124
-#: controllers/paymentController.php:124
+#: WC_Pagantis.php:618 controllers/paymentController4x.php:117
+#: controllers/paymentController.php:119
 msgid "Documentation"
 msgstr "La documentation"
 
-#: WC_Pagantis.php:433
+#: WC_Pagantis.php:620
 msgid "API documentation"
 msgstr "Documentation API"
 
-#: WC_Pagantis.php:434
+#: WC_Pagantis.php:621
 msgid "Support"
 msgstr "Soutien"
 
 #: includes/settings-pagantis.php:12
-msgid "Activate the module"
-msgstr "Activer le module"
+msgid "Activate the module 4x"
+msgstr ""
 
 #: includes/settings-pagantis.php:17
-msgid "Public Key"
-msgstr "Clé publique"
+msgid "Public Key 4x"
+msgstr ""
 
 #: includes/settings-pagantis.php:19 includes/settings-pagantis.php:24
-msgid "MANDATORY. You can get in your pagantis profile"
-msgstr "OBLIGATOIRE. Vous pouvez entrer dans votre profil paymastar"
+msgid "MANDATORY. You can get in your pagantis backoffice"
+msgstr ""
 
 #: includes/settings-pagantis.php:22
-msgid "Secret Key"
-msgstr "Clé secrète"
+msgid "Secret Key 4x"
+msgstr ""
 
 #: includes/settings-pagantis.php:27
-msgid "Product simulator"
-msgstr "Simulateur de produit"
+msgid "Activate the module 12x"
+msgstr ""
 
-#: controllers/paymentController2.php:90 controllers/paymentController.php:90
-msgid "Pago en cuotas"
-msgstr "Paiement en plusieurs fois"
+#: includes/settings-pagantis.php:32
+msgid "Public Key 12x"
+msgstr ""
 
-#: controllers/paymentController2.php:123 controllers/paymentController.php:123
+#: includes/settings-pagantis.php:34 includes/settings-pagantis.php:39
+msgid "You can get in your pagantis backoffice"
+msgstr ""
+
+#: includes/settings-pagantis.php:37
+msgid "Secret Key 12x"
+msgstr ""
+
+#: includes/settings-pagantis.php:42
+msgid "Simulator 12x"
+msgstr ""
+
+#: controllers/paymentController4x.php:116
+#: controllers/paymentController.php:118
 msgid "Login to your panel"
 msgstr "Connectez-vous à votre panel"
 
-#: controllers/paymentController2.php:140 controllers/paymentController.php:140
+#: controllers/paymentController4x.php:342
+#: controllers/paymentController4x.php:464
+#: controllers/paymentController.php:379 controllers/paymentController.php:500
+msgid "Payment error "
+msgstr "Erreur de paiement"
+
+#: controllers/paymentController.php:135
 msgid " is not compatible with your php and/or curl version"
 msgstr "n'est pas compatible avec votre version php et / ou curl"
 
-#: controllers/paymentController2.php:143 controllers/paymentController.php:143
+#: controllers/paymentController.php:138
 msgid ""
 " is not configured correctly, the fields Public Key and Secret Key are "
 "mandatory for use this plugin"
@@ -71,26 +95,19 @@ msgstr ""
 " n'est pas configuré correctement, les champs Clé publique et Clé secrète "
 "sont obligatoires pour utiliser ce plugin"
 
-#: controllers/paymentController2.php:146 controllers/paymentController.php:146
+#: controllers/paymentController.php:141
 msgid " only can be used in Euros"
 msgstr " seulement peut être utilisé en euros"
 
-#: controllers/paymentController2.php:150
-#: controllers/paymentController2.php:153 controllers/paymentController.php:150
-#: controllers/paymentController.php:153
+#: controllers/paymentController.php:145 controllers/paymentController.php:148
 msgid " only can be payed from 2 to 12 installments"
 msgstr " seulement peut être payé de 2 à 12 versements"
 
-#: controllers/paymentController2.php:155 controllers/paymentController.php:155
+#: controllers/paymentController.php:150
 msgid " can not have a minimum amount less than 0"
 msgstr " ne peut pas avoir un montant minimum inférieur à 0"
 
-#: controllers/paymentController2.php:381
-#: controllers/paymentController2.php:502 controllers/paymentController.php:381
-#: controllers/paymentController.php:502
-msgid "Payment error "
-msgstr "Erreur de paiement"
-
+#. Name of the plugin
 #. Author of the plugin
 msgid "Pagantis"
 msgstr "Pagantis"
@@ -102,3 +119,6 @@ msgstr "Financez avec Pagantis"
 #. URI of the plugin
 msgid "http://www.pagantis.com/"
 msgstr "http://www.pagantis.com/"
+
+msgid "Until 4 installments, without fees"
+msgstr "Jusqu'à 4 versements, sans frais"

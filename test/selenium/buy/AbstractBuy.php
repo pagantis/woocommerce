@@ -267,6 +267,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
      */
     private function checkSimulator()
     {
+        sleep(10);
         $simulatorElementSearch = WebDriverBy::className('pagantisSimulator');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($simulatorElementSearch);
         $this->waitUntil($condition);

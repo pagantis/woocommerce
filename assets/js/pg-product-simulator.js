@@ -1,3 +1,10 @@
+if (simulatorData.pagantisSimulator4x === 'enabled') {
+    var simulator4xdiv = document.getElementsByClassName('mainPagantisSimulator');
+    if (simulator4xdiv.length > 0 && typeof simulator4xdiv != 'undefined') {
+        simulator4xdiv[0].innerHTML = simulatorData.simulatorMessage;
+    }
+}
+
 /** global console, simulatorData  */
 function findPriceSelector() {
     var priceSelectors = simulatorData.priceSelector;
@@ -104,10 +111,11 @@ function loadSimulatorPagantis() {
 }
 
 window.attempts = 0;
-window.loadingSimulator = setInterval(function () {
-    loadSimulatorPagantis();
-}, 2000);
-
+if (simulatorData.pagantisSimulator === 'enabled') {
+    window.loadingSimulator = setInterval(function () {
+        loadSimulatorPagantis();
+    }, 2000);
+}
 
 if (simulatorData.promoted === 'true') {
     simulatorData.promotedMessage;
