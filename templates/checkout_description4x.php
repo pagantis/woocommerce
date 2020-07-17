@@ -1,13 +1,17 @@
 <?php if ($enabled==='yes' && isset($total) && $simulator_enabled==='yes' && $allowed_country===true) {
     ?>
+    <div class="pagantisSimulator4x"></div>
     <script>
-        window.WCsimulatorId4x = null;
+        window.WCsimulatorId = null;
         window.product = "<?php echo $product;?>";
 
         function loadSimulator4x()
         {
             var product = "<?php echo $product;?>"
             if(typeof pgSDK == 'undefined')
+            {
+                return false;
+            }
 
             window.attempts = window.attempts + 1;
             if (window.attempts > 4 )
@@ -15,7 +19,7 @@
                 clearInterval(loadingSimulator4x);
                 return true;
             }
-            var pgDiv = document.getElementsByClassName("mainPagantisSimulator");
+            var pgDiv = document.getElementsByClassName("pagantisSimulator4x");
             if(pgDiv.length > 0) {
                 var pgElement = pgDiv[0];
                 if(pgElement.innerHTML != '' )
@@ -35,7 +39,7 @@
                 window.WCSimulatorId4x = pgSDK.simulator.init({
                     type: <?php echo $simulator_type; ?>,
                     publicKey: '<?php echo $public_key; ?>',
-                    selector: '.mainPagantisSimulator',
+                    selector: '.pagantisSimulator4x',
                     totalAmount: '<?php echo $total; ?>',
                     totalPromotedAmount: '<?php echo $promoted_amount; ?>',
                     skin : <?php echo $pagantisSimulatorSkin;?>,

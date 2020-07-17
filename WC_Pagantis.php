@@ -407,7 +407,31 @@ class WcPagantis
         $areSimulatorTypesValid = isSimulatorTypeValid(getConfigValue('PAGANTIS_SIMULATOR_DISPLAY_TYPE'), array('sdk.simulator.types.SELECTABLE_TEXT_CUSTOM','sdk.simulator.types.PRODUCT_PAGE'));
         $isPriceTplPresent = isTemplatePresent($template_name, array('single-product/price.php'));
         $isAtcTplPresent = isTemplatePresent($template_name, array('single-product/add-to-cart/variation-add-to-cart-button.php','single-product/add-to-cart/variation.php','single-product/add-to-cart/simple.php'));
-        $html = apply_filters('pagantis_simulator_selector_html','<div class="mainPagantisSimulator"></div><div class="pagantisSimulator"></div>');
+
+        $style = "<style>
+                    @import url('https://fonts.googleapis.com/css?family=Open+Sans:400');
+                    .mainPagantisSimulator {
+                        font-family: Open Sans,sans-serif!important;
+                        font-size: 14px!important;
+                        font-weight: 400;
+                        text-align: left!important;
+                        color: #828282!important;
+                        -webkit-touch-callout: none;
+                        -webkit-user-select: none;
+                        -ms-user-select: none;
+                        user-select: none;
+                        padding: 0 0 10px 0;
+                        min-width: 250px;
+                        line-height: 20px;
+                        margin-top: -10px;
+                    }
+                    .mainPagantisSimulator .mainImageLogo{
+                        height: 20px;
+                        display: inline;
+                        vertical-align: bottom;
+                    }
+                </style>";
+        $html = apply_filters('pagantis_simulator_selector_html', $style.'<div class="mainPagantisSimulator"></div><div class="pagantisSimulator"></div>');
 
 
         $pagantisSimulator = 'enabled';
