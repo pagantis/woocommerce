@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.3.13
+ * Version: 8.6.0
  * Author: Pagantis
  *
  * Text Domain: pagantis
@@ -51,7 +51,7 @@ class WcPagantis
     const ORDERS_TABLE = 'posts';
 
     public $defaultConfigs = array(
-        'PAGANTIS_TITLE'=>'Pago en cuotas',
+        'PAGANTIS_TITLE'=>'Financiación instantánea',
         'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'sdk.simulator.types.PRODUCT_PAGE',
         'PAGANTIS_SIMULATOR_DISPLAY_TYPE_CHECKOUT'=>'sdk.simulator.types.CHECKOUT_PAGE',
         'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'sdk.simulator.skins.BLUE',
@@ -64,7 +64,7 @@ class WcPagantis
         'PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR'=>'a:2:{i:0;s:22:"div.quantity input.qty";i:1;s:18:"div.quantity>input";}',
         'PAGANTIS_FORM_DISPLAY_TYPE'=>0,
         'PAGANTIS_DISPLAY_MIN_AMOUNT'=>1,
-        'PAGANTIS_DISPLAY_MAX_AMOUNT'=>0,
+        'PAGANTIS_DISPLAY_MAX_AMOUNT'=>1500,
         'PAGANTIS_URL_OK'=>'',
         'PAGANTIS_URL_KO'=>'',
         'PAGANTIS_ALLOWED_COUNTRIES' => 'a:3:{i:0;s:2:"es";i:1;s:2:"it";i:2;s:2:"fr";}',
@@ -72,7 +72,12 @@ class WcPagantis
         'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR' => '.',
         'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR' => ',',
         'PAGANTIS_SIMULATOR_DISPLAY_SITUATION' => 'default',
-        'PAGANTIS_SIMULATOR_SELECTOR_VARIATION' => 'default'
+        'PAGANTIS_SIMULATOR_SELECTOR_VARIATION' => 'default',
+        //4x
+        'PAGANTIS_DISPLAY_MIN_AMOUNT_4x'=>0,
+        'PAGANTIS_DISPLAY_MAX_AMOUNT_4x'=>800,
+        'PAGANTIS_TITLE_4x'=>'Hasta 4 pagos, sin coste',
+
     );
 
     /** @var Array $extraConfig */
@@ -302,6 +307,15 @@ class WcPagantis
             $wpdb->update($tableName, array('value' => $variableSelector), array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION'), array('%s'), array('%s'));
         }
 
+        //Adapting vars to 4x < v8.6.0
+        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $query = "select * from $tableName where config='PAGANTIS_TITLE_4x'";
+        $results = $wpdb->get_results($query, ARRAY_A);
+        if (count($results) == 0) {
+            $wpdb->update($tableName, array('value' => 'Hasta 4 pagos, sin coste'), array('config' => 'PAGANTIS_TITLE_4x'), array('%s'), array('%s'));
+            $wpdb->update($tableName, array('value' => 1), array('config' => 'PAGANTIS_DISPLAY_MIN_AMOUNT_4x'), array('%s'), array('%s'));
+            $wpdb->update($tableName, array('value' => 800), array('config' => 'PAGANTIS_DISPLAY_MAX_AMOUNT_4x'), array('%s'), array('%s'));
+        }
 
         //Adding WC price separator verifications to adapt extra config dynamically < v8.3.9
         if (!areDecimalSeparatorEqual()) {
@@ -393,10 +407,47 @@ class WcPagantis
         $areSimulatorTypesValid = isSimulatorTypeValid(getConfigValue('PAGANTIS_SIMULATOR_DISPLAY_TYPE'), array('sdk.simulator.types.SELECTABLE_TEXT_CUSTOM','sdk.simulator.types.PRODUCT_PAGE'));
         $isPriceTplPresent = isTemplatePresent($template_name, array('single-product/price.php'));
         $isAtcTplPresent = isTemplatePresent($template_name, array('single-product/add-to-cart/variation-add-to-cart-button.php','single-product/add-to-cart/variation.php','single-product/add-to-cart/simple.php'));
-        $html = apply_filters('pagantis_simulator_selector_html', '<div class="pagantisSimulator"></div>');
-        if (!isPluginEnabled() || !areMerchantKeysSet() || !isSimulatorEnabled()) {
+        $style = "<style>
+                    @import url('https://fonts.googleapis.com/css?family=Open+Sans:400');
+                    .mainPagantisSimulator {
+                        font-family: Open Sans,sans-serif!important;
+                        font-size: 14px!important;
+                        font-weight: 400;
+                        text-align: left!important;
+                        color: #828282!important;
+                        -webkit-touch-callout: none;
+                        -webkit-user-select: none;
+                        -ms-user-select: none;
+                        user-select: none;
+                        padding: 0 0 10px 0;
+                        min-width: 250px;
+                        line-height: 20px;
+                        margin-top: -10px;
+                    }
+                    .mainPagantisSimulator .mainImageLogo{
+                        height: 20px;
+                        display: inline;
+                        vertical-align: bottom;
+                    }
+                </style>";
+        $html = apply_filters('pagantis_simulator_selector_html', $style.'<div class="mainPagantisSimulator"></div><div class="pagantisSimulator"></div>');
+        /*if (!isPluginEnabled() || !areMerchantKeysSet() || !isSimulatorEnabled()) {
+            return;
+        }*/
+
+        $pagantisSimulator = 'enabled';
+        if (!isPluginEnabled() || !areMerchantKeysSet() || !isSimulatorEnabled() || !isCountryShopContextValid() || !isProductAmountValid()) {
+            $pagantisSimulator = 'disabled';
+        }
+
+        $pagantisSimulator4x = 'enabled';
+        if (!isPluginEnabled4x() || !areMerchantKeysSet4x()  || !isCountryShopContextValid() || !isProductAmountValid4x()) {
+            $pagantisSimulator4x = 'disabled';
+        }
+        if ($pagantisSimulator === 'disabled' && $pagantisSimulator4x === 'disabled') {
             return;
         }
+
         if ($areSimulatorTypesValid && $isPriceTplPresent) {
             echo $html;
         }
@@ -429,6 +480,8 @@ class WcPagantis
      */
     public function pagantisInitProductSimulator()
     {
+        //12x
+        $pagantisSimulator = 'enabled';
         $suffix = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '' : '.min';
         wp_enqueue_style('pg-simulator-style', plugins_url('assets/css/pg-simulator-style.css', __FILE__), array(), '', true);
         wp_register_script('pg-product-simulator', plugins_url('assets/js/pg-product-simulator.js', __FILE__), array(), '', true);
@@ -436,10 +489,22 @@ class WcPagantis
         $settings = get_option('woocommerce_pagantis_settings');
         $locale = strtolower(strstr(get_locale(), '_', true));
         if (!isPluginEnabled() || !areMerchantKeysSet() || !isSimulatorEnabled() || !isCountryShopContextValid() || !isProductAmountValid()) {
+            $pagantisSimulator = 'disabled';
+        }
+
+        $pagantisSimulator4x = 'enabled';
+        if (!isPluginEnabled4x() || !areMerchantKeysSet4x()  || !isCountryShopContextValid() || !isProductAmountValid4x()) {
+            $pagantisSimulator4x = 'disabled';
+        }
+
+        if ($pagantisSimulator === 'disabled' && $pagantisSimulator4x === 'disabled') {
             return;
         }
 
+        $totalPrice = $product->get_price();
+        $simulatorMessage = sprintf(__('ó 4 pagos de %s€, sin coste, con ', 'pagantis'), $totalPrice/4);
         $post_id = $product->get_id();
+        $logo = 'https://cdn.digitalorigin.com/assets/master/logos/pg-130x30.svg';
         $simulatorData = array(
             'total'    => is_numeric($product->get_price()) ? $product->get_price() : 0,
             'public_key' => $settings['pagantis_public_key'],
@@ -459,8 +524,12 @@ class WcPagantis
             'pagantisSimulatorPosition' => getConfigValue('PAGANTIS_SIMULATOR_DISPLAY_CSS_POSITION'),
             'finalDestination' => getConfigValue('PAGANTIS_SIMULATOR_DISPLAY_SITUATION'),
             'variationSelector' => getConfigValue('PAGANTIS_SIMULATOR_SELECTOR_VARIATION'),
-            'productType' => $product->get_type()
+            'productType' => $product->get_type(),
+            'pagantisSimulator' => $pagantisSimulator,
+            'pagantisSimulator4x' => $pagantisSimulator4x,
+            'simulatorMessage' => "$simulatorMessage<img class='mainImageLogo' src='$logo'/>"
         );
+
         wp_localize_script('pg-product-simulator', 'simulatorData', $simulatorData);
         wp_enqueue_script('pg-product-simulator');
     }
@@ -478,6 +547,11 @@ class WcPagantis
             return $methods;
         }
 
+        //4x
+        include_once('controllers/paymentController4x.php');
+        $methods[] = 'WcPagantis4xGateway';
+
+        //12x
         include_once('controllers/paymentController.php');
         $methods[] = 'WcPagantisGateway';
 
@@ -493,6 +567,11 @@ class WcPagantis
      */
     public function pagantisFilterGateways($methods)
     {
+        $pagantis4x = new WcPagantis4xGateway();
+        if (!$pagantis4x->is_available()) {
+            unset($methods['pagantis4x']);
+        }
+
         $pagantis = new WcPagantisGateway();
         if (!$pagantis->is_available()) {
             unset($methods['pagantis']);
@@ -554,10 +633,11 @@ class WcPagantis
         $to   = $filters['to'];
         $cfg  = get_option('woocommerce_pagantis_settings');
         $privateKey = isset($cfg['pagantis_private_key']) ? $cfg['pagantis_private_key'] : null;
+        $privateKey4x = isset($cfg['pagantis_private_key_4x']) ? $cfg['pagantis_private_key_4x'] : null;
         $tableName = $wpdb->prefix.self::LOGS_TABLE;
         $query = "select * from $tableName where createdAt>$from and createdAt<$to order by createdAt desc";
         $results = $wpdb->get_results($query);
-        if (isset($results) && $privateKey == $secretKey) {
+        if (isset($results) && ($privateKey == $secretKey || $privateKey4x == $secretKey)) {
             foreach ($results as $key => $result) {
                 $response[$key]['timestamp'] = $result->createdAt;
                 $response[$key]['log']       = json_decode($result->log);
@@ -585,8 +665,9 @@ class WcPagantis
         $filters   = ($data->get_params());
         $secretKey = $filters['secret'];
         $cfg  = get_option('woocommerce_pagantis_settings');
-        $privateKey = isset($cfg['pagantis_private_key']) ? $cfg['pagantis_private_key'] : null;
-        if ($privateKey != $secretKey) {
+        $privateKey   = isset($cfg['pagantis_private_key']) ? $cfg['pagantis_private_key'] : null;
+        $privateKey4x = isset($cfg['pagantis_private_key_4x']) ? $cfg['pagantis_private_key_4x'] : null;
+        if ($privateKey != $secretKey && $privateKey4x != $secretKey) {
             $response['status'] = 401;
             $response['result'] = 'Unauthorized';
         } elseif ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -642,6 +723,7 @@ class WcPagantis
         $method = ($filters['method']) ? ($filters['method']) : 'Pagantis';
         $cfg  = get_option('woocommerce_pagantis_settings');
         $privateKey = isset($cfg['pagantis_private_key']) ? $cfg['pagantis_private_key'] : null;
+        $privateKey4x = isset($cfg['pagantis_private_key_4x']) ? $cfg['pagantis_private_key_4x'] : null;
         $tableName = $wpdb->prefix.self::ORDERS_TABLE;
         $tableNameInner = $wpdb->prefix.'postmeta';
         $query = "select * from $tableName tn INNER JOIN $tableNameInner tn2 ON tn2.post_id = tn.id
@@ -649,7 +731,7 @@ class WcPagantis
                   and tn.post_date<'".$to->format("Y-m-d")."' order by tn.post_date desc";
         $results = $wpdb->get_results($query);
 
-        if (isset($results) && $privateKey == $secretKey) {
+        if (isset($results) && ($privateKey == $secretKey || $privateKey4x == $secretKey)) {
             foreach ($results as $result) {
                 $key = $result->ID;
                 $response['message'][$key]['timestamp'] = $result->post_date;

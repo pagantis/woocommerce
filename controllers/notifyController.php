@@ -51,6 +51,9 @@ class WcPagantisNotify extends WcPagantisGateway
     /** @var mixed $pagantisOrderId */
     protected $pagantisOrderId = '';
 
+    /** @var $string */
+    protected $product;
+
     /**
      * Validation vs PagantisClient
      *
@@ -66,6 +69,7 @@ class WcPagantisNotify extends WcPagantisGateway
                     return $this->buildResponse();
                 }
                 $this->checkConcurrency();
+                $this->getProductType();
                 $this->getMerchantOrder();
                 $this->getPagantisOrderId();
                 $this->getPagantisOrder();
@@ -119,13 +123,25 @@ class WcPagantisNotify extends WcPagantisGateway
     }
 
     /**
+     * getProductType
+     */
+    private function getProductType()
+    {
+        if ($_GET['product'] == '') {
+            $this->setProduct(WcPagantisGateway::METHOD_ID);
+        } else {
+            $this->setProduct($_GET['product']);
+        }
+    }
+
+    /**
      * @throws MerchantOrderNotFoundException
      */
     private function getMerchantOrder()
     {
         try {
             $this->woocommerceOrder = new WC_Order($this->woocommerceOrderId);
-            $this->woocommerceOrder->set_payment_method_title(Ucfirst(WcPagantisGateway::METHOD_ID));
+            $this->woocommerceOrder->set_payment_method_title($this->getProduct());
         } catch (\Exception $e) {
             throw new MerchantOrderNotFoundException();
         }
@@ -153,8 +169,16 @@ class WcPagantisNotify extends WcPagantisGateway
     private function getPagantisOrder()
     {
         try {
-            $this->cfg = get_option('woocommerce_pagantis_settings');
-            $this->orderClient = new Client($this->cfg['pagantis_public_key'], $this->cfg['pagantis_private_key']);
+            $this->cfg = get_option('woocommerce_pagantis_settings');            $this->cfg = get_option('woocommerce_pagantis_settings');
+            if ($this->isProduct4x()) {
+                $publicKey = $this->cfg['pagantis_public_key_4x'];
+                $secretKey = $this->cfg['pagantis_private_key_4x'];
+            } else {
+                $publicKey = $this->cfg['pagantis_public_key'];
+                $secretKey = $this->cfg['pagantis_private_key'];
+            }
+
+            $this->orderClient = new Client($publicKey, $secretKey);
             $this->pagantisOrder = $this->orderClient->getOrder($this->pagantisOrderId);
         } catch (\Exception $e) {
             throw new OrderNotFoundException();
@@ -510,5 +534,29 @@ class WcPagantisNotify extends WcPagantisGateway
     public function setOrigin($origin)
     {
         $this->origin = $origin;
+    }
+
+    /**
+     * @return bool
+     */
+    private function isProduct4x()
+    {
+        return ($this->product === Ucfirst(WcPagantis4xGateway::METHOD_ID));
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProduct()
+    {
+        return $this->product;
+    }
+
+    /**
+     * @param mixed $product
+     */
+    public function setProduct($product)
+    {
+        $this->product = Ucfirst($product);
     }
 }

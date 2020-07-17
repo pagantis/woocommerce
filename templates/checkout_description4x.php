@@ -1,30 +1,30 @@
 <?php if ($enabled==='yes' && isset($total) && $simulator_enabled==='yes' && $allowed_country===true) {
     ?>
-    <div class="pagantisSimulator"></div>
+    <div class="pagantisSimulator4x"></div>
     <script>
-        window.WCsimulatorId = null;
+        window.WCsimulatorId4x = null;
         window.product = "<?php echo $product;?>";
 
-        function loadSimulator()
+        function loadSimulator4x()
         {
             var product = "<?php echo $product;?>"
             if(typeof pgSDK == 'undefined')
-            {
+            { console.log(product+'=pgSDK undefined');
                 return false;
             }
 
             window.attempts = window.attempts + 1;
             if (window.attempts > 4 )
             {
-                clearInterval(loadingSimulator);
+                clearInterval(loadingSimulator4x);
                 return true;
             }
-            var pgDiv = document.getElementsByClassName("pagantisSimulator");
+            var pgDiv = document.getElementsByClassName("pagantisSimulator4x");
             if(pgDiv.length > 0) {
                 var pgElement = pgDiv[0];
                 if(pgElement.innerHTML != '' )
                 {
-                    clearInterval(loadingSimulator);
+                    clearInterval(loadingSimulator4x);
                     return true;
                 }
             }
@@ -36,10 +36,10 @@
                 if (typeof sdk == 'undefined') {
                     var sdk = pgSDK;
                 }
-                window.WCSimulatorId = pgSDK.simulator.init({
+                window.WCSimulatorId4x = pgSDK.simulator.init({
                     type: <?php echo $simulator_type; ?>,
                     publicKey: '<?php echo $public_key; ?>',
-                    selector: '.pagantisSimulator',
+                    selector: '.pagantisSimulator4x',
                     totalAmount: '<?php echo $total; ?>',
                     totalPromotedAmount: '<?php echo $promoted_amount; ?>',
                     skin : <?php echo $pagantisSimulatorSkin;?>,
@@ -51,8 +51,8 @@
         }
 
         window.attempts = 0;
-        loadingSimulator = setInterval(function () {
-            loadSimulator();
+        loadingSimulator4x = setInterval(function () {
+            loadSimulator4x();
         }, 2000);
 
     </script>

@@ -307,10 +307,12 @@ class WcPagantisGateway extends WC_Payment_Gateway
 
             $callback_arg_user = $callback_arg;
             $callback_arg_user['origin'] = 'redirect';
+            $callback_arg_user['product'] = Ucfirst(WcPagantisGateway::METHOD_ID);
             $callback_url_user = add_query_arg($callback_arg_user, home_url('/'));
 
             $callback_arg_notif = $callback_arg;
             $callback_arg_notif['origin'] = 'notification';
+            $callback_arg_notif['product'] = Ucfirst(WcPagantisGateway::METHOD_ID);
             $callback_url_notif = add_query_arg($callback_arg_notif, home_url('/'));
 
             $orderConfigurationUrls
