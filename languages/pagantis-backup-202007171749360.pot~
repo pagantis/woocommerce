@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pagantis WooCommerce V2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-17 11:49+0000\n"
+"POT-Creation-Date: 2020-07-17 17:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -14,81 +14,98 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/"
 
-#: WC_Pagantis.php:413
+#: WC_Pagantis.php:511
+#, php-format
+msgid "or 4 installments of %s€, without fees, with "
+msgstr ""
+
+#: WC_Pagantis.php:600
 msgid "Settings"
 msgstr ""
 
-#: WC_Pagantis.php:431 controllers/paymentController2.php:124
-#: controllers/paymentController.php:124
+#: WC_Pagantis.php:618 controllers/paymentController4x.php:117
+#: controllers/paymentController.php:119
 msgid "Documentation"
 msgstr ""
 
-#: WC_Pagantis.php:433
+#: WC_Pagantis.php:620
 msgid "API documentation"
 msgstr ""
 
-#: WC_Pagantis.php:434
+#: WC_Pagantis.php:621
 msgid "Support"
 msgstr ""
 
 #: includes/settings-pagantis.php:12
-msgid "Activate the module"
+msgid "Activate the module 4x"
 msgstr ""
 
 #: includes/settings-pagantis.php:17
-msgid "Public Key"
+msgid "Public Key 4x"
 msgstr ""
 
 #: includes/settings-pagantis.php:19 includes/settings-pagantis.php:24
-msgid "MANDATORY. You can get in your pagantis profile"
+msgid "MANDATORY. You can get in your pagantis backoffice"
 msgstr ""
 
 #: includes/settings-pagantis.php:22
-msgid "Secret Key"
+msgid "Secret Key 4x"
 msgstr ""
 
 #: includes/settings-pagantis.php:27
-msgid "Product simulator"
+msgid "Activate the module 12x"
 msgstr ""
 
-#: controllers/paymentController2.php:90 controllers/paymentController.php:90
-msgid "Pago en cuotas"
+#: includes/settings-pagantis.php:32
+msgid "Public Key 12x"
 msgstr ""
 
-#: controllers/paymentController2.php:123 controllers/paymentController.php:123
+#: includes/settings-pagantis.php:34 includes/settings-pagantis.php:39
+msgid "You can get in your pagantis backoffice"
+msgstr ""
+
+#: includes/settings-pagantis.php:37
+msgid "Secret Key 12x"
+msgstr ""
+
+#: includes/settings-pagantis.php:42
+msgid "Simulator 12x"
+msgstr ""
+
+#: controllers/paymentController4x.php:116
+#: controllers/paymentController.php:118
 msgid "Login to your panel"
 msgstr ""
 
-#: controllers/paymentController2.php:140 controllers/paymentController.php:140
+#: controllers/paymentController4x.php:342
+#: controllers/paymentController4x.php:464
+#: controllers/paymentController.php:379 controllers/paymentController.php:500
+msgid "Payment error "
+msgstr ""
+
+#: controllers/paymentController.php:135
 msgid " is not compatible with your php and/or curl version"
 msgstr ""
 
-#: controllers/paymentController2.php:143 controllers/paymentController.php:143
+#: controllers/paymentController.php:138
 msgid ""
 " is not configured correctly, the fields Public Key and Secret Key are "
 "mandatory for use this plugin"
 msgstr ""
 
-#: controllers/paymentController2.php:146 controllers/paymentController.php:146
+#: controllers/paymentController.php:141
 msgid " only can be used in Euros"
 msgstr ""
 
-#: controllers/paymentController2.php:150
-#: controllers/paymentController2.php:153 controllers/paymentController.php:150
-#: controllers/paymentController.php:153
+#: controllers/paymentController.php:145 controllers/paymentController.php:148
 msgid " only can be payed from 2 to 12 installments"
 msgstr ""
 
-#: controllers/paymentController2.php:155 controllers/paymentController.php:155
+#: controllers/paymentController.php:150
 msgid " can not have a minimum amount less than 0"
 msgstr ""
 
-#: controllers/paymentController2.php:381
-#: controllers/paymentController2.php:502 controllers/paymentController.php:381
-#: controllers/paymentController.php:502
-msgid "Payment error "
-msgstr ""
-
+#. Name of the plugin
 #. Author of the plugin
 msgid "Pagantis"
 msgstr ""
@@ -99,13 +116,4 @@ msgstr ""
 
 #. URI of the plugin
 msgid "http://www.pagantis.com/"
-msgstr ""
-
-msgid "Instant financing"
-msgstr ""
-
-msgid "or 4 installments of %s€, without fees, with "
-msgstr ""
-
-msgid "Until 4 installments, without fees"
 msgstr ""
