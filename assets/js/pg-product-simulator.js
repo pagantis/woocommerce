@@ -1,7 +1,8 @@
 if (simulatorData.pagantisSimulator4x === 'enabled') {
     var simulator4xdiv = document.getElementsByClassName('mainPagantisSimulator');
-    simulator4xdiv[0].innerHTML = simulatorData.simulatorMessage;
-
+    if (simulator4xdiv.length > 0 && typeof simulator4xdiv != 'undefined') {
+        simulator4xdiv[0].innerHTML = simulatorData.simulatorMessage;
+    }
 }
 
 /** global console, simulatorData  */
