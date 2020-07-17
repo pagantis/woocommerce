@@ -508,11 +508,7 @@ class WcPagantis
         }
 
         $totalPrice = $product->get_price();
-        $simulatorMessage = sprintf(
-            __('or 4 installments of %s%s, without fees, with ', 'pagantis'),
-            $totalPrice/4,
-            '€'
-        );
+        $simulatorMessage = sprintf(__('or 4 installments of %s, without fees, with ', 'pagantis'), $totalPrice/4);
         $post_id = $product->get_id();
         $logo = 'https://cdn.digitalorigin.com/assets/master/logos/pg-130x30.svg';
         $simulatorData = array(
