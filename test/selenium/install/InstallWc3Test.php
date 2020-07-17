@@ -121,7 +121,6 @@ class PagantisWc3InstallTest extends PagantisWoocommerceTest
         $this->findByLinkText('WooCommerce')->click();
         $this->findByLinkText($setString)->click();
         $this->findByLinkText($paymentString)->click();
-        //$this->findByLinkText('Gestionar')->click();
         $buttonElementSearch = WebDriverBy::linkText('Pagantis');
         $condition = WebDriverExpectedCondition::elementToBeClickable($buttonElementSearch);
         $this->waitUntil($condition);
