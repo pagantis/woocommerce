@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.6.0
+ * Version: 8.6.1
  * Author: Pagantis
  *
  * Text Domain: pagantis
@@ -307,7 +307,7 @@ class WcPagantis
             $wpdb->update($tableName, array('value' => $variableSelector), array('config' => 'PAGANTIS_SIMULATOR_SELECTOR_VARIATION'), array('%s'), array('%s'));
         }
 
-        //Adapting vars to 4x < v8.6.0
+        //Adapting vars to 4x < v8.6.x
         $tableName = $wpdb->prefix.self::CONFIG_TABLE;
         $query = "select * from $tableName where config='PAGANTIS_TITLE_4x'";
         $results = $wpdb->get_results($query, ARRAY_A);
