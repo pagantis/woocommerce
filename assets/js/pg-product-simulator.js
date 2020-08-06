@@ -1,20 +1,15 @@
 if (simulatorData.pagantisSimulator4x === 'enabled') {
-    var position = findPositionSelector4x();
-    var simulator4xdiv = document.getElementsByClassName(position);
+    var simulator4xdiv = document.getElementsByClassName('mainPagantisSimulator');
     if (simulator4xdiv.length > 0 && typeof simulator4xdiv != 'undefined') {
-        var span = document.createElement('span');
-        span.innerHTML = simulatorData.simulatorMessage;
-        simulator4xdiv[0].appendChild(span);
+        simulator4xdiv[0].innerHTML = simulatorData.simulatorMessage;
+        var position = simulatorData.positionSelector4x;
+        if (position !== 'default') { // Move to desired class
+            var desiredPosition = document.getElementsByClassName(position);
+            if (desiredPosition.length > 0 && typeof desiredPosition != 'undefined') {
+                desiredPosition[0].appendChild(simulator4xdiv[0]);
+            }
+        }
     }
-}
-
-function findPositionSelector4x() {
-    var positionSelector4x = simulatorData.positionSelector4x;
-    if (positionSelector4x === 'default') {
-        positionSelector4x = 'mainPagantisSimulator';
-    }
-
-    return positionSelector4x;
 }
 
 /** global console, simulatorData  */
