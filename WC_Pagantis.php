@@ -51,7 +51,7 @@ class WcPagantis
     const ORDERS_TABLE = 'posts';
 
     public $defaultConfigs = array(
-        'PAGANTIS_TITLE'=>'Financiación instantánea',
+        'PAGANTIS_TITLE'=>'Instant financing',
         'PAGANTIS_SIMULATOR_DISPLAY_TYPE'=>'sdk.simulator.types.PRODUCT_PAGE',
         'PAGANTIS_SIMULATOR_DISPLAY_TYPE_CHECKOUT'=>'sdk.simulator.types.CHECKOUT_PAGE',
         'PAGANTIS_SIMULATOR_DISPLAY_SKIN'=>'sdk.simulator.skins.BLUE',
