@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.6.1
+ * Version: 8.6.2
  * Author: Pagantis
  *
  * Text Domain: pagantis
@@ -320,6 +320,14 @@ class WcPagantis
             $wpdb->update($tableName, array('value' => 1500), array('config' => 'PAGANTIS_DISPLAY_MAX_AMOUNT'), array('%s'), array('%s'));
         }
 
+        //Adapting situation var of 4x < v8.6.2
+        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
+        $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR_4X'";
+        $results = $wpdb->get_results($query, ARRAY_A);
+        if (count($results) == 0) {
+            $wpdb->insert($tableName, array('config' => 'PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR_4X', 'value'  => 'default'), array('%s', '%s'));
+        }
+
         //Adding WC price separator verifications to adapt extra config dynamically < v8.3.9
         if (!areDecimalSeparatorEqual()) {
             updateDecimalSeparatorDbConfig();
@@ -508,7 +516,8 @@ class WcPagantis
         }
 
         $totalPrice = $product->get_price();
-        $simulatorMessage = sprintf(__('or 4 installments of %s€, without fees, with ', 'pagantis'), $totalPrice/4);
+        $formattedInstallments = number_format($totalPrice/4, 2);
+        $simulatorMessage = sprintf(__('or 4 installments of %s€, without fees, with ', 'pagantis'), $formattedInstallments);
         $post_id = $product->get_id();
         $logo = 'https://cdn.digitalorigin.com/assets/master/logos/pg-130x30.svg';
         $simulatorData = array(
@@ -516,6 +525,7 @@ class WcPagantis
             'public_key' => $settings['pagantis_public_key'],
             'simulator_type' => getConfigValue('PAGANTIS_SIMULATOR_DISPLAY_TYPE'),
             'positionSelector' => getConfigValue('PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR'),
+            'positionSelector4x' => getConfigValue('PAGANTIS_SIMULATOR_CSS_POSITION_SELECTOR_4X'),
             'quantitySelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_QUANTITY_SELECTOR']),
             'priceSelector' => unserialize($this->extraConfig['PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR']),
             'totalAmount' => is_numeric($product->get_price()) ? $product->get_price() : 0,
