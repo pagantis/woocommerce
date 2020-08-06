@@ -68,7 +68,7 @@ function findDestinationSim() {
 
 function checkAttempts() {
     window.attempts = window.attempts + 1;
-    return (window.attempts > 4)
+    return (window.attempts > 10)
 }
 
 function loadSimulatorPagantis() {
