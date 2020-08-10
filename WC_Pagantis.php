@@ -434,7 +434,6 @@ class WcPagantis
                         padding: 0 0 10px 0;
                         min-width: 250px;
                         line-height: 20px;
-                        margin-top: -10px;
                     }
                     .mainPagantisSimulator .mainImageLogo{
                         height: 20px;
