@@ -2,6 +2,13 @@ if (simulatorData.pagantisSimulator4x === 'enabled') {
     var simulator4xdiv = document.getElementsByClassName('mainPagantisSimulator');
     if (simulator4xdiv.length > 0 && typeof simulator4xdiv != 'undefined') {
         simulator4xdiv[0].innerHTML = simulatorData.simulatorMessage;
+        var position = simulatorData.positionSelector4x;
+        if (position !== 'default') { // Move to desired class
+            var desiredPosition = document.getElementsByClassName(position);
+            if (desiredPosition.length > 0 && typeof desiredPosition != 'undefined') {
+                desiredPosition[0].appendChild(simulator4xdiv[0]);
+            }
+        }
     }
 }
 
@@ -61,7 +68,7 @@ function findDestinationSim() {
 
 function checkAttempts() {
     window.attempts = window.attempts + 1;
-    return (window.attempts > 4)
+    return (window.attempts > 10)
 }
 
 function loadSimulatorPagantis() {
