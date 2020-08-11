@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Pagantis WooCommerce V2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-07-17 17:49+0000\n"
-"PO-Revision-Date: 2020-08-07 07:54+0000\n"
+"PO-Revision-Date: 2020-08-11 15:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
 "Language: es_ES\n"
@@ -12,12 +12,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.4.1; wp-5.3.2"
+"X-Loco-Version: 2.4.2; wp-5.3.2"
 
 #: WC_Pagantis.php:511
 #, php-format
 msgid "or 4 installments of %s€, without fees, with "
-msgstr "o 4 cuotas de %s€, sin coste, con "
+msgstr "Hasta 4 pagos de %s€, sin coste con "
 
 #: WC_Pagantis.php:600
 msgid "Settings"
