@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.6.5
+ * Version: 8.6.6
  * Author: Pagantis
  *
  * Text Domain: pagantis
@@ -139,7 +139,7 @@ class WcPagantis
     {
         $post_id = $product->get_id();
         $pagantis_promoted_value = $_REQUEST['pagantis_promoted'];
-        if ($pagantis_promoted_value == 'on') {
+        if ($pagantis_promoted_value === 'on') {
             $pagantis_promoted_value = 'yes';
         } else {
             $pagantis_promoted_value = 'no';
@@ -173,9 +173,10 @@ class WcPagantis
     public function pagantisPromotedVarSave($post_id)
     {
         $pagantis_promoted_value = $_POST['pagantis_promoted'];
-        if ($pagantis_promoted_value == null) {
+        if ($pagantis_promoted_value !== 'yes') {
             $pagantis_promoted_value = 'no';
         }
+
         update_post_meta($post_id, 'custom_product_pagantis_promoted', esc_attr($pagantis_promoted_value));
     }
 
@@ -415,9 +416,17 @@ class WcPagantis
      */
     public function pagantisAddSimulatorHtmlDiv($template_name)
     {
-        $areSimulatorTypesValid = isSimulatorTypeValid(getConfigValue('PAGANTIS_SIMULATOR_DISPLAY_TYPE'), array('sdk.simulator.types.SELECTABLE_TEXT_CUSTOM','sdk.simulator.types.PRODUCT_PAGE'));
+        $areSimulatorTypesValid = isSimulatorTypeValid(
+            getConfigValue('PAGANTIS_SIMULATOR_DISPLAY_TYPE'),
+            array('sdk.simulator.types.SELECTABLE_TEXT_CUSTOM',
+                'sdk.simulator.types.PRODUCT_PAGE')
+        );
         $isPriceTplPresent = isTemplatePresent($template_name, array('single-product/price.php'));
-        $isAtcTplPresent = isTemplatePresent($template_name, array('single-product/add-to-cart/variation-add-to-cart-button.php','single-product/add-to-cart/variation.php','single-product/add-to-cart/simple.php'));
+        $isAtcTplPresent = isTemplatePresent(
+            $template_name,
+            array('single-product/add-to-cart/variation-add-to-cart-button.php',
+                'single-product/add-to-cart/variation.php','single-product/add-to-cart/simple.php')
+        );
 
         $html = apply_filters('pagantis_simulator_selector_html', '<div class="mainPagantisSimulator"></div><div class="pagantisSimulator"></div>');
 
@@ -484,7 +493,7 @@ class WcPagantis
         }
 
         $pagantisSimulator4x = 'enabled';
-        if (!isPluginEnabled4x() || !areMerchantKeysSet4x()  || !isCountryShopContextValid() || !isProductAmountValid4x()) {
+        if (!isPluginEnabled4x() || !areMerchantKeysSet4x() || !isCountryShopContextValid() || !isProductAmountValid4x()) {
             $pagantisSimulator4x = 'disabled';
         }
 
@@ -850,8 +859,8 @@ class WcPagantis
      */
     private static function enqueueSimulatorCss()
     {
-        wp_enqueue_style('pg_simulator_style',plugins_url('assets/css/pg-simulator-style.css', PG_WC_MAIN_FILE));
-        wp_enqueue_style( 'pg_sim_gfonts', 'https://fonts.googleapis.com/css?family=Open+Sans:400&display=swap');
+        wp_enqueue_style('pg_simulator_style', plugins_url('assets/css/pg-simulator-style.css', PG_WC_MAIN_FILE));
+        wp_enqueue_style('pg_sim_gfonts', 'https://fonts.googleapis.com/css?family=Open+Sans:400&display=swap');
     }
 }
 
