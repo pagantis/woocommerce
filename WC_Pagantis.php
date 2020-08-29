@@ -752,6 +752,19 @@ class WcPagantis
     }
 
     /**
+     * Undocumented function
+     *
+     * @return void
+     */
+    public function permissionsCheck( $request )
+    {
+        if ( ! is_user_logged_in() ) {
+            return new WP_Error( 'rest_not_logged_in', 'You are not currently logged in.', array( 'status' => 401 ) );
+        }
+        return true;
+    }
+
+    /**
      * ENDPOINT - Read logs -> Hook: rest_api_init
      * @return mixed
      */
@@ -764,7 +777,12 @@ class WcPagantis
                 'methods'  => 'GET',
                 'callback' => array(
                     $this,
-                    'readLogs')
+                    'readLogs'),
+                    ,
+                'permision_callback' => array( 
+                    $this,
+                    'permissions_check'
+                ),
             ),
             true
         );
@@ -776,7 +794,11 @@ class WcPagantis
                 'methods'  => 'GET, POST',
                 'callback' => array(
                     $this,
-                    'updateExtraConfig')
+                    'updateExtraConfig'),
+                'permision_callback' => array( 
+                    $this,
+                    'permissions_check'
+                ),
             ),
             true
         );
@@ -788,7 +810,12 @@ class WcPagantis
                 'methods'  => 'GET',
                 'callback' => array(
                     $this,
-                    'readApi')
+                    'readApi'
+                ),
+                'permision_callback' => array( 
+                    $this,
+                    'permissions_check'
+                ),
             ),
             true
         );
