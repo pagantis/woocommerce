@@ -15,9 +15,19 @@
     padding: 0 0 10px 0;
     min-width: 250px;
     line-height: 20px;
+    clear: both;
 }
+
+.mainImageLogo{
+    height: 20px;
+    display: inline;
+    vertical-align: bottom;
+    content:url('https://cdn.digitalorigin.com/assets/master/logos/pg.png');
+}
+
 .mainPagantisSimulator .mainImageLogo{
     height: 20px;
     display: inline;
     vertical-align: bottom;
+    content:url('https://cdn.digitalorigin.com/assets/master/logos/pg.png');
 }

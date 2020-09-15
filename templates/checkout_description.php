@@ -3,11 +3,9 @@
     <div class="pagantisSimulator"></div>
     <script>
         window.WCsimulatorId = null;
-        window.product = "<?php echo $product;?>";
 
         function loadSimulator()
         {
-            var product = "<?php echo $product;?>"
             if(typeof pgSDK == 'undefined')
             {
                 return false;
