@@ -22,7 +22,6 @@ if (!defined('ABSPATH')) {
 
 define('__ROOT__', dirname(dirname(__FILE__)));
 
-
 class WcPagantisGateway extends WC_Payment_Gateway
 {
     const METHOD_ID = "pagantis";
