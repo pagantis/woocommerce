@@ -20,9 +20,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('__ROOT__', dirname(dirname(__FILE__)));
-
-
 class WcPagantis4xGateway extends WC_Payment_Gateway
 {
     const METHOD_ID = "pagantis4x";

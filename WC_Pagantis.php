@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.6.7
+ * Version: 8.6.8
  * Author: Pagantis
  *
  * Text Domain: pagantis
@@ -774,7 +774,8 @@ class WcPagantis
                 'methods'  => 'GET',
                 'callback' => array(
                     $this,
-                    'readLogs')
+                    'readLogs'),
+                'permission_callback' => '__return_true',
             ),
             true
         );
@@ -786,7 +787,8 @@ class WcPagantis
                 'methods'  => 'GET, POST',
                 'callback' => array(
                     $this,
-                    'updateExtraConfig')
+                    'updateExtraConfig'),
+                'permission_callback' => '__return_true',
             ),
             true
         );
@@ -798,7 +800,8 @@ class WcPagantis
                 'methods'  => 'GET',
                 'callback' => array(
                     $this,
-                    'readApi')
+                    'readApi'),
+                'permission_callback' => '__return_true',
             ),
             true
         );
