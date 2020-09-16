@@ -3,11 +3,9 @@
     <div class="pagantisSimulator4x"></div>
     <script>
         window.WCsimulatorId = null;
-        window.product = "<?php echo $product;?>";
 
         function loadSimulator4x()
         {
-            var product = "<?php echo $product;?>"
             if(typeof pgSDK == 'undefined')
             {
                 return false;
@@ -42,7 +40,7 @@
                     selector: '.pagantisSimulator4x',
                     totalAmount: '<?php echo $total; ?>',
                     totalPromotedAmount: '<?php echo $promoted_amount; ?>',
-                    skin : <?php echo $pagantisSimulatorSkin;?>,
+                    skin : <?php echo $pagantisSimulatorSkin; ?>,
                     locale: locale,
                     country: country
                 });

@@ -135,7 +135,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         } elseif (!version_compare(phpversion(), '5.3.0', '>=')) {
             $error_string =  __(' is not compatible with your php and/or curl version', 'pagantis');
             $this->settings['enabled'] = 'no';
-        } elseif (($this->settings['pagantis_public_key']=="" || $this->settings['pagantis_private_key']=="")  && (empty($this->settings['pagantis_public_key_4x']) || empty($this->settings['pagantis_private_key_4x']) )) {
+        } elseif (($this->settings['pagantis_public_key']=="" || $this->settings['pagantis_private_key']=="")  && (empty($this->settings['pagantis_public_key_4x']) || empty($this->settings['pagantis_private_key_4x']))) {
             $error_string = __(' is not configured correctly, the fields Public Key and Secret Key are mandatory for use this plugin', 'pagantis');
             $this->settings['enabled'] = 'no';
         } elseif (!in_array(get_woocommerce_currency(), $this->allowed_currencies)) {
@@ -513,7 +513,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function payment_fields()
     {
-
         $locale = strtolower(strstr(get_locale(), '_', true));
         $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
         $allowedCountry = (in_array(strtolower($locale), $allowedCountries));

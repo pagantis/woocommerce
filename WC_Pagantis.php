@@ -329,7 +329,7 @@ class WcPagantis
             updateThousandsSeparatorDbConfig();
         }
         
-    //Adapting product price selector < v8.6.7
+        //Adapting product price selector < v8.6.7
         $tableName = $wpdb->prefix.PG_CONFIG_TABLE_NAME;
         $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'";
         $results = $wpdb->get_results($query, ARRAY_A);
@@ -481,7 +481,6 @@ class WcPagantis
      */
     public function pagantisInitProductSimulator()
     {
-
         global $product;
 
         //12x

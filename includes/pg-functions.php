@@ -244,7 +244,7 @@ function areMerchantKeysSet4x()
 function isSimulatorEnabled()
 {
     $settings = get_option('woocommerce_pagantis_settings');
-    if (( ! empty($settings['simulator']) && 'yes' === $settings['simulator']) ? true : false) {
+    if ((! empty($settings['simulator']) && 'yes' === $settings['simulator']) ? true : false) {
         return true;
     }
 
@@ -255,13 +255,13 @@ function isPluginEnabled()
 {
     $settings = get_option('woocommerce_pagantis_settings');
 
-    return ( ! empty($settings['enabled']) && 'yes' === $settings['enabled']);
+    return (! empty($settings['enabled']) && 'yes' === $settings['enabled']);
 }
 
 function isPluginEnabled4x()
 {
     $settings = get_option('woocommerce_pagantis_settings');
-    return ( ! empty($settings['enabled_4x']) && 'yes' === $settings['enabled_4x']);
+    return (! empty($settings['enabled_4x']) && 'yes' === $settings['enabled_4x']);
 }
 
 

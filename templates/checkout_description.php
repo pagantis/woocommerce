@@ -40,7 +40,7 @@
                     selector: '.pagantisSimulator',
                     totalAmount: '<?php echo $total; ?>',
                     totalPromotedAmount: '<?php echo $promoted_amount; ?>',
-                    skin : <?php echo $pagantisSimulatorSkin;?>,
+                    skin : <?php echo $pagantisSimulatorSkin; ?>,
                     locale: locale,
                     country: country
                 });
