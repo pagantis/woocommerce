@@ -1,7 +1,7 @@
 {
     "name": "pagantis/woocommerce",
     "description": "Woocommerce module to add Pagantis",
-  	"version": "8.7.0",
+  	"version": "8.6.9",
     "license": "proprietary",
     "type": "wordpress-plugin",
     "keywords": [
@@ -29,8 +29,13 @@
         "pagantis/module-utils": "^2.0"
     },
     "require-dev": {
-        "pagantis/selenium-form-utils": "^3.0"
+        "pagantis/selenium-form-utils": "^3.0",
+	  	"friendsofphp/php-cs-fixer": "^v2.16"
     },
+	"scripts": {
+	  "phpcs" : "php-cs-fixer fix --rules=@PSR2",
+	  "phpcs_validate" : "php-cs-fixer fix --verbose --dry-run --show-progress=dots --diff --diff-format=udiff --rules=@PSR2"
+	},
     "autoload-dev": {
         "psr-4": { "Test\\Selenium\\Buy\\": "test/selenium/buy/", "Test\\Selenium\\": "test/selenium/" }
     },
