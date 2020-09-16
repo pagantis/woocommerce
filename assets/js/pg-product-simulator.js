@@ -1,3 +1,4 @@
+/* global simulatorData  */
 if (simulatorData.pagantisSimulator4x === 'enabled') {
     var simulator4xdiv = document.getElementsByClassName('mainPagantisSimulator');
     if (simulator4xdiv.length > 0 && typeof simulator4xdiv != 'undefined') {
@@ -12,9 +13,10 @@ if (simulatorData.pagantisSimulator4x === 'enabled') {
     }
 }
 
-/** global console, simulatorData  */
+
 function findPriceSelector() {
     var priceSelectors = simulatorData.priceSelector;
+    if (typeof priceSelectors == 'undefined') console.log("simulator priceSelectors is undefined");
     return priceSelectors.find(function (candidateSelector) {
         var priceDOM = document.querySelector(candidateSelector);
         return (priceDOM != null);

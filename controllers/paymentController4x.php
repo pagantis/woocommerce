@@ -14,34 +14,43 @@ use Pagantis\OrdersApiClient\Model\Order\Configuration\Channel;
 use Pagantis\OrdersApiClient\Model\Order\Configuration;
 use Pagantis\OrdersApiClient\Client;
 use Pagantis\OrdersApiClient\Model\Order;
-use Pagantis\ModuleUtils\Model\Log\LogEntry;
 
 if (!defined('ABSPATH')) {
     exit;
+}
+
+if (!defined('__ROOT__')) {
+    define('__ROOT__', dirname(dirname(__FILE__)));
 }
 
 class WcPagantis4xGateway extends WC_Payment_Gateway
 {
     const METHOD_ID = "pagantis4x";
 
-    /** Orders tablename */
-    const ORDERS_TABLE = 'cart_process';
 
-    /** Concurrency tablename */
-    const LOGS_TABLE = 'pagantis_logs';
 
     const NOT_CONFIRMED = 'No se ha podido confirmar el pago';
 
-    const CONFIG_TABLE = 'pagantis_config';
 
-    /** @var Array $extraConfig */
+    /** @var array $extraConfig */
     public $extraConfig;
 
     /** @var string $language */
     public $language;
 
     /**
-     * WcPagantisGateway constructor.
+     * @var string $template_path
+     */
+
+    private $template_path;
+    /**
+     * @var array $allowed_currencies
+     */
+    private $allowed_currencies;
+
+
+    /**
+     * WcPagantis4xGateway constructor.
      */
     public function __construct()
     {
@@ -52,9 +61,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
 
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
-        $this->allowed_currencies = array("EUR");
-        $this->mainFileLocation = dirname(plugin_dir_path(__FILE__)) . '/WC_Pagantis.php';
-        $this->plugin_info = get_file_data($this->mainFileLocation, array('Version' => 'Version'), false);
+        $this->allowed_currencies = getAllowedCurrencies();
         $this->language = strstr(get_locale(), '_', true);
         if ($this->language=='') {
             $this->language = 'ES';
@@ -65,7 +72,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
         $this->form_fields = include(plugin_dir_path(__FILE__).'../includes/settings-pagantis.php');//Panel options
         $this->init_settings();
 
-        $this->extraConfig = $this->getExtraConfig();
+        $this->extraConfig = getExtraConfig();
         $this->title = __($this->extraConfig['PAGANTIS_TITLE_4x'], 'pagantis');
         $this->method_description = "Financial Payment Gateway. Enable the possibility for your customers to pay their order in confortable installments with Pagantis.";
 
@@ -104,7 +111,8 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
      ***********/
 
     /**
-     * PANEL - Display admin panel -> Hook: woocommerce_update_options_payment_gateways_pagantis
+     * PANEL - Display admin panel
+     * @hooked woocommerce_update_options_payment_gateways_pagantis
      */
     public function admin_options()
     {
@@ -119,10 +127,11 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
     }
 
     /**
-     * CHECKOUT - Generate the pagantis form. "Return" iframe or redirect. - Hook: woocommerce_receipt_pagantis
+     * CHECKOUT - Generate the pagantis form. "Return" iframe or redirect.
      * @param $order_id
      *
      * @throws Exception
+     * @hooked woocommerce_receipt_pagantis
      */
     public function pagantisReceiptPage($order_id)
     {
@@ -143,8 +152,8 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
                 $shippingAddress = $billingAddress;
             }
 
-            $national_id = $this->getNationalId($order);
-            $tax_id = $this->getTaxId($order);
+            $national_id = getNationalId($order);
+            $tax_id = getTaxId($order);
 
             $userAddress = new Address();
             $userAddress
@@ -191,7 +200,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
                 ->setTaxId($tax_id)
             ;
 
-            $previousOrders = $this->getOrders($order->get_user(), $billingAddress['email']);
+            $previousOrders = getOrders($order->get_user(), $billingAddress['email']);
             foreach ($previousOrders as $previousOrder) {
                 $orderHistory = new OrderHistory();
                 $orderElement = wc_get_order($previousOrder);
@@ -206,7 +215,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
             $metadataOrder = new Metadata();
             $metadata = array(
                 'pg_module' => 'woocommerce',
-                'pg_version' => $this->plugin_info['Version'],
+                'pg_version' => PG_VERSION,
                 'ec_module' => 'woocommerce',
                 'ec_version' => WC()->version
             );
@@ -238,7 +247,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
                 ;
                 $details->addProduct($product);
 
-                $promotedProduct = $this->isPromoted($item->get_product_id());
+                $promotedProduct = isProductPromoted($item->get_product_id());
                 if ($promotedProduct == 'true') {
                     $promotedAmount+=$product->getAmount();
                     $promotedMessage = 'Promoted Item: ' . $wcProduct->get_name() .
@@ -317,7 +326,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
             $pagantisOrder = $orderClient->createOrder($orderApiClient);
             if ($pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
                 $url = $pagantisOrder->getActionUrls()->getForm();
-                $this->insertRow($order->get_id(), $pagantisOrder->getId());
+                addOrderToCartProcessingQueue($order->get_id(), $pagantisOrder->getId());
             } else {
                 throw new OrderNotFoundException();
             }
@@ -337,7 +346,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
             }
         } catch (\Exception $exception) {
             wc_add_notice(__('Payment error ', 'pagantis') . $exception->getMessage(), 'error');
-            $this->insertLog($exception);
+            insertLogEntry($exception);
             $checkout_url = get_permalink(wc_get_page_id('checkout'));
             wp_redirect($checkout_url);
             exit;
@@ -345,7 +354,9 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
     }
 
     /**
-     * NOTIFICATION - Endpoint for Json notification - Hook: woocommerce_api_wcpagantisgateway
+     * NOTIFICATION - Endpoint for Json notification
+     *
+     * @hooked woocommerce_api_wcpagantisgateway
      */
     public function pagantisNotification()
     {
@@ -406,9 +417,12 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
      *
      ***********/
 
+
     /**
-     * CHECKOUT - Check if payment method is available (called by woocommerce, can't apply cammel caps)
+     * CHECKOUT - Check if payment method is available
+     *
      * @return bool
+     * @see WC_Payment_Gateway::is_available()
      */
     public function is_available()
     {
@@ -429,8 +443,10 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
     }
 
     /**
-     * CHECKOUT - Checkout + admin panel title(method_title - get_title) (called by woocommerce,can't apply cammel caps)
+     * CHECKOUT - Checkout + admin panel title(method_title - get_title)
+     *
      * @return string
+     * @see WC_Payment_Gateway::get_title()
      */
     public function get_title()
     {
@@ -438,9 +454,12 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
     }
 
     /**
-     * CHECKOUT - Called after push pagantis button on checkout(called by woocommerce, can't apply cammel caps
+     * CHECKOUT - Called after push pagantis button on checkout
+     *
      * @param $order_id
+     *
      * @return array
+     * @see WC_Payment_Gateway::process_payment()
      */
     public function process_payment($order_id)
     {
@@ -456,7 +475,6 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
                 'result'   => 'success',
                 'redirect' => $redirectUrl
             );
-
         } catch (Exception $e) {
             wc_add_notice(__('Payment error ', 'pagantis') . $e->getMessage(), 'error');
             return array();
@@ -464,8 +482,9 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
     }
 
     /**
-     * CHECKOUT - simulator (called by woocommerce, can't apply camel caps)
-     * @todo TM refactor with wp_localize_script
+     * CHECKOUT - simulator
+     *
+     * @see WC_Payment_Gateway::payment_fields()
      */
     public function payment_fields()
     {
@@ -473,7 +492,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
         $locale = strtolower(strstr(get_locale(), '_', true));
         $allowedCountries = unserialize($this->extraConfig['PAGANTIS_ALLOWED_COUNTRIES']);
         $allowedCountry = (in_array(strtolower($locale), $allowedCountries));
-        $promotedAmount = $this->getPromotedAmount();
+        $promotedAmount = getPromotedAmount();
 
         $template_fields = array(
             'public_key' => $cfg['pagantis_public_key_4x'],
@@ -647,213 +666,5 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
         $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
         $path     = $parsed_url['path'];
         return $scheme . $host . $port . $path . $query . $fragment;
-    }
-
-    /**
-     * Get the orders of a customer
-     * @param $current_user
-     * @param $billingEmail
-     *
-     * @return mixed
-     */
-    private function getOrders($current_user, $billingEmail)
-    {
-        $sign_up = '';
-        $total_orders = 0;
-        $total_amt = 0;
-        $refund_amt = 0;
-        $total_refunds = 0;
-        $partial_refunds = 0;
-        if ($current_user->user_login) {
-            $is_guest = "false";
-            $sign_up = substr($current_user->user_registered, 0, 10);
-            $customer_orders = get_posts(array(
-                'numberposts' => - 1,
-                'meta_key'    => '_customer_user',
-                'meta_value'  => $current_user->ID,
-                'post_type'   => array( 'shop_order' ),
-                'post_status' => array( 'wc-completed', 'wc-processing', 'wc-refunded' ),
-            ));
-        } else {
-            $is_guest = "true";
-            $customer_orders = get_posts(array(
-                'numberposts' => - 1,
-                'meta_key'    => '_billing_email',
-                'meta_value'  => $billingEmail,
-                'post_type'   => array( 'shop_order' ),
-                'post_status' => array( 'wc-completed', 'wc-processing', 'wc-refunded'),
-            ));
-            foreach ($customer_orders as $customer_order) {
-                if (trim($sign_up)=='' ||
-                    strtotime(substr($customer_order->post_date, 0, 10)) <= strtotime($sign_up)) {
-                    $sign_up = substr($customer_order->post_date, 0, 10);
-                }
-            }
-        }
-
-        return $customer_orders;
-    }
-
-
-    /**
-     * @param $orderId
-     * @param $pagantisOrderId
-     *
-     * @throws Exception
-     */
-    private function insertRow($orderId, $pagantisOrderId)
-    {
-        global $wpdb;
-        $this->checkDbTable();
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
-
-        //Check if id exists
-        $resultsSelect = $wpdb->get_results("select * from $tableName where id='$orderId'");
-        $countResults = count($resultsSelect);
-        if ($countResults == 0) {
-            $wpdb->insert(
-                $tableName,
-                array('id' => $orderId, 'order_id' => $pagantisOrderId),
-                array('%d', '%s')
-            );
-        } else {
-            $wpdb->update(
-                $tableName,
-                array('order_id' => $pagantisOrderId),
-                array('id' => $orderId),
-                array('%s'),
-                array('%d')
-            );
-        }
-    }
-
-    /**
-     * Check if orders table exists
-     */
-    private function checkDbTable()
-    {
-        global $wpdb;
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
-
-        if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
-            $charset_collate = $wpdb->get_charset_collate();
-            $sql             = "CREATE TABLE $tableName ( id int, order_id varchar(50), wc_order_id varchar(50),  
-                  UNIQUE KEY id (id)) $charset_collate";
-
-            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
-            dbDelta($sql);
-        }
-    }
-
-    /**
-     * @return array
-     */
-    private function getExtraConfig()
-    {
-        global $wpdb;
-        $tableName = $wpdb->prefix.self::CONFIG_TABLE;
-        $response = array();
-        $dbResult = $wpdb->get_results("select config, value from $tableName", ARRAY_A);
-        foreach ($dbResult as $value) {
-            $response[$value['config']] = $value['value'];
-        }
-
-        return $response;
-    }
-
-    /**
-     * @param $order
-     *
-     * @return null
-     */
-    private function getNationalId($order)
-    {
-        foreach ((array)$order->get_meta_data() as $mdObject) {
-            $data = $mdObject->get_data();
-            if ($data['key'] == 'vat_number') {
-                return $data['value'];
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param $order
-     *
-     * @return mixed
-     */
-    private function getTaxId($order)
-    {
-        foreach ((array)$order->get_meta_data() as $mdObject) {
-            $data = $mdObject->get_data();
-            if ($data['key'] == 'billing_cfpiva') {
-                return $data['value'];
-            }
-        }
-    }
-
-    /**
-     * @param null $exception
-     * @param null $message
-     */
-    private function insertLog($exception = null, $message = null)
-    {
-        global $wpdb;
-        $this->checkDbLogTable();
-        $logEntry     = new LogEntry();
-        if ($exception instanceof \Exception) {
-            $logEntry = $logEntry->error($exception);
-        } else {
-            $logEntry = $logEntry->info($message);
-        }
-        $tableName = $wpdb->prefix.self::LOGS_TABLE;
-        $wpdb->insert($tableName, array('log' => $logEntry->toJson()));
-    }
-    /**
-     * Check if logs table exists
-     */
-    private function checkDbLogTable()
-    {
-        global $wpdb;
-        $tableName = $wpdb->prefix.self::LOGS_TABLE;
-        if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
-            $charset_collate = $wpdb->get_charset_collate();
-            $sql = "CREATE TABLE $tableName ( id int NOT NULL AUTO_INCREMENT, log text NOT NULL, 
-                    createdAt timestamp DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY id (id)) $charset_collate";
-            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
-            dbDelta($sql);
-        }
-        return;
-    }
-
-    /**
-     * @param $product_id
-     *
-     * @return string
-     */
-    private function isPromoted($product_id)
-    {
-        $metaProduct = get_post_meta($product_id);
-        return (array_key_exists('custom_product_pagantis_promoted', $metaProduct) &&
-                $metaProduct['custom_product_pagantis_promoted']['0'] === 'yes') ? 'true' : 'false';
-    }
-
-    /**
-     * @return int
-     */
-    private function getPromotedAmount()
-    {
-        global $woocommerce;
-        $items = $woocommerce->cart->get_cart();
-        $promotedAmount = 0;
-        foreach ($items as $key => $item) {
-            $promotedProduct = $this->isPromoted($item['product_id']);
-            if ($promotedProduct == 'true') {
-                $promotedAmount+=$item['line_total'] + $item['line_tax'];
-            }
-        }
-
-        return $promotedAmount;
     }
 }

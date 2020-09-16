@@ -154,7 +154,7 @@ class WcPagantisNotify extends WcPagantisGateway
     {
         global $wpdb;
         $this->checkDbTable();
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $tableName = $wpdb->prefix.PG_CART_PROCESS_TABLE;
         $queryResult = $wpdb->get_row("select order_id from $tableName where id='".$this->woocommerceOrderId."'");
         $this->pagantisOrderId = $queryResult->order_id;
 
@@ -169,7 +169,8 @@ class WcPagantisNotify extends WcPagantisGateway
     private function getPagantisOrder()
     {
         try {
-            $this->cfg = get_option('woocommerce_pagantis_settings');            $this->cfg = get_option('woocommerce_pagantis_settings');
+            $this->cfg = get_option('woocommerce_pagantis_settings');
+            $this->cfg = get_option('woocommerce_pagantis_settings');
             if ($this->isProduct4x()) {
                 $publicKey = $this->cfg['pagantis_public_key_4x'];
                 $secretKey = $this->cfg['pagantis_private_key_4x'];
@@ -289,7 +290,7 @@ class WcPagantisNotify extends WcPagantisGateway
     private function checkDbTable()
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $tableName = $wpdb->prefix.PG_CART_PROCESS_TABLE;
 
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
@@ -307,7 +308,7 @@ class WcPagantisNotify extends WcPagantisGateway
     private function checkDbLogTable()
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.self::LOGS_TABLE;
+        $tableName = $wpdb->prefix.PG_LOGS_TABLE_NAME;
 
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
@@ -394,7 +395,7 @@ class WcPagantisNotify extends WcPagantisGateway
         global $wpdb;
 
         $this->checkDbTable();
-        $tableName = $wpdb->prefix.self::ORDERS_TABLE;
+        $tableName = $wpdb->prefix.PG_CART_PROCESS_TABLE;
 
         $wpdb->update(
             $tableName,
@@ -427,7 +428,7 @@ class WcPagantisNotify extends WcPagantisGateway
             $logEntry = $logEntry->info($message);
         }
 
-        $tableName = $wpdb->prefix.self::LOGS_TABLE;
+        $tableName = $wpdb->prefix.PG_LOGS_TABLE_NAME;
         $wpdb->insert($tableName, array('log' => $logEntry->toJson()));
     }
 
@@ -439,7 +440,7 @@ class WcPagantisNotify extends WcPagantisGateway
     private function unblockConcurrency($orderId = null)
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.self::CONCURRENCY_TABLE;
+        $tableName = $wpdb->prefix.PG_CONCURRENCY_TABLE_NAME;
         if ($orderId == null) {
             $query = "DELETE FROM $tableName WHERE createdAt<(NOW()- INTERVAL ".self::CONCURRENCY_TIMEOUT." SECOND)";
         } else {
@@ -459,7 +460,7 @@ class WcPagantisNotify extends WcPagantisGateway
     private function blockConcurrency($orderId)
     {
         global $wpdb;
-        $tableName = $wpdb->prefix.self::CONCURRENCY_TABLE;
+        $tableName = $wpdb->prefix.PG_CONCURRENCY_TABLE_NAME;
         $insertResult = $wpdb->insert($tableName, array('order_id' => $orderId));
         if ($insertResult === false) {
             if ($this->getOrigin() == 'Notify') {
@@ -483,7 +484,6 @@ class WcPagantisNotify extends WcPagantisGateway
                     $restSeconds
                 );
                 $this->insertLog(null, $logMessage);
-
             }
         }
     }
