@@ -82,7 +82,7 @@ class WcPagantis
     {
         require_once(plugin_dir_path(__FILE__).'/vendor/autoload.php');
         require_once(PG_ABSPATH . '/includes/pg-functions.php');
-        require_once(PG_ABSPATH . '/controllers/Logger.php');
+        require_once(PG_ABSPATH . '/includes/logger.php');
 
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
