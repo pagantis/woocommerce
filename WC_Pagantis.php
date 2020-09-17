@@ -82,6 +82,8 @@ class WcPagantis
     {
         require_once(plugin_dir_path(__FILE__).'/vendor/autoload.php');
         require_once(PG_ABSPATH . '/includes/pg-functions.php');
+        require_once(PG_ABSPATH . '/controllers/Logger.php');
+
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
         $this->pagantisActivation();
@@ -255,6 +257,12 @@ class WcPagantis
             }
         }
 
+        // Making sure DB tables are created < v8.6.9
+        if (!isPgTableCreated(PG_LOGS_TABLE_NAME)){
+            createLogsTable();
+        }
+        checkCartProcessTable();
+
         //Adapting selector to array < v8.2.2
         $tableName = $wpdb->prefix.PG_CONFIG_TABLE_NAME;
         $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'";
@@ -328,7 +336,7 @@ class WcPagantis
         if (!areThousandsSeparatorEqual()) {
             updateThousandsSeparatorDbConfig();
         }
-        
+
         //Adapting product price selector < v8.6.7
         $tableName = $wpdb->prefix.PG_CONFIG_TABLE_NAME;
         $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'";
@@ -336,8 +344,7 @@ class WcPagantis
         if (count($results) == 0) {
             $wpdb->update($tableName, array('value' => 'a:4:{i:0;s:52:"div.summary *:not(del)>.woocommerce-Price-amount bdi";i:1;s:48:"div.summary *:not(del)>.woocommerce-Price-amount";i:2;s:54:"div.entry-summary *:not(del)>.woocommerce-Price-amount";i:3;s:36:"*:not(del)>.woocommerce-Price-amount";}'), array('config' => 'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'), array('%s'), array('%s'));
         }
-        
-        
+
         $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
 
         // Convert a multiple dimension array for SQL insert statements into a simple key/value

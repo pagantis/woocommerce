@@ -174,7 +174,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $order = new WC_Order($order_id);
             $order->set_payment_method(ucfirst($this->id));
             $order->save();
-
             if (!isset($order)) {
                 throw new Exception(_("Order not found"));
             }
@@ -369,7 +368,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 wp_redirect($url);
                 exit;
             } else {
-                // @todo TM refactor with wp_localize_script - maybe put in other function
                 $template_fields = array(
                     'url' => $url,
                     'checkoutUrl'   => $cancelUrl
@@ -534,7 +532,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
             'decimalSeparator' => $this->extraConfig['PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'],
             'pagantisSimulatorSkin' => $this->extraConfig['PAGANTIS_SIMULATOR_DISPLAY_SKIN']
         );
-
 
 
         wc_get_template('checkout_description.php', $template_fields, '', $this->template_path);
