@@ -559,4 +559,5 @@ class WcPagantisNotify extends WcPagantisGateway
     {
         $this->product = Ucfirst($product);
     }
+
 }
