@@ -334,18 +334,11 @@ function getExtraConfig()
     return $response;
 }
 
-function getModuleComposerVersion($moduleAbsolutePath)
+function getModuleVersion()
 {
-    $maybe_composer_json = $moduleAbsolutePath . 'composer.json';
-    if (! file_exists($maybe_composer_json) && ! is_readable($maybe_composer_json)) {
-        return null;
-    }
-    $composer = json_decode(file_get_contents($maybe_composer_json));
-    if (empty($composer->version)) {
-        return null;
-    }
-
-    return $composer->version;
+    $mainFile = dirname(plugin_dir_path(__FILE__)) . '/WC_Pagantis.php';
+    $version = get_file_data($mainFile, array('Version' => 'Version'), false);
+    return $version;
 }
 
 
