@@ -1,7 +1,7 @@
 {
     "name": "pagantis/woocommerce",
     "description": "Woocommerce module to add Pagantis",
-  	"version": "8.6.9",
+  	"version": "8.7.0",
     "license": "proprietary",
     "type": "wordpress-plugin",
     "keywords": [
