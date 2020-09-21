@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.6.10
+ * Version: 8.6.11
  * Author: Pagantis
  *
  * Text Domain: pagantis
@@ -26,7 +26,7 @@ require_once(__DIR__ . '/includes/pg-functions.php');
  */
 define('PG_WC_MAIN_FILE', __FILE__);
 define('PG_ABSPATH', trailingslashit(dirname(PG_WC_MAIN_FILE)));
-define('PG_VERSION', getModuleComposerVersion(PG_ABSPATH));
+define('PG_VERSION', getModuleVersion());
 define('PG_ROOT', dirname(__DIR__));
 define('PG_CONFIG_TABLE_NAME', 'pagantis_config');
 define('PG_LOGS_TABLE_NAME', 'pagantis_logs');
@@ -82,7 +82,6 @@ class WcPagantis
     {
         require_once(plugin_dir_path(__FILE__).'/vendor/autoload.php');
         require_once(PG_ABSPATH . '/includes/pg-functions.php');
-
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
         $this->pagantisActivation();

@@ -170,6 +170,8 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
 
     /**
      * STEP2: Prepare checkout and check pagantis form
+     *
+     * @throws \Exception
      */
     public function makeCheckoutAndPagantis()
     {
@@ -317,7 +319,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     {
         $messageElementSearch = WebDriverBy::className('entry-title');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($messageElementSearch);
-        $this->waitUntil($condition);
+            $this->waitUntil($condition);
         $actualString = $this->webDriver->findElement($messageElementSearch)->getText();
         $this->assertNotEmpty($actualString, "PR45");
         $confString = ($this->woocommerceLanguage == 'EN') ? "Order received" : "Pedido recibido";
