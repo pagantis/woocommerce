@@ -336,7 +336,8 @@ function getExtraConfig()
 
 function getModuleVersion()
 {
-    $mainFile = dirname(plugin_dir_path(__FILE__)) . '/WC_Pagantis.php';
+
+    $mainFile = plugin_dir_path(PG_WC_MAIN_FILE). '/WC_Pagantis.php';
     $version = get_file_data($mainFile, array('Version' => 'Version'), false);
     return $version;
 }

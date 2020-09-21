@@ -58,6 +58,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
         $this->allowed_currencies = getAllowedCurrencies();
+        $this->mainFileLocation = dirname(plugin_dir_path(__FILE__)) . '/WC_Pagantis.php';
+        $this->plugin_info = get_file_data($this->mainFileLocation, array('Version' => 'Version'), false);
         $this->language = strstr(get_locale(), '_', true);
         if ($this->language=='') {
             $this->language = 'ES';
@@ -247,7 +249,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $metadataOrder = new Metadata();
             $metadata = array(
                 'pg_module' => 'woocommerce',
-                'pg_version' => PG_VERSION,
+                'pg_version' => $this->plugin_info,
                 'ec_module' => 'woocommerce',
                 'ec_version' => WC()->version
             );
