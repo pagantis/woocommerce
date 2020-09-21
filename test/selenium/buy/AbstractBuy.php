@@ -2,6 +2,8 @@
 
 namespace Test\Selenium\Buy;
 
+use Facebook\WebDriver\Exception\NoSuchElementException;
+use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Pagantis\ModuleUtils\Exception\AlreadyProcessedException;
@@ -317,7 +319,17 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     {
         $messageElementSearch = WebDriverBy::className('entry-title');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($messageElementSearch);
-        $this->waitUntil($condition);
+        try {
+            $this->waitUntil($condition);
+        } catch (NoSuchElementException $e) {
+            $e->getMessage();
+            $e->getResults();
+            $e->getTraceAsString();
+        } catch (TimeOutException $e) {
+            $e->getMessage();
+            $e->getResults();
+            $e->getTraceAsString();
+        }
         $actualString = $this->webDriver->findElement($messageElementSearch)->getText();
         $this->assertNotEmpty($actualString, "PR45");
         $confString = ($this->woocommerceLanguage == 'EN') ? "Order received" : "Pedido recibido";
