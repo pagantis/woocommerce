@@ -172,6 +172,8 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
 
     /**
      * STEP2: Prepare checkout and check pagantis form
+     *
+     * @throws \Exception
      */
     public function makeCheckoutAndPagantis()
     {
@@ -271,6 +273,8 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     {
         sleep(10);
         $simulatorElementSearch = WebDriverBy::className('pagantisSimulator');
+        echo $this->webDriver->getStatus();
+        echo $this->webDriver->getTitle();
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($simulatorElementSearch);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR19");
@@ -319,16 +323,19 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     {
         $messageElementSearch = WebDriverBy::className('entry-title');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($messageElementSearch);
+        echo $this->webDriver->getCurrentURL();
         try {
             $this->waitUntil($condition);
         } catch (NoSuchElementException $e) {
             $e->getMessage();
             $e->getResults();
             $e->getTraceAsString();
+            echo $this->webDriver->getCurrentURL();
         } catch (TimeOutException $e) {
             $e->getMessage();
             $e->getResults();
             $e->getTraceAsString();
+            echo $this->webDriver->getCurrentURL();
         }
         $actualString = $this->webDriver->findElement($messageElementSearch)->getText();
         $this->assertNotEmpty($actualString, "PR45");

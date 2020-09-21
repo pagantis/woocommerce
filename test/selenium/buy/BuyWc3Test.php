@@ -15,6 +15,8 @@ class BuyWc3Test extends AbstractBuy
 {
     /**
      * Test to buy
+     *
+     * @throws \Exception
      */
     public function testBuy()
     {
