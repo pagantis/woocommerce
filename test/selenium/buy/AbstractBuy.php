@@ -201,6 +201,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     {
         $this->webDriver->get($this->woocommerceUrl);
         $this->findByLinkText(self::PRODUCT_NAME)->click();
+        $this->webDriver->takeScreenshot("tmp/screenshots/goToProductPage.jpg");
         $condition = WebDriverExpectedCondition::titleContains(self::PRODUCT_NAME);
         $this->webDriver->wait()->until($condition);
         $this->assertTrue((bool) $condition);
@@ -246,6 +247,8 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     public function checkCheckoutPage()
     {
         $validatorSearch = WebDriverBy::className('payment_method_pagantis');
+        $this->webDriver->takeScreenshot("tmp/screenshots/checkCheckoutPage.jpg");
+
         $actualString = $this->webDriver->findElement($validatorSearch)->getText();
         $compareString = (strstr($actualString, $this->configuration['checkoutTitle'])) === false ? false : true;
         $this->assertTrue($compareString, "PR25,PR26 - $actualString");
@@ -275,6 +278,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $simulatorElementSearch = WebDriverBy::className('pagantisSimulator');
         echo $this->webDriver->getStatus();
         echo $this->webDriver->getTitle();
+        $this->webDriver->takeScreenshot("tmp/screenshots/checkSimulator.jpg");
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($simulatorElementSearch);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR19");
@@ -286,6 +290,8 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     public function prepareCheckout()
     {
         $condition = WebDriverExpectedCondition::titleContains(self::CHECKOUT_TITLE);
+        $this->webDriver->takeScreenshot("tmp/screenshots/prepareCheckout.jpg");
+
         $this->webDriver->wait()->until($condition);
         $this->assertTrue((bool) $condition);
 
@@ -300,6 +306,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
 
         $this->findById('billing_phone')->clear()->sendKeys($this->configuration['phone']);
         $this->findById('billing_email')->clear()->sendKeys($this->configuration['email']);
+        $this->webDriver->takeScreenshot("tmp/screenshots/prepareCheckout.jpg");
     }
 
     /**
@@ -323,6 +330,8 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     {
         $messageElementSearch = WebDriverBy::className('entry-title');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($messageElementSearch);
+        $this->webDriver->takeScreenshot("tmp/screenshots/verifyOrderInformation.jpg");
+
         echo $this->webDriver->getCurrentURL();
         try {
             $this->waitUntil($condition);
