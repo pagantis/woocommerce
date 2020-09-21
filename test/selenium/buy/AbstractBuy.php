@@ -276,8 +276,8 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     {
         sleep(10);
         $simulatorElementSearch = WebDriverBy::className('pagantisSimulator');
-        echo $this->webDriver->getStatus();
-        echo $this->webDriver->getTitle();
+        echo json_encode($this->webDriver->getStatus());
+        echo json_encode($this->webDriver->getTitle());
         $this->webDriver->takeScreenshot("tmp/screenshots/checkSimulator.jpg");
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($simulatorElementSearch);
         $this->waitUntil($condition);
@@ -332,7 +332,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($messageElementSearch);
         $this->webDriver->takeScreenshot("tmp/screenshots/verifyOrderInformation.jpg");
 
-        echo $this->webDriver->getCurrentURL();
+        echo json_encode($this->webDriver->getCurrentURL());
         try {
             $this->waitUntil($condition);
         } catch (NoSuchElementException $e) {
