@@ -50,6 +50,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function __construct()
     {
+        require_once(plugin_dir_path(__FILE__).'../includes/pg-functions.php');
         //Mandatory vars for plugin
         $this->id = WcPagantisGateway::METHOD_ID;
         $this->has_fields = true;
@@ -249,7 +250,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $metadataOrder = new Metadata();
             $metadata = array(
                 'pg_module' => 'woocommerce',
-                'pg_version' => $this->plugin_info,
+                'pg_version' => esc_html(getModuleVersion()),
                 'ec_module' => 'woocommerce',
                 'ec_version' => WC()->version
             );
@@ -691,4 +692,5 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $path     = $parsed_url['path'];
         return $scheme . $host . $port . $path . $query . $fragment;
     }
+
 }

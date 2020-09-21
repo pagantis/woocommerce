@@ -2,8 +2,6 @@
 
 namespace Test\Selenium\Buy;
 
-use Facebook\WebDriver\Exception\NoSuchElementException;
-use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Pagantis\ModuleUtils\Exception\AlreadyProcessedException;
@@ -201,7 +199,6 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     {
         $this->webDriver->get($this->woocommerceUrl);
         $this->findByLinkText(self::PRODUCT_NAME)->click();
-        $this->webDriver->takeScreenshot("tmp/screenshots/goToProductPage.jpg");
         $condition = WebDriverExpectedCondition::titleContains(self::PRODUCT_NAME);
         $this->webDriver->wait()->until($condition);
         $this->assertTrue((bool) $condition);
@@ -236,8 +233,6 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $this->waitUntil($condition);
 
         $this->findByLinkText('Checkout')->click();
-        $this->webDriver->takeScreenshot('tmp/screenshots/goToCheckout-'.__LINE__.'.jpg');
-
         $condition = WebDriverExpectedCondition::titleContains(self::CHECKOUT_TITLE);
         $this->webDriver->wait()->until($condition);
         $this->assertTrue((bool) $condition);
@@ -249,8 +244,6 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     public function checkCheckoutPage()
     {
         $validatorSearch = WebDriverBy::className('payment_method_pagantis');
-        $this->webDriver->takeScreenshot('tmp/screenshots/checkCheckoutPage-'.__LINE__.'.jpg');
-
         $actualString = $this->webDriver->findElement($validatorSearch)->getText();
         $compareString = (strstr($actualString, $this->configuration['checkoutTitle'])) === false ? false : true;
         $this->assertTrue($compareString, "PR25,PR26 - $actualString");
@@ -278,9 +271,6 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     {
         sleep(10);
         $simulatorElementSearch = WebDriverBy::className('pagantisSimulator');
-        echo json_encode($this->webDriver->getStatus());
-        echo json_encode($this->webDriver->getTitle());
-        $this->webDriver->takeScreenshot('tmp/screenshots/checkSimulator-'.__LINE__.'.jpg');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($simulatorElementSearch);
         $this->waitUntil($condition);
         $this->assertTrue((bool) $condition, "PR19");
@@ -292,8 +282,6 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     public function prepareCheckout()
     {
         $condition = WebDriverExpectedCondition::titleContains(self::CHECKOUT_TITLE);
-        $this->webDriver->takeScreenshot('tmp/screenshots/prepareCheckout-'.__LINE__.'.jpg');
-
         $this->webDriver->wait()->until($condition);
         $this->assertTrue((bool) $condition);
 
@@ -308,7 +296,6 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
 
         $this->findById('billing_phone')->clear()->sendKeys($this->configuration['phone']);
         $this->findById('billing_email')->clear()->sendKeys($this->configuration['email']);
-        $this->webDriver->takeScreenshot("tmp/screenshots/prepareCheckout.jpg");
     }
 
     /**
@@ -332,20 +319,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     {
         $messageElementSearch = WebDriverBy::className('entry-title');
         $condition = WebDriverExpectedCondition::visibilityOfElementLocated($messageElementSearch);
-        $this->webDriver->takeScreenshot('tmp/screenshots/verifyOrderInformation-'.__LINE__.'.jpg');
-        try {
             $this->waitUntil($condition);
-        } catch (NoSuchElementException $e) {
-            $e->getMessage();
-            $e->getResults();
-            $e->getTraceAsString();
-            $this->webDriver->takeScreenshot('tmp/screenshots/verifyOrderInformation-'.__LINE__.'.jpg');
-        } catch (TimeOutException $e) {
-            $e->getMessage();
-            $e->getResults();
-            $e->getTraceAsString();
-            $this->webDriver->takeScreenshot('tmp/screenshots/verifyOrderInformation-'.__LINE__.'.jpg');
-        }
         $actualString = $this->webDriver->findElement($messageElementSearch)->getText();
         $this->assertNotEmpty($actualString, "PR45");
         $confString = ($this->woocommerceLanguage == 'EN') ? "Order received" : "Pedido recibido";
@@ -357,14 +331,12 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $menuElement = $this->webDriver->findElement($menuSearch);
         $actualString = $menuElement->getText();
         $compareString = (strstr($actualString, $this->getPrice())) === false ? false : true;
-        $this->webDriver->takeScreenshot('tmp/screenshots/verifyOrderInformation-'.__LINE__.'.jpg');
         $this->assertNotEmpty($compareString, "PR46");
         $this->assertNotEmpty($this->getPrice(), "PR46");
         $this->assertTrue($compareString, $actualString . $this->getPrice() ." PR46");
 
         $validatorSearch = WebDriverBy::className('woocommerce-order-overview__payment-method');
         $actualString = $this->webDriver->findElement($validatorSearch)->getText();
-        $this->webDriver->takeScreenshot('tmp/screenshots/verifyOrderInformation-'.__LINE__.'.jpg');
         $compareString = (strstr($actualString, $this->configuration['methodName'])) === false ? false : true;
         $this->assertTrue($compareString, $actualString, "PR49");
     }

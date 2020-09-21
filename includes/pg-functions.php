@@ -339,9 +339,8 @@ function getModuleVersion()
 
     $mainFile = plugin_dir_path(PG_WC_MAIN_FILE). '/WC_Pagantis.php';
     $version = get_file_data($mainFile, array('Version' => 'Version'), false);
-    return $version;
+    return $version['Version'];
 }
-
 
 /**
  * @param $order
