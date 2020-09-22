@@ -511,6 +511,7 @@ class WcPagantis
         $formattedInstallments = number_format($totalPrice/4, 2);
         $simulatorMessage = sprintf(__('or 4 installments of %s€, without fees, with ', 'pagantis'), $formattedInstallments);
         $post_id = $product->get_id();
+        $logo = 'https://cdn.digitalorigin.com/assets/master/logos/pg-130x30.svg';
         $simulatorData = array(
             'total'    => is_numeric($product->get_price()) ? $product->get_price() : 0,
             'public_key' => $settings['pagantis_public_key'],
@@ -534,7 +535,7 @@ class WcPagantis
             'productType' => $product->get_type(),
             'pagantisSimulator' => $pagantisSimulator,
             'pagantisSimulator4x' => $pagantisSimulator4x,
-            'simulatorMessage' => "$simulatorMessage <img class='mainImageLogo' alt='PAGANTIS'/>"
+            'simulatorMessage' => "$simulatorMessage <img class='mainImageLogo' style='height: 20px; display: inline;vertical-align: bottom;' src='$logo'/>"
         );
 
         wp_localize_script('pg-product-simulator', 'simulatorData', $simulatorData);
