@@ -54,6 +54,9 @@ class WcPagantisNotify extends WcPagantisGateway
     /** @var $string */
     protected $product;
 
+    /** @var $string */
+    protected $token;
+
     /**
      * Validation vs PagantisClient
      *

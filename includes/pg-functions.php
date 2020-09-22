@@ -417,20 +417,12 @@ function getPromotedAmount()
  *
  * @throws Exception
  */
-function addOrderToCartProcessingQueue($orderId, $pagantisOrderId)
+function addOrderToCartProcessingQueue($orderId, $pagantisOrderId, $token)
 {
     global $wpdb;
     checkCartProcessTable();
     $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
-
-    //Check if id exists
-    $resultsSelect = $wpdb->get_results("SELECT * FROM $tableName WHERE id='$orderId'");
-    $countResults  = count($resultsSelect);
-    if ($countResults == 0) {
-        $wpdb->insert($tableName, array('id' => $orderId, 'order_id' => $pagantisOrderId), array('%d', '%s'));
-    } else {
-        $wpdb->update($tableName, array('order_id' => $pagantisOrderId), array('id' => $orderId), array('%s'), array('%d'));
-    }
+    $wpdb->insert($tableName, array('id' => $orderId, 'order_id' => $pagantisOrderId, 'token' => $token), array('%d', '%s', '%s'));
 }
 
 /**
@@ -443,7 +435,7 @@ function checkCartProcessTable()
 
     if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
         $charset_collate = $wpdb->get_charset_collate();
-        $sql             = "CREATE TABLE $tableName ( id int, order_id varchar(50), wc_order_id varchar(50),  
+        $sql             = "CREATE TABLE $tableName ( id int, order_id varchar(50), wc_order_id varchar(50), token varchar(32) 
                   UNIQUE KEY id (id)) $charset_collate";
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
