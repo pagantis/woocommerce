@@ -535,7 +535,7 @@ class WcPagantis
             'productType' => $product->get_type(),
             'pagantisSimulator' => $pagantisSimulator,
             'pagantisSimulator4x' => $pagantisSimulator4x,
-            'simulatorMessage' => "$simulatorMessage <img class='mainImageLogo' style='height: 20px; display: inline;vertical-align: bottom;' src='$logo'/>"
+            'simulatorMessage' => "$simulatorMessage<img class='mainImageLogo' src='$logo'/>"
         );
 
         wp_localize_script('pg-product-simulator', 'simulatorData', $simulatorData);
