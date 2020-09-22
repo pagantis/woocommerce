@@ -50,6 +50,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
      */
     public function __construct()
     {
+        require_once(plugin_dir_path(__FILE__).'../includes/pg-functions.php');
         //Mandatory vars for plugin
         $this->id = WcPagantisGateway::METHOD_ID;
         $this->has_fields = true;
@@ -58,6 +59,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
         $this->allowed_currencies = getAllowedCurrencies();
+        $this->mainFileLocation = dirname(plugin_dir_path(__FILE__)) . '/WC_Pagantis.php';
+        $this->plugin_info = get_file_data($this->mainFileLocation, array('Version' => 'Version'), false);
         $this->language = strstr(get_locale(), '_', true);
         if ($this->language=='') {
             $this->language = 'ES';
@@ -174,7 +177,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $order = new WC_Order($order_id);
             $order->set_payment_method(ucfirst($this->id));
             $order->save();
-
             if (!isset($order)) {
                 throw new Exception(_("Order not found"));
             }
@@ -251,7 +253,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
 var_dump($token);
             $metadata = array(
                 'pg_module' => 'woocommerce',
-                'pg_version' => PG_VERSION,
+                'pg_version' => getModuleVersion(),
                 'ec_module' => 'woocommerce',
                 'ec_version' => WC()->version,
                 'token' => $token
@@ -375,7 +377,6 @@ var_dump($token);
                 wp_redirect($url);
                 exit;
             } else {
-                // @todo TM refactor with wp_localize_script - maybe put in other function
                 $template_fields = array(
                     'url' => $url,
                     'checkoutUrl'   => $cancelUrl
@@ -542,7 +543,6 @@ var_dump($token);
         );
 
 
-
         wc_get_template('checkout_description.php', $template_fields, '', $this->template_path);
     }
 
@@ -698,4 +698,5 @@ var_dump($token);
         $path     = $parsed_url['path'];
         return $scheme . $host . $port . $path . $query . $fragment;
     }
+
 }

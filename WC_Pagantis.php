@@ -3,7 +3,7 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.6.9
+ * Version: 8.6.12
  * Author: Pagantis
  *
  * Text Domain: pagantis
@@ -26,7 +26,7 @@ require_once(__DIR__ . '/includes/pg-functions.php');
  */
 define('PG_WC_MAIN_FILE', __FILE__);
 define('PG_ABSPATH', trailingslashit(dirname(PG_WC_MAIN_FILE)));
-define('PG_VERSION', getModuleComposerVersion(PG_ABSPATH));
+define('PG_VERSION', getModuleVersion());
 define('PG_ROOT', dirname(__DIR__));
 define('PG_CONFIG_TABLE_NAME', 'pagantis_config');
 define('PG_LOGS_TABLE_NAME', 'pagantis_logs');
@@ -255,6 +255,12 @@ class WcPagantis
             }
         }
 
+        // Making sure DB tables are created < v8.6.9
+        if (!isPgTableCreated(PG_LOGS_TABLE_NAME)){
+            createLogsTable();
+        }
+        checkCartProcessTable();
+
         //Adapting selector to array < v8.2.2
         $tableName = $wpdb->prefix.PG_CONFIG_TABLE_NAME;
         $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'";
@@ -328,7 +334,7 @@ class WcPagantis
         if (!areThousandsSeparatorEqual()) {
             updateThousandsSeparatorDbConfig();
         }
-        
+
         //Adapting product price selector < v8.6.7
         $tableName = $wpdb->prefix.PG_CONFIG_TABLE_NAME;
         $query = "select * from $tableName where config='PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'";
@@ -336,8 +342,7 @@ class WcPagantis
         if (count($results) == 0) {
             $wpdb->update($tableName, array('value' => 'a:4:{i:0;s:52:"div.summary *:not(del)>.woocommerce-Price-amount bdi";i:1;s:48:"div.summary *:not(del)>.woocommerce-Price-amount";i:2;s:54:"div.entry-summary *:not(del)>.woocommerce-Price-amount";i:3;s:36:"*:not(del)>.woocommerce-Price-amount";}'), array('config' => 'PAGANTIS_SIMULATOR_CSS_PRICE_SELECTOR'), array('%s'), array('%s'));
         }
-        
-        
+
         $dbConfigs = $wpdb->get_results("select * from $tableName", ARRAY_A);
 
         // Convert a multiple dimension array for SQL insert statements into a simple key/value
@@ -506,6 +511,7 @@ class WcPagantis
         $formattedInstallments = number_format($totalPrice/4, 2);
         $simulatorMessage = sprintf(__('or 4 installments of %s€, without fees, with ', 'pagantis'), $formattedInstallments);
         $post_id = $product->get_id();
+        $logo = 'https://cdn.digitalorigin.com/assets/master/logos/pg-130x30.svg';
         $simulatorData = array(
             'total'    => is_numeric($product->get_price()) ? $product->get_price() : 0,
             'public_key' => $settings['pagantis_public_key'],
@@ -529,7 +535,7 @@ class WcPagantis
             'productType' => $product->get_type(),
             'pagantisSimulator' => $pagantisSimulator,
             'pagantisSimulator4x' => $pagantisSimulator4x,
-            'simulatorMessage' => "$simulatorMessage <img class='mainImageLogo' alt='PAGANTIS'/>"
+            'simulatorMessage' => "$simulatorMessage<img class='mainImageLogo' src='$logo'/>"
         );
 
         wp_localize_script('pg-product-simulator', 'simulatorData', $simulatorData);
