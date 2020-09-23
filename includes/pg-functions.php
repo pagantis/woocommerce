@@ -48,20 +48,6 @@ function isPgTableCreated($tableToCheck)
     return false;
 }
 
-/**
- * Check if orders table exists
- */
-function createPgCartTable()
-{
-    global $wpdb;
-    $tableName       = $wpdb->prefix . PG_CART_PROCESS_TABLE;
-    $charset_collate = $wpdb->get_charset_collate();
-    $sql             = "CREATE TABLE $tableName ( id int, order_id varchar(50), wc_order_id varchar(50),  
-                  UNIQUE KEY id (id)) $charset_collate";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
 
 function createLogsTable()
 {
@@ -407,24 +393,36 @@ function getPromotedAmount()
  * @param $origin
  * @param $token
  */
-function addOrderToCartProcessingQueue($cartHash, $pagantisOrderId, $wcOrderID, $origin, $token)
+function addOrderToCartProcessingQueue($cartHash, $pagantisOrderId, $wcOrderID, $origin = null, $token = null)
 {
     global $wpdb;
     $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
-    $wpdb->insert($tableName, array(
+    if ( ! is_null($token)) {
+        $wpdb->insert($tableName, array(
             'id'          => $cartHash,
             'order_id'    => $pagantisOrderId,
             'wc_order_id' => $wcOrderID,
             'origin'      => $origin,
             'token'       => $token
-        ), array('%d', '%s', '%s', '%s', '%s'));
+        ), array('%s', '%s', '%s', '%s', '%s'));
+    } else {
+        $wpdb->insert($tableName, array(
+            'id'          => $cartHash,
+            'order_id'    => $pagantisOrderId,
+            'wc_order_id' => $wcOrderID,
+        ), array('%s', '%s', '%s', '%s', '%s'));
+    }
 }
 
-function alterCartProcessingTable(){
+function alterCartProcessingTable()
+{
     global $wpdb;
     $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
-    $wpdb->query( "ALTER TABLE $tableName  ADD COLUMN token VARCHAR(32) NOT NULL AFTER wc_order_id");
-    $wpdb->query( "ALTER TABLE $tableName DROP PRIMARY KEY, ADD PRIMARY KEY(`id`, `token`)" );
+    if ( ! $wpdb->get_var("SHOW COLUMNS FROM `{$tableName}` LIKE 'token'")) {
+        $wpdb->query("ALTER TABLE $tableName ADD COLUMN origin VARCHAR(50) NOT NULL,`token` VARCHAR(32) NOT NULL AFTER `wc_order_id`");
+        pagantisLogger::log(PG_CART_PROCESS_TABLE . " ALTERED " .  "on " . __LINE__ . " in " . __FILE__);
+        $wpdb->query("ALTER TABLE $tableName DROP PRIMARY KEY, ADD PRIMARY KEY(`id`, `token`)");
+    }
     wp_cache_flush();
 }
 
@@ -437,8 +435,15 @@ function createCartProcessingTable()
     $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
 
     if ( ! isPgTableCreated(PG_CART_PROCESS_TABLE)) {
+        pagantisLogger::log(PG_CART_PROCESS_TABLE . " CREATED " .  "on " . __LINE__ . " in " . __FILE__);
         $charset_collate = $wpdb->get_charset_collate();
-        $sql             = "CREATE TABLE $tableName id VARCHAR(60) NOT NULL, order_id VARCHAR(60) NOT NULL, wc_order_id VARCHAR(50) NOT NULL, token VARCHAR(32) NOT NULL PRIMARY KEY('id' , 'token')) $charset_collate";
+        $sql             = "CREATE TABLE $tableName 
+            (id VARCHAR(60) NOT NULL, 
+            order_id VARCHAR(60) NOT NULL, 
+            wc_order_id VARCHAR(50) NOT NULL,
+            origin VARCHAR(50) NOT NULL,
+            token VARCHAR(32) NOT NULL, 
+            PRIMARY KEY(id) ) $charset_collate";
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
@@ -507,10 +512,6 @@ function updateCartProcessingTable()
     }
 }
 
-function createToken()
-{
-    return strtoupper(md5(uniqid(rand(), true)));
-}
 
 function isPagePaymentPage()
 {

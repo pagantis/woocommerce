@@ -51,6 +51,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
     public function __construct()
     {
         require_once(plugin_dir_path(__FILE__).'../includes/pg-functions.php');
+        require_once(plugin_dir_path(__FILE__).'../includes/logger.php');
         //Mandatory vars for plugin
         $this->id = WcPagantisGateway::METHOD_ID;
         $this->has_fields = true;
@@ -248,12 +249,11 @@ class WcPagantisGateway extends WC_Payment_Gateway
             }
 
             $metadataOrder = new Metadata();
-            $urlToken = createToken();
             $metadata = array(
                 'pg_module' => 'woocommerce',
                 'pg_version' => getModuleVersion(),
                 'ec_module' => 'woocommerce',
-                'ec_version' => WC()->version,
+                'ec_version' => WC()->version
             );
 
             foreach ($metadata as $key => $metadatum) {
@@ -302,24 +302,24 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setPromotedAmount($promotedAmount)
                 ->setTotalAmount(intval(strval(100 * $order->total)))
             ;
+            $urlToken = strtoupper(md5(uniqid(rand(), true)));
             $orderConfigurationUrls = new Urls();
             $cancelUrl = $this->getKoUrl($order);
             $callback_arg = array('wc-api'=>'wcpagantisgateway',
                 'key'=>$order->get_order_key(),
                 'order-received'=>$order->get_id(),
-                'origin' => ''
+                'origin' => '',
+                'token' => $urlToken
             );
 
             $callback_arg_user = $callback_arg;
             $callback_arg_user['origin'] = 'redirect';
             $callback_arg_user['product'] = Ucfirst(WcPagantisGateway::METHOD_ID);
-            $callback_arg_user['token'] = $token;
             $callback_url_user = add_query_arg($callback_arg_user, home_url('/'));
 
             $callback_arg_notif = $callback_arg;
             $callback_arg_notif['origin'] = 'notification';
             $callback_arg_notif['product'] = Ucfirst(WcPagantisGateway::METHOD_ID);
-            $callback_arg_notif['token'] = $token;
             $callback_url_notif = add_query_arg($callback_arg_notif, home_url('/'));
 
             $orderConfigurationUrls
@@ -363,6 +363,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $pagantisOrder = $orderClient->createOrder($orderApiClient);
             if ($pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
                 $url = $pagantisOrder->getActionUrls()->getForm();
+                addOrderToCartProcessingQueue(WC()->cart->get_cart_hash(),  $pagantisOrder->getId(),$order->get_id() , null , $urlToken);
+
             } else {
                 throw new OrderNotFoundException();
             }
@@ -382,6 +384,9 @@ class WcPagantisGateway extends WC_Payment_Gateway
         } catch (\Exception $exception) {
             wc_add_notice(__('Payment error ', 'pagantis') . $exception->getMessage(), 'error');
             insertLogEntry($exception);
+            pagantisLogger::log($exception);
+            pagantisLogger::log(pagantisLogger::pg_debug_backtrace());
+
             $checkout_url = get_permalink(wc_get_page_id('checkout'));
             wp_redirect($checkout_url);
             exit;

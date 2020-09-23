@@ -158,7 +158,7 @@ class WcPagantisNotify extends WcPagantisGateway
         global $wpdb;
         $this->checkDbTable();
         $tableName = $wpdb->prefix.PG_CART_PROCESS_TABLE;
-        $queryResult = $wpdb->get_row("select order_id from $tableName where id='".WC()->cart->get_cart_hash()."'");
+        $queryResult = $wpdb->get_row("SELECT order_id FROM $tableName WHERE token='{$this->token}'");
         $this->pagantisOrderId = $queryResult->order_id;
 
         if ($this->pagantisOrderId == '') {
@@ -229,8 +229,9 @@ class WcPagantisNotify extends WcPagantisGateway
                           " Merchant order id:".$this->woocommerceOrder->get_id().
                           " Merchant order status:".$this->woocommerceOrder->get_status().
                           " Pagantis order id:".$this->pagantisOrder->getStatus().
-                          " Pagantis order status:".$this->pagantisOrder->getId();
-
+                          " Pagantis order status:".$this->pagantisOrder->getId().
+                          " Pagantis urlToken: ".$this->token;
+            
             $this->insertLog(null, $logMessage);
             $this->woocommerceOrder->add_order_note($logMessage);
             $this->woocommerceOrder->save();
@@ -287,8 +288,9 @@ class WcPagantisNotify extends WcPagantisGateway
      * UTILS FUNCTIONS
      */
     /** STEP 1 CC - Check concurrency */
+
     /**
-     * Check if orders table exists
+     * Check if cart processing table exists
      */
     private function checkDbTable()
     {
@@ -397,7 +399,7 @@ class WcPagantisNotify extends WcPagantisGateway
         $wpdb->update(
             $tableName,
             array('wc_order_id'=>$this->woocommerceOrderId),
-            array('token' => WC()->cart->get_cart_hash()),
+            array('token' => $this->token),
             array('%s,%s'),
             array('%s,%s')
         );
@@ -495,6 +497,9 @@ class WcPagantisNotify extends WcPagantisGateway
     private function buildResponse($exception = null)
     {
         $this->unblockConcurrency($this->woocommerceOrderId);
+        $this->setToken($_GET['token']);
+        pagantisLogger::log( " token " . $_GET['token'] .  "on " . __LINE__ . " in " . __FILE__);
+        pagantisLogger::log( " token " . $this->token .  "on " . __LINE__ . " in " . __FILE__);
 
         if ($exception == null) {
             $jsonResponse = new JsonSuccessResponse();
@@ -502,7 +507,6 @@ class WcPagantisNotify extends WcPagantisGateway
             $jsonResponse = new JsonExceptionResponse();
             $jsonResponse->setException($exception);
         }
-
         $jsonResponse->setMerchantOrderId($this->woocommerceOrderId);
         $jsonResponse->setPagantisOrderId($this->pagantisOrderId);
 
@@ -555,6 +559,22 @@ class WcPagantisNotify extends WcPagantisGateway
     public function setProduct($product)
     {
         $this->product = Ucfirst($product);
+    }
+
+    /**
+     * @param $token
+     */
+    public function setToken($token)
+    {
+        $this->token = $token;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getToken()
+    {
+        return $this->token;
     }
 
 }

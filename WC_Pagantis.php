@@ -3,15 +3,13 @@
  * Plugin Name: Pagantis
  * Plugin URI: http://www.pagantis.com/
  * Description: Financiar con Pagantis
- * Version: 8.6.12
+ * Version: 8.6.13
  * Author: Pagantis
  *
  * Text Domain: pagantis
  * Domain Path: /languages/
  *
  */
-
-//namespace Gateways;
 
 
 if (!defined('ABSPATH')) {
@@ -82,6 +80,7 @@ class WcPagantis
     {
         require_once(plugin_dir_path(__FILE__).'/vendor/autoload.php');
         require_once(PG_ABSPATH . '/includes/pg-functions.php');
+        require_once(PG_ABSPATH . '/includes/logger.php');
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
         $this->pagantisActivation();
@@ -192,17 +191,7 @@ class WcPagantis
      */
     public  function pagantisCheckTables()
     {
-        // Creating new cart processing table < 8.6.13
-        if (isPgTableCreated(PG_CART_PROCESS_TABLE)){
-            alterCartProcessingTable();
-        } else{
-            createCartProcessingTable();
-        }
-
-        // Making sure DB tables are created < v8.6.9
-        if (!isPgTableCreated(PG_LOGS_TABLE_NAME)){
-            createLogsTable();
-        }
+        //
     }
 
     /**
@@ -275,6 +264,21 @@ class WcPagantis
             }
         }
 
+        // Creating new cart processing table < 8.6.13
+        if (isPgTableCreated(PG_CART_PROCESS_TABLE)){
+            pagantisLogger::log(PG_CART_PROCESS_TABLE . " ALTERED " .  "on " . __LINE__ . " in " . __FILE__);
+            pagantisLogger::log(pagantisLogger::pg_debug_backtrace());
+            alterCartProcessingTable();
+        } else{
+            pagantisLogger::log(PG_CART_PROCESS_TABLE . " CREATED " .  "on " . __LINE__ . " in " . __FILE__);
+            pagantisLogger::log(pagantisLogger::pg_debug_backtrace());
+            createCartProcessingTable();
+        }
+
+        // Making sure DB tables are created < v8.6.9
+        if (!isPgTableCreated(PG_LOGS_TABLE_NAME)){
+            createLogsTable();
+        }
 
         //Adapting selector to array < v8.2.2
         $tableName = $wpdb->prefix.PG_CONFIG_TABLE_NAME;

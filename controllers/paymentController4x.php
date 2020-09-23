@@ -54,6 +54,8 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
      */
     public function __construct()
     {
+
+        require_once(plugin_dir_path(__FILE__).'../includes/logger.php');
         //Mandatory vars for plugin
         $this->id = WcPagantis4xGateway::METHOD_ID;
         $this->has_fields = true;
