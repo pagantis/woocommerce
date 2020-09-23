@@ -248,15 +248,12 @@ class WcPagantisGateway extends WC_Payment_Gateway
             }
 
             $metadataOrder = new Metadata();
-            $tokenString = $orderUser->getEmail().$orderUser->getFullName().time();
-            $token = md5($tokenString);
-var_dump($token);
+            $urlToken = createToken();
             $metadata = array(
                 'pg_module' => 'woocommerce',
                 'pg_version' => getModuleVersion(),
                 'ec_module' => 'woocommerce',
                 'ec_version' => WC()->version,
-                'token' => $token
             );
 
             foreach ($metadata as $key => $metadatum) {
@@ -366,7 +363,6 @@ var_dump($token);
             $pagantisOrder = $orderClient->createOrder($orderApiClient);
             if ($pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
                 $url = $pagantisOrder->getActionUrls()->getForm();
-                addOrderToCartProcessingQueue($order->get_id(), $pagantisOrder->getId(), $token);
             } else {
                 throw new OrderNotFoundException();
             }

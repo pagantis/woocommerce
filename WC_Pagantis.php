@@ -90,6 +90,7 @@ class WcPagantis
 
         load_plugin_textdomain('pagantis', false, dirname(plugin_basename(__FILE__)).'/languages');
 
+        add_action('plugins_loaded', array($this, 'pagantisCheckTables'));
         add_filter('woocommerce_payment_gateways', array($this, 'addPagantisGateway'));
         add_filter('woocommerce_available_payment_gateways', array($this, 'pagantisFilterGateways'), 9999);
         add_filter('plugin_row_meta', array($this, 'pagantisRowMeta'), 10, 2);
@@ -185,6 +186,25 @@ class WcPagantis
         return $mofile;
     }
 
+
+    /**
+     *
+     */
+    public  function pagantisCheckTables()
+    {
+        // Creating new cart processing table < 8.6.13
+        if (isPgTableCreated(PG_CART_PROCESS_TABLE)){
+            alterCartProcessingTable();
+        } else{
+            createCartProcessingTable();
+        }
+
+        // Making sure DB tables are created < v8.6.9
+        if (!isPgTableCreated(PG_LOGS_TABLE_NAME)){
+            createLogsTable();
+        }
+    }
+
     /**
      * Sql table
      */
@@ -255,11 +275,6 @@ class WcPagantis
             }
         }
 
-        // Making sure DB tables are created < v8.6.9
-        if (!isPgTableCreated(PG_LOGS_TABLE_NAME)){
-            createLogsTable();
-        }
-        checkCartProcessTable();
 
         //Adapting selector to array < v8.2.2
         $tableName = $wpdb->prefix.PG_CONFIG_TABLE_NAME;

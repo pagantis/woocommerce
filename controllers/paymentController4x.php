@@ -217,7 +217,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
                 'pg_module' => 'woocommerce',
                 'pg_version' => getModuleVersion(),
                 'ec_module' => 'woocommerce',
-                'ec_version' => WC()->version
+                'ec_version' => WC()->version,
             );
 
             foreach ($metadata as $key => $metadatum) {
@@ -326,7 +326,6 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
             $pagantisOrder = $orderClient->createOrder($orderApiClient);
             if ($pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
                 $url = $pagantisOrder->getActionUrls()->getForm();
-                addOrderToCartProcessingQueue($order->get_id(), $pagantisOrder->getId());
             } else {
                 throw new OrderNotFoundException();
             }

@@ -158,7 +158,7 @@ class WcPagantisNotify extends WcPagantisGateway
         global $wpdb;
         $this->checkDbTable();
         $tableName = $wpdb->prefix.PG_CART_PROCESS_TABLE;
-        $queryResult = $wpdb->get_row("select order_id from $tableName where id='".$this->woocommerceOrderId."'");
+        $queryResult = $wpdb->get_row("select order_id from $tableName where id='".WC()->cart->get_cart_hash()."'");
         $this->pagantisOrderId = $queryResult->order_id;
 
         if ($this->pagantisOrderId == '') {
@@ -292,16 +292,10 @@ class WcPagantisNotify extends WcPagantisGateway
      */
     private function checkDbTable()
     {
-        global $wpdb;
-        $tableName = $wpdb->prefix.PG_CART_PROCESS_TABLE;
-
-        if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
-            $charset_collate = $wpdb->get_charset_collate();
-            $sql             = "CREATE TABLE $tableName (id int, order_id varchar(50), wc_order_id varchar(50), 
-                  UNIQUE KEY id (id)) $charset_collate";
-
-            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
-            dbDelta($sql);
+        if (isPgTableCreated(PG_CART_PROCESS_TABLE)){
+            alterCartProcessingTable();
+        } else{
+            createCartProcessingTable();
         }
     }
 
@@ -403,9 +397,9 @@ class WcPagantisNotify extends WcPagantisGateway
         $wpdb->update(
             $tableName,
             array('wc_order_id'=>$this->woocommerceOrderId),
-            array('id' => $this->woocommerceOrderId),
-            array('%s'),
-            array('%d')
+            array('token' => WC()->cart->get_cart_hash()),
+            array('%s,%s'),
+            array('%s,%s')
         );
     }
 
