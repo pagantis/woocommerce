@@ -46,16 +46,21 @@ class WcPagantisGateway extends WC_Payment_Gateway
     private $allowed_currencies;
 
     /**
+     * @var string
+     */
+    private $paymentProcessingToken;
+
+    /**
      * WcPagantisGateway constructor.
      */
     public function __construct()
     {
         require_once(plugin_dir_path(__FILE__).'../includes/pg-functions.php');
-        require_once(plugin_dir_path(__FILE__).'../includes/logger.php');
         //Mandatory vars for plugin
         $this->id = WcPagantisGateway::METHOD_ID;
         $this->has_fields = true;
         $this->method_title = ucfirst($this->id);
+        $this->paymentProcessingToken = strtoupper(md5(uniqid(rand(), true)));
 
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
@@ -302,14 +307,13 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setPromotedAmount($promotedAmount)
                 ->setTotalAmount(intval(strval(100 * $order->total)))
             ;
-            $urlToken = strtoupper(md5(uniqid(rand(), true)));
             $orderConfigurationUrls = new Urls();
             $cancelUrl = $this->getKoUrl($order);
             $callback_arg = array('wc-api'=>'wcpagantisgateway',
                 'key'=>$order->get_order_key(),
                 'order-received'=>$order->get_id(),
                 'origin' => '',
-                'token' => $urlToken
+                'token' => $this->paymentProcessingToken
             );
 
             $callback_arg_user = $callback_arg;
@@ -363,7 +367,13 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $pagantisOrder = $orderClient->createOrder($orderApiClient);
             if ($pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
                 $url = $pagantisOrder->getActionUrls()->getForm();
-                addOrderToCartProcessingQueue(WC()->cart->get_cart_hash(),  $pagantisOrder->getId(),$order->get_id() , null , $urlToken);
+                addOrderToProcessingQueue(WC()->cart->get_cart_hash(),  $pagantisOrder->getId(),$order->get_id() , $this->paymentProcessingToken);
+                $logEntry = "Cart Added to Processing Queu" .
+                            " cart hash: ".WC()->cart->get_cart_hash().
+                            " Merchant order id: ".$order->get_id().
+                            " Pagantis order id: ".$pagantisOrder->getId().
+                            " Pagantis urlToken: ".$this->paymentProcessingToken;
+                insertLogEntry(null,$logEntry);
 
             } else {
                 throw new OrderNotFoundException();
@@ -384,9 +394,6 @@ class WcPagantisGateway extends WC_Payment_Gateway
         } catch (\Exception $exception) {
             wc_add_notice(__('Payment error ', 'pagantis') . $exception->getMessage(), 'error');
             insertLogEntry($exception);
-            pagantisLogger::log($exception);
-            pagantisLogger::log(pagantisLogger::pg_debug_backtrace());
-
             $checkout_url = get_permalink(wc_get_page_id('checkout'));
             wp_redirect($checkout_url);
             exit;
@@ -406,7 +413,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $notify = new WcPagantisNotify();
             $notify->setOrigin($origin);
             /** @var \Pagantis\ModuleUtils\Model\Response\AbstractJsonResponse $result */
-            $result = $notify->processInformation();
+            $result = $notify->processNotification();
         } catch (Exception $exception) {
             $result['notification_message'] = $exception->getMessage();
             $result['notification_error'] = true;
@@ -503,6 +510,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $redirectUrl = $order->get_checkout_payment_url(true); //pagantisReceiptPage function
             if (strpos($redirectUrl, 'order-pay=')===false) {
                 $redirectUrl.="&order-pay=".$order_id;
+                $redirectUrl.="&token=".$this->paymentProcessingToken;
             }
 
             return array(
@@ -627,7 +635,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
     private function getKeysUrl($order, $url)
     {
         $defaultFields = (get_class($order)=='WC_Order') ?
-            array('order-received'=>$order->get_id(), 'key'=>$order->get_order_key()) :
+            array('order-received'=>$order->get_id(), 'key'=>$order->get_order_key(), 'token' => $this->paymentProcessingToken) :
             array();
 
         $parsedUrl = parse_url($url);

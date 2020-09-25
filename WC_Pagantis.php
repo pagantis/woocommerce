@@ -29,7 +29,8 @@ define('PG_ROOT', dirname(__DIR__));
 define('PG_CONFIG_TABLE_NAME', 'pagantis_config');
 define('PG_LOGS_TABLE_NAME', 'pagantis_logs');
 define('PG_CONCURRENCY_TABLE_NAME', 'pagantis_concurrency');
-define('PG_CART_PROCESS_TABLE', 'cart_process');
+define('PG_OLD_CART_PROCESS_TABLE', 'cart_process');
+define('PG_ORDER_PROCESS_TABLE', 'pagantis_order');
 define('PG_ORDERS_TABLE', 'posts');
 
 
@@ -80,7 +81,6 @@ class WcPagantis
     {
         require_once(plugin_dir_path(__FILE__).'/vendor/autoload.php');
         require_once(PG_ABSPATH . '/includes/pg-functions.php');
-        require_once(PG_ABSPATH . '/includes/logger.php');
         $this->template_path = plugin_dir_path(__FILE__).'/templates/';
 
         $this->pagantisActivation();
@@ -89,7 +89,6 @@ class WcPagantis
 
         load_plugin_textdomain('pagantis', false, dirname(plugin_basename(__FILE__)).'/languages');
 
-        add_action('plugins_loaded', array($this, 'pagantisCheckTables'));
         add_filter('woocommerce_payment_gateways', array($this, 'addPagantisGateway'));
         add_filter('woocommerce_available_payment_gateways', array($this, 'pagantisFilterGateways'), 9999);
         add_filter('plugin_row_meta', array($this, 'pagantisRowMeta'), 10, 2);
@@ -185,15 +184,6 @@ class WcPagantis
         return $mofile;
     }
 
-
-    /**
-     *
-     */
-    public  function pagantisCheckTables()
-    {
-        //
-    }
-
     /**
      * Sql table
      */
@@ -265,14 +255,10 @@ class WcPagantis
         }
 
         // Creating new cart processing table < 8.6.13
-        if (isPgTableCreated(PG_CART_PROCESS_TABLE)){
-            pagantisLogger::log(PG_CART_PROCESS_TABLE . " ALTERED " .  "on " . __LINE__ . " in " . __FILE__);
-            pagantisLogger::log(pagantisLogger::pg_debug_backtrace());
-            alterCartProcessingTable();
+        if (isPgTableCreated(PG_OLD_CART_PROCESS_TABLE)){
+          alterCartProcessingTable();
         } else{
-            pagantisLogger::log(PG_CART_PROCESS_TABLE . " CREATED " .  "on " . __LINE__ . " in " . __FILE__);
-            pagantisLogger::log(pagantisLogger::pg_debug_backtrace());
-            createCartProcessingTable();
+            createOrderProcessingTable();
         }
 
         // Making sure DB tables are created < v8.6.9

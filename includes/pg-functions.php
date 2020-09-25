@@ -1,10 +1,8 @@
 <?php
 
-use function foo\func;
-
 function requireWPPluginFunctions()
 {
-    if ( ! function_exists('is_plugin_active')) {
+    if (! function_exists('is_plugin_active')) {
         require_once(ABSPATH . 'wp-admin/includes/plugin.php');
     }
 }
@@ -71,7 +69,7 @@ function createLogsTable()
 function insertLogEntry($exception = null, $message = null)
 {
     global $wpdb;
-    if ( ! isPgTableCreated(PG_LOGS_TABLE_NAME)) {
+    if (! isPgTableCreated(PG_LOGS_TABLE_NAME)) {
         createLogsTable();
     }
     $logEntry = new Pagantis\ModuleUtils\Model\Log\LogEntry();
@@ -147,8 +145,13 @@ function updateThousandsSeparatorDbConfig()
     }
     $tableName         = $wpdb->prefix . PG_CONFIG_TABLE_NAME;
     $thousandSeparator = get_option('woocommerce_price_thousand_sep');
-    $wpdb->update($tableName, array('value' => $thousandSeparator), array('config' => 'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'),
-        array('%s'), array('%s'));
+    $wpdb->update(
+        $tableName,
+        array('value' => $thousandSeparator),
+        array('config' => 'PAGANTIS_SIMULATOR_THOUSANDS_SEPARATOR'),
+        array('%s'),
+        array('%s')
+    );
 }
 
 function updateDecimalSeparatorDbConfig()
@@ -159,8 +162,13 @@ function updateDecimalSeparatorDbConfig()
     }
     $tableName        = $wpdb->prefix . PG_CONFIG_TABLE_NAME;
     $decimalSeparator = get_option('woocommerce_price_decimal_sep');
-    $wpdb->update($tableName, array('value' => $decimalSeparator), array('config' => 'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'),
-        array('%s'), array('%s'));
+    $wpdb->update(
+        $tableName,
+        array('value' => $decimalSeparator),
+        array('config' => 'PAGANTIS_SIMULATOR_DECIMAL_SEPARATOR'),
+        array('%s'),
+        array('%s')
+    );
 }
 
 
@@ -172,7 +180,7 @@ function updateDecimalSeparatorDbConfig()
  */
 function isSimulatorTypeValid($simulatorType, $validSimulatorTypes)
 {
-    if ( ! in_array($simulatorType, $validSimulatorTypes)) {
+    if (! in_array($simulatorType, $validSimulatorTypes)) {
         return false;
     }
 
@@ -223,7 +231,7 @@ function areMerchantKeysSet4x()
 function isSimulatorEnabled()
 {
     $settings = get_option('woocommerce_pagantis_settings');
-    if (( ! empty($settings['simulator']) && 'yes' === $settings['simulator']) ? true : false) {
+    if ((! empty($settings['simulator']) && 'yes' === $settings['simulator']) ? true : false) {
         return true;
     }
 
@@ -234,14 +242,14 @@ function isPluginEnabled()
 {
     $settings = get_option('woocommerce_pagantis_settings');
 
-    return ( ! empty($settings['enabled']) && 'yes' === $settings['enabled']);
+    return (! empty($settings['enabled']) && 'yes' === $settings['enabled']);
 }
 
 function isPluginEnabled4x()
 {
     $settings = get_option('woocommerce_pagantis_settings');
 
-    return ( ! empty($settings['enabled_4x']) && 'yes' === $settings['enabled_4x']);
+    return (! empty($settings['enabled_4x']) && 'yes' === $settings['enabled_4x']);
 }
 
 
@@ -249,7 +257,7 @@ function isCountryShopContextValid()
 {
     $locale           = strtolower(strstr(get_locale(), '_', true));
     $allowedCountries = maybe_unserialize(getConfigValue('PAGANTIS_ALLOWED_COUNTRIES'));
-    if ( ! in_array(strtolower($locale), $allowedCountries)) {
+    if (! in_array(strtolower($locale), $allowedCountries)) {
         return false;
     }
 
@@ -390,37 +398,26 @@ function getPromotedAmount()
  * @param $pagantisOrderId
  *
  * @param $wcOrderID
- * @param $origin
- * @param $token
+ * @param $paymentProcessingToken
  */
-function addOrderToCartProcessingQueue($cartHash, $pagantisOrderId, $wcOrderID, $origin = null, $token = null)
+function addOrderToProcessingQueue($cartHash, $pagantisOrderId, $wcOrderID, $paymentProcessingToken)
 {
     global $wpdb;
-    $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
-    if ( ! is_null($token)) {
-        $wpdb->insert($tableName, array(
-            'id'          => $cartHash,
-            'order_id'    => $pagantisOrderId,
-            'wc_order_id' => $wcOrderID,
-            'origin'      => $origin,
-            'token'       => $token
-        ), array('%s', '%s', '%s', '%s', '%s'));
-    } else {
-        $wpdb->insert($tableName, array(
-            'id'          => $cartHash,
-            'order_id'    => $pagantisOrderId,
-            'wc_order_id' => $wcOrderID,
-        ), array('%s', '%s', '%s', '%s', '%s'));
-    }
+    $tableName = $wpdb->prefix . PG_OLD_CART_PROCESS_TABLE;
+    $wpdb->insert($tableName, array(
+        'id'          => $cartHash,
+        'order_id' => $pagantisOrderId,
+        'wc_order_id' => $wcOrderID,
+        'token'       => $paymentProcessingToken
+    ), array('%s', '%s', '%s', '%s'));
 }
 
 function alterCartProcessingTable()
 {
     global $wpdb;
-    $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
-    if ( ! $wpdb->get_var("SHOW COLUMNS FROM `{$tableName}` LIKE 'token'")) {
-        $wpdb->query("ALTER TABLE $tableName ADD COLUMN origin VARCHAR(50) NOT NULL,`token` VARCHAR(32) NOT NULL AFTER `wc_order_id`");
-        pagantisLogger::log(PG_CART_PROCESS_TABLE . " ALTERED " .  "on " . __LINE__ . " in " . __FILE__);
+    $tableName = $wpdb->prefix . PG_OLD_CART_PROCESS_TABLE;
+    if (! $wpdb->get_var("SHOW COLUMNS FROM `{$tableName}` LIKE 'token'")) {
+        $wpdb->query("ALTER TABLE $tableName ADD COLUMN `token` VARCHAR(32) NOT NULL AFTER `wc_order_id`");
         $wpdb->query("ALTER TABLE $tableName DROP PRIMARY KEY, ADD PRIMARY KEY(`id`, `token`)");
     }
     wp_cache_flush();
@@ -429,25 +426,38 @@ function alterCartProcessingTable()
 /**
  * Check if orders table exists
  */
-function createCartProcessingTable()
+function createOrderProcessingTable()
 {
     global $wpdb;
-    $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
+    $tableName = $wpdb->prefix . PG_ORDER_PROCESS_TABLE;
 
-    if ( ! isPgTableCreated(PG_CART_PROCESS_TABLE)) {
-        pagantisLogger::log(PG_CART_PROCESS_TABLE . " CREATED " .  "on " . __LINE__ . " in " . __FILE__);
+    if (! isPgTableCreated(PG_OLD_CART_PROCESS_TABLE)) {
         $charset_collate = $wpdb->get_charset_collate();
-        $sql             = "CREATE TABLE $tableName 
+        $sql             = "CREATE TABLE IF NOT EXISTS $tableName  
             (id VARCHAR(60) NOT NULL, 
             order_id VARCHAR(60) NOT NULL, 
             wc_order_id VARCHAR(50) NOT NULL,
-            origin VARCHAR(50) NOT NULL,
             token VARCHAR(32) NOT NULL, 
             PRIMARY KEY(id) ) $charset_collate";
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
     }
+}
+
+/**
+ * get the correct Order Processing Table Name
+ *
+ * @return bool
+ * @see wpdb::get_var()
+ */
+function getOrderProcessingTableName()
+{
+    global $wpdb;
+    if (isPgTableCreated(PG_OLD_CART_PROCESS_TABLE)) {
+        return $wpdb->prefix . PG_OLD_CART_PROCESS_TABLE;
+    }
+    return $wpdb->prefix . PG_ORDER_PROCESS_TABLE;
 }
 
 /**
@@ -494,26 +504,4 @@ function getOrders($current_user, $billingEmail)
     }
 
     return $customer_orders;
-}
-
-
-function updateCartProcessingTable()
-{
-    global $wpdb;
-    $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
-
-    if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
-        $charset_collate = $wpdb->get_charset_collate();
-        $sql             = "CREATE TABLE $tableName ( id int, order_id varchar(50), wc_order_id varchar(50), token varchar(32) 
-                  UNIQUE KEY id (id)) $charset_collate";
-
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($sql);
-    }
-}
-
-
-function isPagePaymentPage()
-{
-    return (is_checkout() && ! is_order_received_page()) || is_checkout_pay_page();
 }

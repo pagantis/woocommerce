@@ -48,6 +48,11 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
      */
     private $allowed_currencies;
 
+    /**
+     * @var string
+     */
+    private $paymentProcessingToken4x;
+
 
     /**
      * WcPagantis4xGateway constructor.
@@ -55,11 +60,12 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
     public function __construct()
     {
 
-        require_once(plugin_dir_path(__FILE__).'../includes/logger.php');
         //Mandatory vars for plugin
         $this->id = WcPagantis4xGateway::METHOD_ID;
         $this->has_fields = true;
         $this->method_title = ucfirst($this->id);
+        $this->paymentProcessingToken4x = strtoupper(md5(uniqid(rand(), true)));
+
 
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
@@ -273,7 +279,8 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
             $callback_arg = array('wc-api'=>'wcpagantisgateway',
                                   'key'=>$order->get_order_key(),
                                   'order-received'=>$order->get_id(),
-                                  'origin' => ''
+                                  'origin' => '',
+                                  'token' => $this->paymentProcessingToken4x
             );
 
             $callback_arg_user = $callback_arg;
@@ -328,6 +335,8 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
             $pagantisOrder = $orderClient->createOrder($orderApiClient);
             if ($pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
                 $url = $pagantisOrder->getActionUrls()->getForm();
+                addOrderToProcessingQueue(WC()->cart->get_cart_hash(),  $pagantisOrder->getId(),$order->get_id() , $this->paymentProcessingToken4x);
+
             } else {
                 throw new OrderNotFoundException();
             }
@@ -368,7 +377,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
             $notify = new WcPagantisNotify();
             $notify->setOrigin($origin);
             /** @var \Pagantis\ModuleUtils\Model\Response\AbstractJsonResponse $result */
-            $result = $notify->processInformation();
+            $result = $notify->processNotification();
         } catch (Exception $exception) {
             $result['notification_message'] = $exception->getMessage();
             $result['notification_error'] = true;
@@ -470,6 +479,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
             $redirectUrl = $order->get_checkout_payment_url(true); //pagantisReceiptPage function
             if (strpos($redirectUrl, 'order-pay=')===false) {
                 $redirectUrl.="&order-pay=".$order_id;
+                $redirectUrl.="&token=".$this->paymentProcessingToken4x;
             }
 
             return array(
@@ -596,7 +606,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
     private function getKeysUrl($order, $url)
     {
         $defaultFields = (get_class($order)=='WC_Order') ?
-            array('order-received'=>$order->get_id(), 'key'=>$order->get_order_key()) :
+            array('order-received'=>$order->get_id(), 'key'=>$order->get_order_key(), 'token' => $this->paymentProcessingToken4x) :
             array();
 
         $parsedUrl = parse_url($url);
