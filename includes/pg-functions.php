@@ -429,7 +429,7 @@ function alterCartProcessingTable()
 function createOrderProcessingTable()
 {
     global $wpdb;
-    $tableName = $wpdb->prefix . PG_ORDER_PROCESS_TABLE;
+    $tableName = $wpdb->prefix . PG_OLD_CART_PROCESS_TABLE;
 
     if (! isPgTableCreated(PG_OLD_CART_PROCESS_TABLE)) {
         $charset_collate = $wpdb->get_charset_collate();
