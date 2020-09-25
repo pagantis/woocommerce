@@ -335,8 +335,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
             $pagantisOrder = $orderClient->createOrder($orderApiClient);
             if ($pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
                 $url = $pagantisOrder->getActionUrls()->getForm();
-                addOrderToProcessingQueue(WC()->cart->get_cart_hash(),  $pagantisOrder->getId(),$order->get_id() , $this->paymentProcessingToken4x);
-
+                addOrderToProcessingQueue(WC()->cart->get_cart_hash(), $pagantisOrder->getId(), $order->get_id(), $this->paymentProcessingToken4x);
             } else {
                 throw new OrderNotFoundException();
             }

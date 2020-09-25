@@ -367,14 +367,13 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $pagantisOrder = $orderClient->createOrder($orderApiClient);
             if ($pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
                 $url = $pagantisOrder->getActionUrls()->getForm();
-                addOrderToProcessingQueue(WC()->cart->get_cart_hash(),  $pagantisOrder->getId(),$order->get_id() , $this->paymentProcessingToken);
+                addOrderToProcessingQueue(WC()->cart->get_cart_hash(), $pagantisOrder->getId(), $order->get_id(), $this->paymentProcessingToken);
                 $logEntry = "Cart Added to Processing Queu" .
                             " cart hash: ".WC()->cart->get_cart_hash().
                             " Merchant order id: ".$order->get_id().
                             " Pagantis order id: ".$pagantisOrder->getId().
                             " Pagantis urlToken: ".$this->paymentProcessingToken;
-                insertLogEntry(null,$logEntry);
-
+                insertLogEntry(null, $logEntry);
             } else {
                 throw new OrderNotFoundException();
             }
@@ -707,5 +706,4 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $path     = $parsed_url['path'];
         return $scheme . $host . $port . $path . $query . $fragment;
     }
-
 }

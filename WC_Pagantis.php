@@ -255,14 +255,14 @@ class WcPagantis
         }
 
         // Creating new cart processing table < 8.6.13
-        if (isPgTableCreated(PG_OLD_CART_PROCESS_TABLE)){
-          alterCartProcessingTable();
-        } else{
+        if (isPgTableCreated(PG_OLD_CART_PROCESS_TABLE)) {
+            alterCartProcessingTable();
+        } else {
             createOrderProcessingTable();
         }
 
         // Making sure DB tables are created < v8.6.9
-        if (!isPgTableCreated(PG_LOGS_TABLE_NAME)){
+        if (!isPgTableCreated(PG_LOGS_TABLE_NAME)) {
             createLogsTable();
         }
 

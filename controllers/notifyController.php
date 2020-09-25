@@ -155,15 +155,20 @@ class WcPagantisNotify extends WcPagantisGateway
         global $wpdb;
         $this->checkDbTable();
         $tableName =$wpdb->prefix . PG_OLD_CART_PROCESS_TABLE;
-        $tokenCount=$wpdb->get_var($wpdb->prepare("SELECT COUNT(wc_order_id) 
+        $tokenCount=$wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(wc_order_id) 
                                                                     FROM $tableName 
                                                                     WHERE token = %s",
-                                                                $this->getVerificationToken()));
+            $this->getVerificationToken()
+        ));
         $orderIDCount = $wpdb->get_var(
-            $wpdb->prepare("SELECT COUNT(token) 
+            $wpdb->prepare(
+                "SELECT COUNT(token) 
                                         FROM $tableName 
                                         WHERE wc_order_id = %s",
-                                    $this->getWoocommerceOrderId()));
+                $this->getWoocommerceOrderId()
+            )
+        );
         if (!($tokenCount == 1 && $orderIDCount == 1)) {
             throw new MerchantOrderNotFoundException();
         }
@@ -427,7 +432,8 @@ class WcPagantisNotify extends WcPagantisGateway
             array('wc_order_id' => $this->woocommerceOrderId),
             array('token' => $this->getVerificationToken()),
             array('%s'),
-            array('%s'));
+            array('%s')
+        );
     }
 
     /** STEP 9 CPO - Confirmation Pagantis Order */
@@ -491,16 +497,24 @@ class WcPagantisNotify extends WcPagantisGateway
                 throw new ConcurrencyException();
             } else {
                 $query           =
-                    sprintf("SELECT TIMESTAMPDIFF(SECOND,NOW()-INTERVAL %s SECOND, createdAt) as rest FROM %s WHERE %s",
-                        self::CONCURRENCY_TIMEOUT, $tableName, "order_id=$orderId");
+                    sprintf(
+                        "SELECT TIMESTAMPDIFF(SECOND,NOW()-INTERVAL %s SECOND, createdAt) as rest FROM %s WHERE %s",
+                        self::CONCURRENCY_TIMEOUT,
+                        $tableName,
+                        "order_id=$orderId"
+                    );
                 $resultSeconds=$wpdb->get_row($query);
                 $restSeconds  =isset($resultSeconds) ? ($resultSeconds->rest) : 0;
                 $secondsToExpire = ($restSeconds > self::CONCURRENCY_TIMEOUT) ? self::CONCURRENCY_TIMEOUT : $restSeconds;
                 sleep($secondsToExpire + 1);
 
                 $logMessage =
-                    sprintf("User waiting %s seconds, default seconds %s, bd time to expire %s seconds", $secondsToExpire,
-                        self::CONCURRENCY_TIMEOUT, $restSeconds);
+                    sprintf(
+                        "User waiting %s seconds, default seconds %s, bd time to expire %s seconds",
+                        $secondsToExpire,
+                        self::CONCURRENCY_TIMEOUT,
+                        $restSeconds
+                    );
                 $this->insertLog(null, $logMessage);
             }
         }
@@ -615,5 +629,4 @@ class WcPagantisNotify extends WcPagantisGateway
             throw new MerchantOrderNotFoundException();
         }
     }
-
 }
