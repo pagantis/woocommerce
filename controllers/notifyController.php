@@ -71,8 +71,7 @@ class WcPagantisNotify extends WcPagantisGateway
                     return $this->buildResponse();
                 }
 
-                $this->setWoocommerceOrderId();
-                $this->setUrlToken();
+
                 $this->checkConcurrency();
                 $this->getProductType();
                 $this->getMerchantOrder();
@@ -185,6 +184,8 @@ class WcPagantisNotify extends WcPagantisGateway
         if (empty($this->pagantisOrderId)) {
             throw new NoIdentificationException();
         }
+        $this->setWoocommerceOrderId();
+        $this->setUrlToken();
         $this->verifyOrderConformity();
     }
 
