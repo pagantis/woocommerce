@@ -418,7 +418,7 @@ function alterCartProcessingTable()
     $tableName = $wpdb->prefix . PG_OLD_CART_PROCESS_TABLE;
     if (! $wpdb->get_var("SHOW COLUMNS FROM `{$tableName}` LIKE 'token'")) {
         $wpdb->query("ALTER TABLE $tableName ADD COLUMN `token` VARCHAR(32) NOT NULL AFTER `wc_order_id`");
-        $wpdb->query("ALTER TABLE $tableName DROP PRIMARY KEY, ADD PRIMARY KEY(`id`, `token`)");
+        $wpdb->query("ALTER TABLE $tableName DROP PRIMARY KEY, ADD PRIMARY KEY(id,order_id)");
     }
     wp_cache_flush();
 }
@@ -438,27 +438,13 @@ function createOrderProcessingTable()
             order_id VARCHAR(60) NOT NULL, 
             wc_order_id VARCHAR(50) NOT NULL,
             token VARCHAR(32) NOT NULL, 
-            PRIMARY KEY(id) ) $charset_collate";
+            PRIMARY KEY(id,order_id)) $charset_collate";
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
     }
 }
 
-/**
- * get the correct Order Processing Table Name
- *
- * @return bool
- * @see wpdb::get_var()
- */
-function getOrderProcessingTableName()
-{
-    global $wpdb;
-    if (isPgTableCreated(PG_OLD_CART_PROCESS_TABLE)) {
-        return $wpdb->prefix . PG_OLD_CART_PROCESS_TABLE;
-    }
-    return $wpdb->prefix . PG_ORDER_PROCESS_TABLE;
-}
 
 /**
  * Get the orders of a customer

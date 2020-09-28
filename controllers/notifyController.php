@@ -156,17 +156,17 @@ class WcPagantisNotify extends WcPagantisGateway
         $this->checkDbTable();
         $tableName =$wpdb->prefix . PG_OLD_CART_PROCESS_TABLE;
         $tokenCount=$wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(wc_order_id) 
-                                                                    FROM $tableName 
-                                                                    WHERE token = %s",
+            "SELECT COUNT(order_id) 
+                 FROM $tableName 
+                 WHERE token=%s",
             $this->getVerificationToken()
         ));
         $orderIDCount = $wpdb->get_var(
             $wpdb->prepare(
                 "SELECT COUNT(token) 
-                                        FROM $tableName 
-                                        WHERE wc_order_id = %s",
-                $this->getWoocommerceOrderId()
+                      FROM $tableName 
+                      WHERE order_id=%s",
+                $this->pagantisOrderId
             )
         );
         if (!($tokenCount == 1 && $orderIDCount == 1)) {
@@ -537,6 +537,7 @@ class WcPagantisNotify extends WcPagantisGateway
             $jsonResponse = new JsonExceptionResponse();
             $jsonResponse->setException($exception);
         }
+
         $jsonResponse->setMerchantOrderId($this->woocommerceOrderId);
         $jsonResponse->setPagantisOrderId($this->pagantisOrderId);
 
