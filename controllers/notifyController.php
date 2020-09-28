@@ -112,10 +112,11 @@ class WcPagantisNotify extends WcPagantisGateway
      */
 
     /**
-     * @throws ConcurrencyException
+     * @throws ConcurrencyException|QuoteNotFoundException
      */
     private function checkConcurrency()
     {
+        $this->setWoocommerceOrderId();
         $this->unblockConcurrency();
         $this->blockConcurrency($this->woocommerceOrderId);
     }
@@ -176,16 +177,16 @@ class WcPagantisNotify extends WcPagantisGateway
     private function getPagantisOrderId()
     {
         global $wpdb;
+        $this->setUrlToken();
         $this->checkDbTable();
         $tableName = $wpdb->prefix.PG_CART_PROCESS_TABLE;
-        $queryResult = $wpdb->get_row("SELECT order_id FROM $tableName WHERE token='{$this->getUrlToken()}'");
-        $this->pagantisOrderId = $queryResult->order_id;
+        $order_id = $wpdb->get_var("SELECT order_id FROM $tableName WHERE token='{$this->getUrlToken()}'");
+        $this->pagantisOrderId = $order_id;
 
         if (empty($this->pagantisOrderId)) {
             throw new NoIdentificationException();
         }
-        $this->setWoocommerceOrderId();
-        $this->setUrlToken();
+
         $this->verifyOrderConformity();
     }
 
