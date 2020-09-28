@@ -376,7 +376,10 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
             '&',
             self::NOTIFICATION_PARAMETER1,
             '=',
-            $this->orderKey
+            $this->orderKey,
+            '&',
+            self::NOTIFICATION_PARAMETER2,
+            '='
         );
         $this->checkConcurrency();
         $this->checkPagantisOrderId();
