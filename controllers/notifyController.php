@@ -182,7 +182,6 @@ class WcPagantisNotify extends WcPagantisGateway
         $tableName = $wpdb->prefix.PG_CART_PROCESS_TABLE;
         $order_id = $wpdb->get_var("SELECT order_id FROM $tableName WHERE token='{$this->getUrlToken()}'");
         $this->pagantisOrderId = $order_id;
-
         if (empty($this->pagantisOrderId)) {
             throw new NoIdentificationException();
         }
@@ -320,10 +319,12 @@ class WcPagantisNotify extends WcPagantisGateway
     {
 
         global $wpdb;
-        $tableName = $wpdb->prefix.PG_CART_PROCESS_TABLE;
         if (isPgTableCreated(PG_CART_PROCESS_TABLE)) {
             alterCartProcessingTable();
         }
+
+        $tableName = $wpdb->prefix.PG_CART_PROCESS_TABLE;
+
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
             $sql = "CREATE TABLE IF NOT EXISTS $tableName  
