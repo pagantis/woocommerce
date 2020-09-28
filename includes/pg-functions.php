@@ -403,7 +403,7 @@ function getPromotedAmount()
 function addOrderToProcessingQueue($cartHash, $pagantisOrderId, $wcOrderID, $paymentProcessingToken)
 {
     global $wpdb;
-    $tableName = $wpdb->prefix . PG_OLD_CART_PROCESS_TABLE;
+    $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
     $wpdb->insert($tableName, array(
         'id'          => $cartHash,
         'order_id' => $pagantisOrderId,
@@ -415,7 +415,7 @@ function addOrderToProcessingQueue($cartHash, $pagantisOrderId, $wcOrderID, $pay
 function alterCartProcessingTable()
 {
     global $wpdb;
-    $tableName = $wpdb->prefix . PG_OLD_CART_PROCESS_TABLE;
+    $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
     if (! $wpdb->get_var("SHOW COLUMNS FROM `{$tableName}` LIKE 'token'")) {
         $wpdb->query("ALTER TABLE $tableName ADD COLUMN `token` VARCHAR(32) NOT NULL AFTER `wc_order_id`");
         $wpdb->query("ALTER TABLE $tableName DROP PRIMARY KEY, ADD PRIMARY KEY(id,order_id)");
@@ -429,9 +429,9 @@ function alterCartProcessingTable()
 function createOrderProcessingTable()
 {
     global $wpdb;
-    $tableName = $wpdb->prefix . PG_OLD_CART_PROCESS_TABLE;
+    $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
 
-    if (! isPgTableCreated(PG_OLD_CART_PROCESS_TABLE)) {
+    if (! isPgTableCreated(PG_CART_PROCESS_TABLE)) {
         $charset_collate = $wpdb->get_charset_collate();
         $sql             = "CREATE TABLE IF NOT EXISTS $tableName  
             (id VARCHAR(60) NOT NULL, 

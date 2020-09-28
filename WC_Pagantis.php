@@ -29,7 +29,7 @@ define('PG_ROOT', dirname(__DIR__));
 define('PG_CONFIG_TABLE_NAME', 'pagantis_config');
 define('PG_LOGS_TABLE_NAME', 'pagantis_logs');
 define('PG_CONCURRENCY_TABLE_NAME', 'pagantis_concurrency');
-define('PG_OLD_CART_PROCESS_TABLE', 'cart_process');
+define('PG_CART_PROCESS_TABLE', 'cart_process');
 define('PG_ORDER_PROCESS_TABLE', 'pagantis_order');
 define('PG_ORDERS_TABLE', 'posts');
 
@@ -255,7 +255,7 @@ class WcPagantis
         }
 
         // Creating new cart processing table < 8.6.13
-        if (isPgTableCreated(PG_OLD_CART_PROCESS_TABLE)) {
+        if (isPgTableCreated(PG_CART_PROCESS_TABLE)) {
             alterCartProcessingTable();
         } else {
             createOrderProcessingTable();
