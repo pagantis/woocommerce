@@ -82,6 +82,11 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     const NOTIFICATION_PARAMETER2 = 'order-received';
 
     /**
+     *  Notification param3
+     */
+    const NOTIFICATION_PARAMETER3 = 'token';
+
+    /**
      * Pagantis Order Title
      */
     const PAGANTIS_TITLE = 'Pagantis';
@@ -176,7 +181,10 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     public function makeCheckoutAndPagantis()
     {
         $this->checkCheckoutPage();
+        $this->webDriver->takeScreenshot("/tmp/artifacts/makeCheckoutAndPagantis-Before-goToPagantis-".__LINE__."jpeg");
         $this->goToPagantis();
+        $this->webDriver->takeScreenshot("/tmp/artifacts/makeCheckoutAndPagantis-Before-verifyPagantis-".__LINE__."jpeg");
+
         $this->verifyPagantis();
     }
 
@@ -309,7 +317,9 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $this->webDriver->wait(300)->until($condition, $this->webDriver->getCurrentURL());
         $this->assertTrue((bool)$condition, "PR32");*/
 
+        $this->webDriver->takeScreenshot("/tmp/artifacts/verifyPagantis-".__LINE__."jpeg");
         SeleniumHelper::finishForm($this->webDriver);
+
     }
 
     /**
@@ -366,10 +376,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
             '&',
             self::NOTIFICATION_PARAMETER1,
             '=',
-            $this->orderKey,
-            '&',
-            self::NOTIFICATION_PARAMETER2,
-            '='
+            $this->orderKey
         );
         $this->checkConcurrency();
         $this->checkPagantisOrderId();

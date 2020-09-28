@@ -96,6 +96,8 @@ jobs:
                 --tag $CIRCLE_TAG \
                 --name pagantis-$CIRCLE_TAG.zip \
                 --file pagantis-$CIRCLE_TAG.zip
+      - store_artifacts:
+          path: /tmp/artifacts
 workflows:
   version: 2
   test-build:
