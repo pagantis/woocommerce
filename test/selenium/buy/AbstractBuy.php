@@ -410,6 +410,8 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $this->assertNotEmpty($notifyUrl, $notifyUrl);
         $response = Request::post($notifyUrl)->expects('json')->send();
         $this->assertNotEmpty($response->body->result);
+//       var_dump($response->body ." ".PHP_EOL);
+        echo $this->notifyUrl;
         $this->assertContains(NoIdentificationException::ERROR_MESSAGE, $response->body->result, "PR59=>".$response->body->result);
     }
 
