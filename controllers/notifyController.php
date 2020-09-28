@@ -76,9 +76,8 @@ class WcPagantisNotify extends WcPagantisGateway
                 $this->checkConcurrency();
                 $this->getProductType();
                 $this->getMerchantOrder();
-                $this->processPagantisOrder();
+                $this->getPagantisOrderId();
                 $this->getPagantisOrder();
-                $this->verifyOrderConformity();
                 $checkAlreadyProcessed = $this->checkOrderStatus();
                 if ($checkAlreadyProcessed) {
                     return $this->buildResponse();
@@ -175,7 +174,7 @@ class WcPagantisNotify extends WcPagantisGateway
         }
     }
 
-    private function processPagantisOrder()
+    private function getPagantisOrderId()
     {
         global $wpdb;
         $this->checkDbTable();
@@ -186,6 +185,7 @@ class WcPagantisNotify extends WcPagantisGateway
         if (empty($this->pagantisOrderId)) {
             throw new NoIdentificationException();
         }
+        $this->verifyOrderConformity();
     }
 
 
@@ -253,9 +253,7 @@ class WcPagantisNotify extends WcPagantisGateway
                           " Merchant order id:".$this->woocommerceOrder->get_id().
                           " Merchant order status:".$this->woocommerceOrder->get_status().
                           " Pagantis order id:".$this->pagantisOrder->getStatus().
-                          " Pagantis order status:".$this->pagantisOrder->getId().
-                          " Pagantis urlToken: ".$this->getUrlToken();
-            
+                          " Pagantis order status:".$this->pagantisOrder->getId();
             $this->insertLog(null, $logMessage);
             $this->woocommerceOrder->add_order_note($logMessage);
             $this->woocommerceOrder->save();
