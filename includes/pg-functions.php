@@ -1,4 +1,5 @@
 <?php
+
 function requireWPPluginFunctions()
 {
     if (! function_exists('is_plugin_active')) {
@@ -408,9 +409,10 @@ function getPromotedAmount()
  * @param $orderId
  * @param $pagantisOrderId
  *
- * @throws Exception
+ * @param $wcOrderID
+ * @param $paymentProcessingToken
  */
-function addOrderToCartProcessingQueue($orderId, $pagantisOrderId)
+function addOrderToProcessingQueue($pagantisOrderId, $wcOrderID, $paymentProcessingToken)
 {
     global $wpdb;
     checkCartProcessTable();
@@ -426,8 +428,20 @@ function addOrderToCartProcessingQueue($orderId, $pagantisOrderId)
     }
 }
 
+function alterCartProcessTable()
+{
+    global $wpdb;
+    $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
+        if (!$wpdb->get_var( "SELECT token FROM `{$tableName}` LIMIT 1"  ) ) {
+        $wpdb->query("ALTER TABLE $tableName ADD COLUMN `token` VARCHAR(32) NOT NULL AFTER `wc_order_id`");
+        // OLDER VERSIONS OF MODULE USE UNIQUE KEY ON `id` MEANING THIS VALUE WAS NULLABLE
+        $wpdb->query("ALTER TABLE $tableName DROP PRIMARY KEY,ADD PRIMARY KEY(`id`,`order_id`)");
+        $wpdb->query("ALTER TABLE $tableName ADD PRIMARY KEY(`id`,`order_id`)");
+    }
+}
+
 /**
- * Check if orders table exists
+ * Check if cart processing table exists
  */
 function checkCartProcessTable()
 {
@@ -435,9 +449,15 @@ function checkCartProcessTable()
     $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
 
     if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
+
         $charset_collate = $wpdb->get_charset_collate();
-        $sql             = "CREATE TABLE $tableName ( id int, order_id varchar(50), wc_order_id varchar(50),  
-                  UNIQUE KEY id (id)) $charset_collate";
+        $sql = "CREATE TABLE IF NOT EXISTS $tableName(
+            `id` INT AUTO_INCREMENT, 
+            `order_id` varchar(60),
+            `wc_order_id` varchar(60),
+            `token` varchar(32) NOT NULL,
+             PRIMARY KEY (`id`, `order_id`)
+            )$charset_collate";
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
@@ -489,9 +509,4 @@ function getOrders($current_user, $billingEmail)
     }
 
     return $customer_orders;
-}
-
-function isPagePaymentPage()
-{
-    return (is_checkout() && ! is_order_received_page()) || is_checkout_pay_page();
 }

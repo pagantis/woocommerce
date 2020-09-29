@@ -259,6 +259,9 @@ class WcPagantis
         if (!isPgTableCreated(PG_LOGS_TABLE_NAME)){
             createLogsTable();
         }
+        if (isPgTableCreated(PG_CART_PROCESS_TABLE)){
+            alterCartProcessTable();
+        }
         checkCartProcessTable();
 
         //Adapting selector to array < v8.2.2

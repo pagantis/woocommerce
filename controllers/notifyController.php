@@ -54,6 +54,9 @@ class WcPagantisNotify extends WcPagantisGateway
     /** @var $string */
     protected $product;
 
+    /** @var $string */
+    protected $urlToken = null;
+
     /**
      * Validation vs PagantisClient
      *
@@ -68,6 +71,8 @@ class WcPagantisNotify extends WcPagantisGateway
                 if ($_SERVER['REQUEST_METHOD'] == 'GET' && $_GET['origin'] == 'notification') {
                     return $this->buildResponse();
                 }
+
+
                 $this->checkConcurrency();
                 $this->getProductType();
                 $this->getMerchantOrder();
@@ -148,15 +153,20 @@ class WcPagantisNotify extends WcPagantisGateway
     }
 
     /**
-     * @throws NoIdentificationException
+     * @throws NoIdentificationException|MerchantOrderNotFoundException
      */
     private function getPagantisOrderId()
     {
         global $wpdb;
+
+        $this->setUrlToken();
+
         $this->checkDbTable();
         $tableName = $wpdb->prefix.PG_CART_PROCESS_TABLE;
-        $queryResult = $wpdb->get_row("select order_id from $tableName where id='".$this->woocommerceOrderId."'");
-        $this->pagantisOrderId = $queryResult->order_id;
+        $order_id = $wpdb->get_var("SELECT order_id FROM $tableName WHERE token='{$this->getUrlToken()}' ");
+        $this->pagantisOrderId = $order_id;
+
+        $this->insertLog(null, '$order_id '. json_encode($order_id, JSON_PRETTY_PRINT) . " LINE:".__LINE__);
 
         if ($this->pagantisOrderId == '') {
             throw new NoIdentificationException();
@@ -294,8 +304,13 @@ class WcPagantisNotify extends WcPagantisGateway
 
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
             $charset_collate = $wpdb->get_charset_collate();
-            $sql             = "CREATE TABLE $tableName (id int, order_id varchar(50), wc_order_id varchar(50), 
-                  UNIQUE KEY id (id)) $charset_collate";
+            $sql= "CREATE TABLE IF NOT EXISTS $tableName
+                (id INT, 
+                order_id varchar(60),
+                wc_order_id varchar(60),
+                token varchar(32) NOT NULL,
+                ADD PRIMARY KEY (id,order_id)
+                )$charset_collate";
 
             require_once(ABSPATH.'wp-admin/includes/upgrade.php');
             dbDelta($sql);
@@ -558,6 +573,34 @@ class WcPagantisNotify extends WcPagantisGateway
     public function setProduct($product)
     {
         $this->product = Ucfirst($product);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getWoocommerceOrderId()
+    {
+        return $this->woocommerceOrderId;
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getUrlToken()
+    {
+        return $this->urlToken;
+    }
+
+    /**
+     * @throws MerchantOrderNotFoundException
+     */
+    private function setUrlToken()
+    {
+        $this->urlToken = $_GET['token'];
+
+        if (is_null($this->urlToken)) {
+            throw new MerchantOrderNotFoundException();
+        }
     }
 
 }
