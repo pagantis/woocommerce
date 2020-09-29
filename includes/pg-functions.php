@@ -394,22 +394,20 @@ function getPromotedAmount()
 }
 
 /**
- * @param $cartHash
  * @param $pagantisOrderId
  *
  * @param $wcOrderID
  * @param $paymentProcessingToken
  */
-function addOrderToProcessingQueue($cartHash, $pagantisOrderId, $wcOrderID, $paymentProcessingToken)
+function addOrderToProcessingQueue($pagantisOrderId, $wcOrderID, $paymentProcessingToken)
 {
     global $wpdb;
     $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
     $wpdb->insert($tableName, array(
-        'id'          => $cartHash,
         'order_id' => $pagantisOrderId,
         'wc_order_id' => $wcOrderID,
         'token'       => $paymentProcessingToken
-    ), array('%s', '%s', '%s', '%s'));
+    ), array('%s', '%s', '%s'));
 }
 
 function alterCartProcessingTable()
@@ -417,8 +415,8 @@ function alterCartProcessingTable()
     global $wpdb;
     $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
     if (! $wpdb->get_var("SHOW COLUMNS FROM `{$tableName}` LIKE 'token'")) {
-        $wpdb->query("ALTER TABLE $tableName ADD COLUMN `token` VARCHAR(32) NOT NULL AFTER `wc_order_id`");
-        $wpdb->query("ALTER TABLE $tableName DROP PRIMARY KEY, ADD PRIMARY KEY(id,order_id)");
+        $wpdb->query("ALTER TABLE $tableName ADD COLUMN `token` VARCHAR(32) AFTER `wc_order_id`");
+        $wpdb->query("ALTER TABLE $tableName DROP PRIMARY KEY, ADD PRIMARY KEY(order_id)");
     }
     wp_cache_flush();
 }
@@ -434,11 +432,10 @@ function createOrderProcessingTable()
     if (! isPgTableCreated(PG_CART_PROCESS_TABLE)) {
         $charset_collate = $wpdb->get_charset_collate();
         $sql             = "CREATE TABLE IF NOT EXISTS $tableName  
-            (id VARCHAR(60) NOT NULL, 
-            order_id VARCHAR(60) NOT NULL, 
-            wc_order_id VARCHAR(50) NOT NULL,
-            token VARCHAR(32) NOT NULL, 
-            PRIMARY KEY(id,order_id)) $charset_collate";
+            (order_id VARCHAR(60), 
+            wc_order_id VARCHAR(50),
+            token VARCHAR(32), 
+            PRIMARY KEY(order_id))$charset_collate";
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);

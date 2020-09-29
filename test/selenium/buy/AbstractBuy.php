@@ -3,7 +3,6 @@
 namespace Test\Selenium\Buy;
 
 use Facebook\WebDriver\WebDriverBy;
-use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Pagantis\ModuleUtils\Exception\AlreadyProcessedException;
 use Pagantis\ModuleUtils\Exception\NoIdentificationException;
@@ -81,9 +80,8 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
      *  Notification param2
      */
     const NOTIFICATION_PARAMETER2 = 'order-received';
-
     /**
-     *  Notification param3
+     *  Notification param
      */
     const NOTIFICATION_PARAMETER3 = 'token';
 
@@ -116,6 +114,11 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
      * @var String $orderKey
      */
     public $orderKey;
+
+    /**
+     * @var String $urlToken
+     */
+    public $urlToken;
 
     /**
      * @var String $orderReceived
@@ -316,7 +319,6 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $this->assertTrue((bool)$condition, "PR32");*/
 
         SeleniumHelper::finishForm($this->webDriver);
-
     }
 
     /**
@@ -366,8 +368,11 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $orderKey = explode("=", $orderArray['2']);
         $this->orderKey = $orderKey[1];
 
+        $tokenKey = explode("=", $orderArray['3']);
+        $this->urlToken = $tokenKey[1];
+
         $this->notifyUrl =  sprintf(
-            "%s%s%s%s%s%s%s%s%s",
+            "%s%s%s%s%s%s%s%s%s%s%s%s",
             $this->woocommerceUrl,
             self::NOTIFICATION_FOLDER,
             '&',
@@ -376,7 +381,10 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
             $this->orderKey,
             '&',
             self::NOTIFICATION_PARAMETER2,
-            '='
+            '&',
+            self::NOTIFICATION_PARAMETER3,
+            '=',
+            $this->urlToken
         );
         $this->checkConcurrency();
         $this->checkPagantisOrderId();
@@ -478,60 +486,6 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $logUrl = $this->woocommerceUrl.self::LOG_FOLDER.$this->configuration['secretKey']."/$dateFrom/$dateTo";
         $response = Request::get($logUrl)->expects('json')->send();
         $this->assertEquals(2, count($response->body), "PR60=>".$logUrl." = ".count($response->body));
-    }
-
-    /**
-     * page full capture for https://github.com/facebook/php-webdriver
-     *
-     * @param string $screenshot_name capture save path
-     * @throws \Exception
-     */
-    public function takeFullScreenshot($screenshot_name)
-    {
-        $total_width = $this->webDriver->executeScript('return Math.max.apply(null, [document.body.clientWidth, document.body.scrollWidth, document.documentElement.scrollWidth, document.documentElement.clientWidth])');
-        $total_height = $this->webDriver->executeScript('return Math.max.apply(null, [document.body.clientHeight, document.body.scrollHeight, document.documentElement.scrollHeight, document.documentElement.clientHeight])');
-
-        $viewport_width = $this->webDriver->executeScript('return document.documentElement.clientWidth');
-        $viewport_height = $this->webDriver->executeScript('return document.documentElement.clientHeight');
-
-        $this->webDriver->executeScript('window.scrollTo(0, 0)');
-
-        $full_capture = imagecreatetruecolor($total_width, $total_height);
-
-        $repeat_x = ceil($total_width / $viewport_width);
-        $repeat_y = ceil($total_height / $viewport_height);
-
-        for ($x = 0; $x < $repeat_x; $x ++) {
-            $x_pos = $x * $viewport_width;
-
-            $before_top = -1;
-            for ($y = 0; $y < $repeat_y; $y++) {
-                $y_pos = $y * $viewport_height;
-                $this->webDriver->executeScript("window.scrollTo({$x_pos}, {$y_pos})");
-
-                $scroll_left = $this->webDriver->executeScript("return window.pageXOffset");
-                $scroll_top = $this->webDriver->executeScript("return window.pageYOffset");
-                if ($before_top == $scroll_top) {
-                    break;
-                }
-
-                $tmp_name = "{$screenshot_name}.tmp";
-                $this->webDriver->takeScreenshot($tmp_name);
-                if (!file_exists($tmp_name)) {
-                    throw new \Exception('Could not save screenshot');
-                }
-
-                $tmp_image = imagecreatefrompng($tmp_name);
-                imagecopy($full_capture, $tmp_image, $scroll_left, $scroll_top, 0, 0, $viewport_width, $viewport_height);
-                imagedestroy($tmp_image);
-                unlink($tmp_name);
-
-                $before_top = $scroll_top;
-            }
-        }
-
-        imagepng($full_capture, $screenshot_name);
-        imagedestroy($full_capture);
     }
 
 }

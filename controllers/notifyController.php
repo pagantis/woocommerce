@@ -154,20 +154,21 @@ class WcPagantisNotify extends WcPagantisGateway
         global $wpdb;
         $this->checkDbTable();
         $tableName =$wpdb->prefix.PG_CART_PROCESS_TABLE;
-        $tokenCount=$wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(order_id) 
+        $tokenQuery = $wpdb->prepare(
+            "SELECT COUNT(wc_order_id) 
                  FROM $tableName 
-                 WHERE token=%s",
-            $this->getUrlToken()
-        ));
-        $orderIDCount = $wpdb->get_var(
-            $wpdb->prepare(
-                "SELECT COUNT(token) 
-                      FROM $tableName 
-                      WHERE order_id=%s",
-                $this->pagantisOrderId
-            )
+                 WHERE token=%s AND order_id=%s",
+            array($this->getUrlToken(),$this->pagantisOrderId)
         );
+        $tokenCount=$wpdb->get_var($tokenQuery);
+
+        $orderIDQuery = $wpdb->prepare(
+            "SELECT COUNT(token) 
+                      FROM $tableName 
+                      WHERE wc_order_id=%s AND order_id=%s",
+            array($this->woocommerceOrderId,$this->pagantisOrderId)
+        );
+        $orderIDCount = $wpdb->get_var($orderIDQuery);
 
         if (!($tokenCount == 1 && $orderIDCount == 1)) {
             throw new MerchantOrderNotFoundException();
@@ -180,7 +181,7 @@ class WcPagantisNotify extends WcPagantisGateway
         $this->setUrlToken();
         $this->checkDbTable();
         $tableName = $wpdb->prefix.PG_CART_PROCESS_TABLE;
-        $order_id = $wpdb->get_var("SELECT order_id FROM $tableName WHERE token='{$this->getUrlToken()}'");
+        $order_id = $wpdb->get_var("SELECT order_id FROM $tableName WHERE token='{$this->getUrlToken()}' ");
         $this->pagantisOrderId = $order_id;
         if (empty($this->pagantisOrderId)) {
             throw new NoIdentificationException();
@@ -326,16 +327,7 @@ class WcPagantisNotify extends WcPagantisGateway
         $tableName = $wpdb->prefix.PG_CART_PROCESS_TABLE;
 
         if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
-            $charset_collate = $wpdb->get_charset_collate();
-            $sql = "CREATE TABLE IF NOT EXISTS $tableName  
-            (id VARCHAR(60) NOT NULL,
-            order_id VARCHAR(60) NOT NULL,
-            wc_order_id VARCHAR(50) NOT NULL,
-            token VARCHAR(32) NOT NULL,
-            PRIMARY KEY(id,order_id))$charset_collate";
-
-            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
-            dbDelta($sql);
+            createOrderProcessingTable();
         }
     }
 
@@ -434,13 +426,12 @@ class WcPagantisNotify extends WcPagantisGateway
         $this->checkDbTable();
         $tableName = $wpdb->prefix.PG_CART_PROCESS_TABLE;
 
-        $wpdb->update(
-            $tableName,
-            array('wc_order_id' => $this->woocommerceOrderId,array('order_id' => $this->pagantisOrderId)),
+        $wpdb->update($tableName,
+            array('order_id' => $this->pagantisOrderId,
+                        'wc_order_id' => $this->woocommerceOrderId),
             array('token' => $this->getUrlToken()),
-            array('%s','%s'),
-            array('%s')
-        );
+            array('%s', '%s'),
+            array('%s'));
     }
 
     /** STEP 9 CPO - Confirmation Pagantis Order */
