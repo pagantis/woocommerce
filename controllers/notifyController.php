@@ -55,7 +55,7 @@ class WcPagantisNotify extends WcPagantisGateway
     protected $product;
 
     /** @var $string */
-    protected $urlToken = null;
+    protected $urlTokenVerification = null;
 
     /**
      * Validation vs PagantisClient
@@ -153,7 +153,7 @@ class WcPagantisNotify extends WcPagantisGateway
     }
 
     /**
-     * @throws NoIdentificationException|MerchantOrderNotFoundException
+     * @throws NoIdentificationException
      */
     private function getPagantisOrderId()
     {
@@ -165,8 +165,6 @@ class WcPagantisNotify extends WcPagantisGateway
         $tableName = $wpdb->prefix.PG_CART_PROCESS_TABLE;
         $order_id = $wpdb->get_var("SELECT order_id FROM $tableName WHERE token='{$this->getUrlToken()}' ");
         $this->pagantisOrderId = $order_id;
-
-        $this->insertLog(null, '$order_id '. json_encode($order_id, JSON_PRETTY_PRINT) . " LINE:".__LINE__);
 
         if ($this->pagantisOrderId == '') {
             throw new NoIdentificationException();
@@ -415,9 +413,9 @@ class WcPagantisNotify extends WcPagantisGateway
         $wpdb->update(
             $tableName,
             array('wc_order_id'=>$this->woocommerceOrderId),
-            array('id' => $this->woocommerceOrderId),
-            array('%s'),
-            array('%d')
+            array('token' => $this->getUrlToken(),'order_id' => $this->pagantisOrderId),
+            array( '%s'),
+            array( '%s', '%s' )
         );
     }
 
@@ -588,19 +586,15 @@ class WcPagantisNotify extends WcPagantisGateway
      */
     private function getUrlToken()
     {
-        return $this->urlToken;
+        return $this->urlTokenVerification;
     }
 
     /**
-     * @throws MerchantOrderNotFoundException
      */
     private function setUrlToken()
     {
-        $this->urlToken = $_GET['token'];
+        $this->urlTokenVerification = $_GET['token'];
 
-        if (is_null($this->urlToken)) {
-            throw new MerchantOrderNotFoundException();
-        }
     }
 
 }

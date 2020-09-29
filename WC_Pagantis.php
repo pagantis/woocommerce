@@ -262,7 +262,10 @@ class WcPagantis
         if (isPgTableCreated(PG_CART_PROCESS_TABLE)){
             alterCartProcessTable();
         }
-        checkCartProcessTable();
+
+        if (!isPgTableCreated(PG_CART_PROCESS_TABLE)) {
+            checkCartProcessTable();
+        }
 
         //Adapting selector to array < v8.2.2
         $tableName = $wpdb->prefix.PG_CONFIG_TABLE_NAME;
@@ -381,11 +384,10 @@ class WcPagantis
      */
     public function checkWcPriceSettings()
     {
-        if (!is_product() || !is_shop()) {
-            return;
+        if (class_exists( 'WooCommerce' ) ){
+            $this->checkWcDecimalSeparatorSettings();
+            $this->checkWcThousandsSeparatorSettings();
         }
-        $this->checkWcDecimalSeparatorSettings();
-        $this->checkWcThousandsSeparatorSettings();
     }
 
     /**

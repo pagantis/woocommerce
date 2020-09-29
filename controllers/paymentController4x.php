@@ -63,6 +63,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
         $this->id = WcPagantis4xGateway::METHOD_ID;
         $this->has_fields = true;
         $this->method_title = ucfirst($this->id);
+        $this->urlToken4x = strtoupper(md5(uniqid(rand(), true)));
 
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
@@ -276,7 +277,9 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
             $callback_arg = array('wc-api'=>'wcpagantisgateway',
                                   'key'=>$order->get_order_key(),
                                   'order-received'=>$order->get_id(),
-                                  'origin' => ''
+                                  'origin' => '',
+                                  'token' => $this->urlToken4x
+
             );
 
             $callback_arg_user = $callback_arg;

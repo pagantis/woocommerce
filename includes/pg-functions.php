@@ -419,12 +419,16 @@ function addOrderToProcessingQueue($pagantisOrderId, $wcOrderID, $paymentProcess
     $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
 
     //Check if id exists
-    $resultsSelect = $wpdb->get_results("SELECT * FROM $tableName WHERE id='$orderId'");
+    $resultsSelect = $wpdb->get_results("SELECT * FROM $tableName WHERE id='$pagantisOrderId'");
     $countResults  = count($resultsSelect);
+
     if ($countResults == 0) {
-        $wpdb->insert($tableName, array('id' => $orderId, 'order_id' => $pagantisOrderId), array('%d', '%s'));
+        $wpdb->insert($tableName, array(
+            'wc_order_id' => $wcOrderID,
+            'token'       => $paymentProcessingToken
+        ), array('%s', '%s', '%s'));
     } else {
-        $wpdb->update($tableName, array('order_id' => $pagantisOrderId), array('id' => $orderId), array('%s'), array('%d'));
+        $wpdb->update($tableName, array('order_id' => $pagantisOrderId,'token' => $paymentProcessingToken), array('id' => $wcOrderID), array('%s,%s'), array('%d'));
     }
 }
 
@@ -432,11 +436,10 @@ function alterCartProcessTable()
 {
     global $wpdb;
     $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
-        if (!$wpdb->get_var( "SELECT token FROM `{$tableName}` LIMIT 1"  ) ) {
-        $wpdb->query("ALTER TABLE $tableName ADD COLUMN `token` VARCHAR(32) NOT NULL AFTER `wc_order_id`");
+    if (! $wpdb->get_var( "SHOW COLUMNS FROM `{$tableName}` LIKE 'token';" ) ) {
+        $wpdb->query("ALTER TABLE $tableName ADD COLUMN `token` VARCHAR(32) NOT NULL AFTER `order_id`");
         // OLDER VERSIONS OF MODULE USE UNIQUE KEY ON `id` MEANING THIS VALUE WAS NULLABLE
-        $wpdb->query("ALTER TABLE $tableName DROP PRIMARY KEY,ADD PRIMARY KEY(`id`,`order_id`)");
-        $wpdb->query("ALTER TABLE $tableName ADD PRIMARY KEY(`id`,`order_id`)");
+        $wpdb->query("ALTER TABLE $tableName  DROP PRIMARY KEY, ADD PRIMARY KEY(id, order_id)");
     }
 }
 
