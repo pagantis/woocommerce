@@ -424,11 +424,12 @@ function addOrderToProcessingQueue($pagantisOrderId, $wcOrderID, $paymentProcess
 
     if ($countResults == 0) {
         $wpdb->insert($tableName, array(
+            'order_id' => $pagantisOrderId,
             'wc_order_id' => $wcOrderID,
             'token'       => $paymentProcessingToken
         ), array('%s', '%s', '%s'));
     } else {
-        $wpdb->update($tableName, array('order_id' => $pagantisOrderId,'token' => $paymentProcessingToken), array('id' => $wcOrderID), array('%s,%s'), array('%d'));
+        $wpdb->update($tableName, array('order_id' => $pagantisOrderId,'token' => $paymentProcessingToken), array('wc_order_id' => $wcOrderID), array('%s,%s'), array('%s'));
     }
 }
 

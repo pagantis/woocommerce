@@ -153,6 +153,7 @@ class WcPagantisNotify extends WcPagantisGateway
     }
 
     /**
+     *
      * @throws NoIdentificationException
      */
     private function getPagantisOrderId()
@@ -440,7 +441,6 @@ class WcPagantisNotify extends WcPagantisGateway
         } else {
             $logEntry = $logEntry->info($message);
         }
-
         $tableName = $wpdb->prefix.PG_LOGS_TABLE_NAME;
         $wpdb->insert($tableName, array('log' => $logEntry->toJson()));
     }
@@ -590,11 +590,21 @@ class WcPagantisNotify extends WcPagantisGateway
     }
 
     /**
+     *
      */
     private function setUrlToken()
     {
-        $this->urlTokenVerification = $_GET['token'];
+        if (!isset($_GET['token'])){
+            $logEntry = '$_GET[\'token\'] is empty' .
+                " cart hash: ".WC()->cart->get_cart_hash().
+                " Merchant order id: ".$this->woocommerceOrderId.
+                " Pagantis order id: ".$this->pagantisOrderId.
+                " Pagantis urlToken: ".$this->getUrlToken().
+                " Function: " . __FUNCTION__;
+            insertLogEntry(null, $logEntry);
+        }
 
+        $this->urlTokenVerification = $_GET['token'];
     }
 
 }
