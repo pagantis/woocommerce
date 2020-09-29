@@ -91,7 +91,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
         //Hooks
         add_action('woocommerce_update_options_payment_gateways_'.$this->id, array($this,'process_admin_options')); //Save plugin options
         add_action('woocommerce_receipt_'.$this->id, array($this, 'pagantisReceiptPage'));          //Pagantis form
-        add_action('woocommerce_api_wcpagantis4xgateway', array($this, 'pagantisNotification'));      //Json Notification
+        add_action('woocommerce_api_wcpagantisgateway', array($this, 'pagantisNotification'));      //Json Notification
         add_filter('woocommerce_payment_complete_order_status', array($this,'pagantisCompleteStatus'), 10, 3);
         add_filter('load_textdomain_mofile', array($this, 'loadPagantisTranslation'), 10, 2);
     }
@@ -274,7 +274,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
             ;
             $orderConfigurationUrls = new Urls();
             $cancelUrl = $this->getKoUrl($order);
-            $callback_arg = array('wc-api'=>'wcpagantis4xgateway',
+            $callback_arg = array('wc-api'=>'wcpagantisgateway',
                                   'key'=>$order->get_order_key(),
                                   'order-received'=>$order->get_id(),
                                   'origin' => '',
@@ -334,13 +334,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
             $pagantisOrder = $orderClient->createOrder($orderApiClient);
             if ($pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
                 $url = $pagantisOrder->getActionUrls()->getForm();
-                addOrderToProcessingQueue($pagantisOrder->getId(), $order->get_id(), $this->urlToken4x);
-                $logEntry = "Cart Added to Processing Queue" .
-                    " cart hash: ".WC()->cart->get_cart_hash().
-                    " Merchant order id: ".$order->get_id().
-                    " Pagantis order id: ".$pagantisOrder->getId().
-                    " Pagantis urlToken: ".$this->urlToken4x.
-                    " Pagantis Product: ".self::METHOD_ID;
+                addOrderToProcessingQueue($pagantisOrder->getId(), $order->get_id(), $this->urlToken4x,self::METHOD_ID);
             } else {
                 throw new OrderNotFoundException();
             }

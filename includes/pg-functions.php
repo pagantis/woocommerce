@@ -406,13 +406,12 @@ function getPromotedAmount()
 }
 
 /**
- * @param $orderId
  * @param $pagantisOrderId
- *
  * @param $wcOrderID
- * @param $paymentProcessingToken
+ * @param $urlToken
+ * @param $methodID
  */
-function addOrderToProcessingQueue($pagantisOrderId, $wcOrderID, $paymentProcessingToken)
+function addOrderToProcessingQueue($pagantisOrderId, $wcOrderID, $urlToken ,$methodID)
 {
     global $wpdb;
     checkCartProcessTable();
@@ -426,11 +425,24 @@ function addOrderToProcessingQueue($pagantisOrderId, $wcOrderID, $paymentProcess
         $wpdb->insert($tableName, array(
             'order_id' => $pagantisOrderId,
             'wc_order_id' => $wcOrderID,
-            'token'       => $paymentProcessingToken
+            'token'       => $urlToken
         ), array('%s', '%s', '%s'));
+
+        $logEntry = "Cart Added to Processing Queue" .
+            " cart hash: ".WC()->cart->get_cart_hash().
+            " Merchant order id: ".$wcOrderID.
+            " Pagantis order id: ".$pagantisOrderId.
+            " Pagantis urlToken: ".$urlToken.
+            " Pagantis Product: ".$methodID;
+        insertLogEntry(null, $logEntry);
     } else {
-        $wpdb->update($tableName, array('order_id' => $pagantisOrderId,'token' => $paymentProcessingToken), array('wc_order_id' => $wcOrderID), array('%s,%s'), array('%s'));
+        $wpdb->update($tableName,
+            array('order_id' => $pagantisOrderId,'token' => $urlToken),
+            array('wc_order_id' => $wcOrderID),
+            array('%s,%s'),
+            array('%s'));
     }
+
 }
 
 function alterCartProcessTable()
