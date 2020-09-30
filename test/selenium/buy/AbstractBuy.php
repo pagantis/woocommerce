@@ -176,7 +176,11 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     public function makeCheckoutAndPagantis()
     {
         $this->checkCheckoutPage();
+        $this->webDriver->takeScreenshot('/tmp/artifacts/makeCheckoutAndPagantis-beforeSleep-'.__LINE__.'.jpeg');
+        sleep(10);
+        $this->webDriver->takeScreenshot('/tmp/artifacts/makeCheckoutAndPagantis-afterSleep-'.__LINE__.'.jpeg');
         $this->goToPagantis();
+        $this->webDriver->takeScreenshot('/tmp/artifacts/makeCheckoutAndPagantis-'.__LINE__.'.jpeg');
         $this->verifyPagantis();
     }
 
@@ -261,7 +265,8 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
      */
     public function goToPagantis()
     {
-        $this->findByName('checkout')->submit();
+//        $this->findByName('checkout')->submit();
+        $this->moveToElementAndClick($this->findById('place_order'));
     }
 
     /**
@@ -308,7 +313,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         /*$condition = WebDriverExpectedCondition::titleContains(self::PAGANTIS_TITLE);
         $this->webDriver->wait(300)->until($condition, $this->webDriver->getCurrentURL());
         $this->assertTrue((bool)$condition, "PR32");*/
-
+        $this->webDriver->takeScreenshot('/tmp/artifacts/verifyPagantis-'.__LINE__.'.jpeg');
         SeleniumHelper::finishForm($this->webDriver);
     }
 
