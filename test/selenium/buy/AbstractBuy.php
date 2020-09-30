@@ -187,7 +187,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
     {
         $this->verifyOrderInformation();
         $this->orderUrl = $this->webDriver->getCurrentURL();
-        $this->checkNotificationException();
+//        $this->checkNotificationException();
     }
 
     /**
@@ -261,7 +261,8 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
      */
     public function goToPagantis()
     {
-        $this->findByName('checkout')->submit();
+//        $this->findByName('checkout')->submit();
+        $this->moveToElementAndClick($this->findById('place_order'));
     }
 
     /**
@@ -470,7 +471,7 @@ abstract class AbstractBuy extends PagantisWoocommerceTest
         $dateTo = date("Ymd", strtotime("+1 day"));
         $logUrl = $this->woocommerceUrl.self::LOG_FOLDER.$this->configuration['secretKey']."/$dateFrom/$dateTo";
         $response = Request::get($logUrl)->expects('json')->send();
-        $this->assertEquals(2, count($response->body), "PR60=>".$logUrl." = ".count($response->body));
+        $this->assertEquals(1, count($response->body), "PR60=>".$logUrl." = ".count($response->body));
     }
 
 }

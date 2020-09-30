@@ -1,4 +1,5 @@
 <?php
+
 function requireWPPluginFunctions()
 {
     if (! function_exists('is_plugin_active')) {
@@ -405,29 +406,59 @@ function getPromotedAmount()
 }
 
 /**
- * @param $orderId
  * @param $pagantisOrderId
- *
- * @throws Exception
+ * @param $wcOrderID
+ * @param $urlToken
+ * @param $methodID
  */
-function addOrderToCartProcessingQueue($orderId, $pagantisOrderId)
+function addOrderToProcessingQueue($pagantisOrderId, $wcOrderID, $urlToken ,$methodID)
 {
     global $wpdb;
     checkCartProcessTable();
     $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
 
     //Check if id exists
-    $resultsSelect = $wpdb->get_results("SELECT * FROM $tableName WHERE id='$orderId'");
+    $resultsSelect = $wpdb->get_results("SELECT * FROM $tableName WHERE id='$pagantisOrderId'");
     $countResults  = count($resultsSelect);
+
     if ($countResults == 0) {
-        $wpdb->insert($tableName, array('id' => $orderId, 'order_id' => $pagantisOrderId), array('%d', '%s'));
+        $wpdb->insert($tableName, array(
+            'order_id' => $pagantisOrderId,
+            'wc_order_id' => $wcOrderID,
+            'token'       => $urlToken
+        ), array('%s', '%s', '%s'));
+
+        $logEntry = "Cart Added to Processing Queue" .
+            " cart hash: ".WC()->cart->get_cart_hash().
+            " Merchant order id: ".$wcOrderID.
+            " Pagantis order id: ".$pagantisOrderId.
+            " Pagantis urlToken: ".$urlToken.
+            " Pagantis Product: ".$methodID;
+        insertLogEntry(null, $logEntry);
     } else {
-        $wpdb->update($tableName, array('order_id' => $pagantisOrderId), array('id' => $orderId), array('%s'), array('%d'));
+        $wpdb->update($tableName,
+            array('order_id' => $pagantisOrderId,'token' => $urlToken),
+            array('wc_order_id' => $wcOrderID),
+            array('%s,%s'),
+            array('%s'));
+    }
+
+}
+
+function alterCartProcessTable()
+{
+    global $wpdb;
+    $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
+    if (! $wpdb->get_var( "SHOW COLUMNS FROM `{$tableName}` LIKE 'token';" ) ) {
+        $wpdb->query("ALTER TABLE $tableName ADD COLUMN `token` VARCHAR(32) NOT NULL AFTER `order_id`");
+        $wpdb->query("ALTER TABLE $tableName DROP PRIMARY KEY, ADD PRIMARY KEY(order_id)");
+        // OLDER VERSIONS OF MODULE USE UNIQUE KEY ON `id` MEANING THIS VALUE WAS NULLABLE
+        $wpdb->query("ALTER TABLE $tableName MODIFY `id` INT AUTO_INCREMENT");
     }
 }
 
 /**
- * Check if orders table exists
+ * Check if cart processing table exists
  */
 function checkCartProcessTable()
 {
@@ -435,9 +466,15 @@ function checkCartProcessTable()
     $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
 
     if ($wpdb->get_var("SHOW TABLES LIKE '$tableName'") != $tableName) {
+
         $charset_collate = $wpdb->get_charset_collate();
-        $sql             = "CREATE TABLE $tableName ( id int, order_id varchar(50), wc_order_id varchar(50),  
-                  UNIQUE KEY id (id)) $charset_collate";
+        $sql = "CREATE TABLE IF NOT EXISTS $tableName(
+            `id` INT AUTO_INCREMENT, 
+            `order_id` varchar(60),
+            `wc_order_id` varchar(60),
+            `token` varchar(32) NOT NULL,
+             PRIMARY KEY (`id`, `order_id`)
+            )$charset_collate";
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
@@ -489,9 +526,4 @@ function getOrders($current_user, $billingEmail)
     }
 
     return $customer_orders;
-}
-
-function isPagePaymentPage()
-{
-    return (is_checkout() && ! is_order_received_page()) || is_checkout_pay_page();
 }

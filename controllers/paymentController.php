@@ -46,6 +46,11 @@ class WcPagantisGateway extends WC_Payment_Gateway
     private $allowed_currencies;
 
     /**
+     * @var string
+     */
+    private $urlToken;
+
+    /**
      * WcPagantisGateway constructor.
      */
     public function __construct()
@@ -55,6 +60,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
         $this->id = WcPagantisGateway::METHOD_ID;
         $this->has_fields = true;
         $this->method_title = ucfirst($this->id);
+        $this->urlToken = strtoupper(md5(uniqid(rand(), true)));
 
         //Useful vars
         $this->template_path = plugin_dir_path(__FILE__) . '../templates/';
@@ -306,7 +312,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $callback_arg = array('wc-api'=>'wcpagantisgateway',
                 'key'=>$order->get_order_key(),
                 'order-received'=>$order->get_id(),
-                'origin' => ''
+                'origin' => '',
+                'token' => $this->urlToken
             );
 
             $callback_arg_user = $callback_arg;
@@ -360,7 +367,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
             $pagantisOrder = $orderClient->createOrder($orderApiClient);
             if ($pagantisOrder instanceof \Pagantis\OrdersApiClient\Model\Order) {
                 $url = $pagantisOrder->getActionUrls()->getForm();
-                addOrderToCartProcessingQueue($order->get_id(), $pagantisOrder->getId());
+                addOrderToProcessingQueue($pagantisOrder->getId(), $order->get_id(), $this->urlToken, self::METHOD_ID);
             } else {
                 throw new OrderNotFoundException();
             }
