@@ -451,8 +451,9 @@ function alterCartProcessTable()
     $tableName = $wpdb->prefix . PG_CART_PROCESS_TABLE;
     if (! $wpdb->get_var( "SHOW COLUMNS FROM `{$tableName}` LIKE 'token';" ) ) {
         $wpdb->query("ALTER TABLE $tableName ADD COLUMN `token` VARCHAR(32) NOT NULL AFTER `order_id`");
+        $wpdb->query("ALTER TABLE $tableName DROP PRIMARY KEY, ADD PRIMARY KEY(order_id)");
         // OLDER VERSIONS OF MODULE USE UNIQUE KEY ON `id` MEANING THIS VALUE WAS NULLABLE
-        $wpdb->query("ALTER TABLE $tableName  DROP PRIMARY KEY, ADD PRIMARY KEY(id, order_id)");
+        $wpdb->query("ALTER TABLE $tableName MODIFY `id` INT AUTO_INCREMENT");
     }
 }
 

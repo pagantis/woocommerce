@@ -441,6 +441,7 @@ class WcPagantisNotify extends WcPagantisGateway
         } else {
             $logEntry = $logEntry->info($message);
         }
+
         $tableName = $wpdb->prefix.PG_LOGS_TABLE_NAME;
         $wpdb->insert($tableName, array('log' => $logEntry->toJson()));
     }
