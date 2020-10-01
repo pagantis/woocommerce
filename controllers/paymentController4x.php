@@ -171,6 +171,8 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
                 ->setCountryCode($shippingAddress['country']!='' ? strtoupper($shippingAddress['country']) : strtoupper($this->language))
                 ->setCity($shippingAddress['city'])
                 ->setAddress($shippingAddress['address_1']." ".$shippingAddress['address_2'])
+                ->setDni($national_id)
+
             ;
             $orderShippingAddress = new Address();
             $orderShippingAddress
@@ -182,6 +184,7 @@ class WcPagantis4xGateway extends WC_Payment_Gateway
                 ->setFixPhone($phoneNumber)
                 ->setMobilePhone($phoneNumber)
                 ->setNationalId($national_id)
+                ->setDni($national_id)
                 ->setTaxId($tax_id)
             ;
             $orderBillingAddress =  new Address();
