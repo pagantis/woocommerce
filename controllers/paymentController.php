@@ -193,8 +193,10 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 $shippingAddress = $billingAddress;
             }
 
-            $national_id = getNationalId($order);
-            $tax_id = getTaxId($order);
+            $customer_id = $order->get_customer_id();
+            $national_id = maybeGetIDNumber($order , $customer_id);
+            $tax_id = maybeGetTaxIDNumber($order , $customer_id);
+            $phoneNumber = maybeGetPhoneNumber($order , $customer_id);
 
             $userAddress = new Address();
             $userAddress
@@ -203,6 +205,7 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setCountryCode($shippingAddress['country']!='' ? strtoupper($shippingAddress['country']) : strtoupper($this->language))
                 ->setCity($shippingAddress['city'])
                 ->setAddress($shippingAddress['address_1']." ".$shippingAddress['address_2'])
+                ->setDni($national_id)
             ;
             $orderShippingAddress = new Address();
             $orderShippingAddress
@@ -211,9 +214,10 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setCountryCode($shippingAddress['country']!='' ? strtoupper($shippingAddress['country']) : strtoupper($this->language))
                 ->setCity($shippingAddress['city'])
                 ->setAddress($shippingAddress['address_1']." ".$shippingAddress['address_2'])
-                ->setFixPhone($shippingAddress['phone'])
-                ->setMobilePhone($shippingAddress['phone'])
+                ->setFixPhone($phoneNumber)
+                ->setMobilePhone($phoneNumber)
                 ->setNationalId($national_id)
+                ->setDni($national_id)
                 ->setTaxId($tax_id)
             ;
             $orderBillingAddress =  new Address();
@@ -223,8 +227,8 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setCountryCode($billingAddress['country']!='' ? strtoupper($billingAddress['country']) : strtoupper($this->language))
                 ->setCity($billingAddress['city'])
                 ->setAddress($billingAddress['address_1']." ".$billingAddress['address_2'])
-                ->setFixPhone($billingAddress['phone'])
-                ->setMobilePhone($billingAddress['phone'])
+                ->setFixPhone($phoneNumber)
+                ->setMobilePhone($phoneNumber)
                 ->setNationalId($national_id)
                 ->setTaxId($tax_id)
             ;
@@ -234,13 +238,16 @@ class WcPagantisGateway extends WC_Payment_Gateway
                 ->setFullName($billingAddress['first_name']." ".$billingAddress['last_name'])
                 ->setBillingAddress($orderBillingAddress)
                 ->setEmail($billingAddress['email'])
-                ->setFixPhone($billingAddress['phone'])
-                ->setMobilePhone($billingAddress['phone'])
+                ->setFixPhone($phoneNumber)
+                ->setMobilePhone($phoneNumber)
                 ->setShippingAddress($orderShippingAddress)
                 ->setNationalId($national_id)
                 ->setTaxId($tax_id)
             ;
 
+            if (!empty(maybeGetDateOfBirth($customer_id))) {
+                $orderUser->setDateOfBirth($birthday);
+            }
             $previousOrders = getOrders($order->get_user(), $billingAddress['email']);
             foreach ($previousOrders as $previousOrder) {
                 $orderHistory = new OrderHistory();
