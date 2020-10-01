@@ -345,36 +345,139 @@ function getModuleVersion()
 
 /**
  * @param $order
- *
- * @return null
+ * @param $customerID
+ * @return string
+ * @throws \Exception
  */
-function getNationalId($order)
+function maybeGetIDNumber($order, $customerID)
 {
-    foreach ((array)$order->get_meta_data() as $mdObject) {
-        $data = $mdObject->get_data();
-        if ($data['key'] == 'vat_number') {
-            return $data['value'];
+
+    $number = '';
+    $customer = new WC_Customer($customerID);
+
+    if ($order instanceof WC_Order) {
+        $metaKeys = array(
+            'national_id',
+            'dni',
+            'nie',
+            'shipping_nif',
+            'billing_nif'
+        );
+
+        foreach ($metaKeys as $key) {
+
+            $number = $order->get_meta($key);
+
+            if (empty($number) && !empty($customer)) {
+                $number = $customer->get_meta($key);
+            }
+            if (!empty($number)) {
+                break;
+            }
         }
     }
-
-    return null;
+    return is_string($number) ? $number : '';
 }
 
 /**
  * @param $order
- *
- * @return mixed
+ * @param $customerID
+ * @return string
+ * @throws \Exception
  */
-function getTaxId($order)
+function maybeGetTaxIDNumber($order, $customerID)
 {
-    foreach ((array)$order->get_meta_data() as $mdObject) {
-        $data = $mdObject->get_data();
-        if ($data['key'] == 'billing_cfpiva') {
-            return $data['value'];
+
+    $number = '';
+    $customer = new WC_Customer($customerID);
+
+    if ($order instanceof WC_Order) {
+
+        $metaKeys = array(
+            'billing_cfpiva',
+            '_vat_number',
+            'fiscalcode',
+            'tax_id',
+            'cif',
+            '_billing_vat_number',
+            'billing_vat_number',
+            'billing_eu_vat_number',
+            'VAT Number',
+            'vat_number',
+            '_billing_wc_avatax_vat_id'
+        );
+
+        foreach ($metaKeys as $key) {
+            $number = $order->get_meta($key);
+
+            if (empty($number) && !empty($customer)) {
+                $number = $customer->get_meta($key);
+            }
+
+            if (!empty($number)) {
+                break;
+            }
         }
     }
+
+    return is_string($number) ? $number : '';
 }
 
+
+/**
+ * @param $order
+ * @param $customerID
+ * @return string|void
+ * @throws \Exception
+ */
+function maybeGetPhoneNumber($order, $customerID)
+{
+
+    $isWCVersionLT3 = version_compare(WC_VERSION, '3.0', '<');
+    $customer = new WC_Customer($customerID);
+    $number = '';
+
+    if (!$order instanceof WC_Order || !$customer instanceof WC_Customer) {
+        return;
+    }
+
+    if (!empty($customer)) {
+        $number = $isWCVersionLT3 ? $customer->billing_phone : $customer->get_billing_phone();
+    }
+    if (empty($number)) {
+        $number = $isWCVersionLT3 ? $order->billing_phone : $order->get_billing_phone();
+    }
+
+    return is_string($number) ? $number : '';
+}
+
+/**
+ * @param $customerID
+ * @return string|void
+ * @throws \Exception
+ */
+function maybeGetDateOfBirth($customerID)
+{
+
+    $isWCVersionLT3 = version_compare(WC_VERSION, '3.0', '<');
+    $customer = new WC_Customer($customerID);
+    $date = '';
+
+    if (!empty($customer)) {
+    $metaKeys = array(
+        'birthday',
+        'date_of_birth',
+        'dob',
+    );
+
+        foreach ($metaKeys as $key) {
+            $date = empty($customer->get_meta($key)) ? $customer->get_meta($key) : get_user_meta( $customerID, '_automatewoo_birthday_full', true );
+        }
+
+    }
+
+    return is_string($date) ? $date : '';
+}
 
 /**
  * @param $product_id
@@ -527,3 +630,4 @@ function getOrders($current_user, $billingEmail)
 
     return $customer_orders;
 }
+
