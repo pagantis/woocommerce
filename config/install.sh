@@ -61,6 +61,7 @@ if [ ! -f app/etc/local.xml ]; then
     wp --allow-root wc --user=admin shipping_zone_method create 0 --method_id=flat_rate
 
     find /var/www/html/ -type d ! -path "/var/www/html/wp-content/plugins/*" -exec chown www-data:www-data {} \;
+    find /var/www/html/ -type f ! -path "/var/www/html/wp-content/plugins/*" -exec chown www-data:www-data {} \;
 fi
 
 exec "$@"
