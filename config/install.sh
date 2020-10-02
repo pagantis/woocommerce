@@ -60,7 +60,8 @@ if [ ! -f app/etc/local.xml ]; then
     wp --allow-root option update page_on_front	$SHOPIDPAGE
     wp --allow-root wc --user=admin shipping_zone_method create 0 --method_id=flat_rate
 
-    chown -R www-data:www-data /var/www/html/*
+    find /var/www/html/ -type d ! -path "/var/www/html/wp-content/plugins/*" -exec chown www-data:www-data {} \;
+    find /var/www/html/ -type f ! -path "/var/www/html/wp-content/plugins/*" -exec chown www-data:www-data {} \;
 fi
 
 exec "$@"
