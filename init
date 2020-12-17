@@ -1,0 +1,496 @@
+#!/usr/bin/env bash
+
+# Unofficial Bash Strict Mode (http://redsymbol.net/articles/unofficial-bash-strict-mode/)
+# https://unix.stackexchange.com/questions/463034/bash-throws-error-line-8-1-unbound-variable
+# https://mywiki.wooledge.org/glob
+
+
+source ./docker/scripts/functions.sh
+
+
+function define_script_constants() {
+    SLEEP_TIME=20
+    VERSION=v0.1.0
+    RUNNING_SCRIPT_NAME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+    DOWN_VOLUMES="off"
+    TYPE='null'
+    CONTAINER='null'
+    FAST_MODE='off'
+    LOGGING='off'
+}
+
+
+
+function print_usage()
+{
+    echo "Synopsis:  $RUNNING_SCRIPT_NAME [-h] [-d] [-f] [--dry-run]"
+}
+
+function print_version()
+{
+    echo "$RUNNING_SCRIPT_NAME Version: $VERSION"
+    echo
+    echo "Copyright © 2020, Thierry Meliot "
+}
+
+# https://github.com/a-ludi/dazzler-helpers/blob/451d6ae216a26decdc72b7bace41960ac58d9224/source/daligner.slurm.sh
+function print_help() {
+    print_usage
+    echo
+    output 6 'Description: This helps you run the desired development containers'
+    echo
+    output 6 'Arguments:'
+    output 6 "--dev ,-d                     Start development environment without any prompt"
+    output 6 "--devtest, -dt                Start development environment with basic test suit"
+    output 6 " --dry-run, -n                Print the $RUNNING_SCRIPT_NAME script to stdout and exit."
+    output 6 "--zip,-z                      Zip relevant plugin directories"
+    echo
+    output 6 'Optional arguments:'
+    echo
+    output 6 "--help , -h                   Prints this help"
+    output 6 "--dev ,-d                     Start development environment without any prompt"
+    output 6 "--devtest, -dt                Start development environment with basic test suit"
+    output 6 " --dry-run, -n                Print the $RUNNING_SCRIPT_NAME script to stdout and exit."
+    output 6 "--zip,-z                      Zip relevant plugin directories"
+    output 6 "--usage                       Print a short command summary."
+    output 6 "--version                     Print software version."
+
+    echo
+}
+
+
+function parse_arguments() {
+    # http://www.bnikolic.co.uk/blog/bash-unbound-variable.html
+    shopt -s extglob
+    if [[ -z $@ ]]; then
+        print_help
+        exit 128
+    fi
+    shopt -s extglob
+    shopt -s nullglob
+    while [[ "$#" -gt 0 ]];
+    do
+        key="$1"
+        while [[ ${key+x} ]]
+        do
+            case $key in
+                -up | --reup)
+                    DOCKER_REUP="on"
+                    CONTAINER="woocommerce-dev"
+                    output 5 "RESTARTING PREVIOUSLY RAN CONTAINERS."
+                ;;
+                -d | --dev)
+                    TYPE='DEV'
+                    CONTAINER="woocommerce-dev"
+                    output 5 "DEV Mode starting."
+                ;;
+                -dnew | --devnew)
+                    output 5 "Will Remove Volumes."
+                    output 5 "DEV Mode starting."
+                    TYPE='DEV'
+                    CONTAINER="woocommerce-dev"
+                    DOWN_VOLUMES='on'
+                ;;
+                -r | --retro)
+                    TYPE='RETRO'
+                    CONTAINER="woocommerce-test-old"
+                    output 5 "Running retro with test choice prompt"
+                ;;
+                --zip | -z)
+                    TYPE='ZIP'
+                    CONTAINER="woocommerce-dev"
+                    output 5 "only ZIP the plugin files"
+                ;;
+                --help | -h)
+                    print_help
+
+                ;;
+                --usage)
+                    print_usage
+                    exit 0
+                ;;
+                --version)
+                    print_version
+                    exit 0
+                ;;
+                \?)
+                    print_help
+                    output 1 "Wrong Input"
+                    output 1 "Quitting environment init process"
+                    exit 1
+                ;;
+            esac
+            # prepare for next option in this key, if any
+            [[ "$key" = -? || "$key" == --* ]] && unset key || key="${key/#-?/-}"
+        done
+        shift
+        while [[ "$#" -gt 0 ]];
+        do
+            key="$1"
+            while [[ ${key+x} ]]
+            do
+                case $key in
+                    -y | --assume-yes)
+                        FAST_MODE='on'
+                        output 5 "Fast Mode Activated 🚀"
+                    ;;
+                    --help | -h)
+                        print_help
+                    ;;
+                    \?)
+                        print_help
+                        output 1 "Wrong Input"
+                        output 1 "Quitting environment init process"
+                        exit 1
+                    ;;
+                esac
+                # prepare for next option in this key, if any
+                [[ "$key" = -? || "$key" == --* ]] && unset key || key="${key/#-?/-}"
+            done
+            shift
+        done
+        while [[ "$#" -gt 0 ]];
+        do
+            key="$1"
+            while [[ ${key+x} ]]
+            do
+                case $key in
+                    --dry-run | -n)
+                        DRY_RUN=1
+                        output 5 "Dry Run Mode"
+                    ;;
+                    --help | -h)
+                        print_help
+                    ;;
+                    --log | -l)
+                        LOGGING="on"
+                        output 5 "Logging Mode Activated 📁"
+                    ;;
+                    \?)
+                        print_help
+                        output 1 "Wrong Input"
+                        output 1 "Quitting environment init process"
+                        exit 1
+                    ;;
+                esac
+                [[ "$key" = -? || "$key" == --* ]] && unset key || key="${key/#-?/-}"
+            done
+            shift
+        done
+    done
+}
+
+
+
+# we've set -euE, exit on error and error on unset variables
+# so define some error procedures to take when erroring out:
+# https://mywiki.wooledge.org/SignalTrap
+set -uo pipefail
+trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit ${s}' ERR
+set -o errexit -o noclobber
+#set -o xtrace
+IFS=$'\n\t'
+
+function init()
+
+{
+    define_script_constants
+    check_requirements
+    parse_arguments ${@:-}
+
+    echo
+    output 6 "Checking Dependencies...."
+    output 2 "=========================="
+    echo
+    assert command_is_available node "Node.js" "Node and NPM allow us to install required dependencies. You can install it from here: https://nodejs.org/en/download/"
+    assert command_is_available composer "Composer" "Composer allows us to install PHP dependencies. You can install it from https://getcomposer.org, or if you are running Brew you can install it by running $ brew install composer"
+    assert file_is_available node_modules "node_modules" "https://docs.npmjs.com/configuring-npm/folders.html"
+
+    if [ "${FAST_MODE}" != "on" ];
+    #    if [ ! "$FAST_MODE" == 'true' ];
+    then
+        echo
+        output 6 "You have chosen to start a ${TYPE:-n} environment, are you sure [y/n]? prompt will timeout in ${TIME_OUT} seconds"
+        read -r -t ${TIME_OUT} PROCEED
+
+        echo
+        if [ "$(echo "${PROCEED:-n}" | tr "[:upper:]" "[:lower:]")" != "y" ]; then
+            output 1 "Quitting environment init process!"
+            exit 1
+        fi
+    fi
+
+    output 6 'Starting 🐳️ Init        '
+    output 2 "========================="
+    echo
+
+
+    # http://www.bnikolic.co.uk/blog/bash-unbound-variable.html
+    #    quantityOfContainersRunning=$(docker ps --format "{{.Status}}" --filter=status=running | wc -l)
+    #
+    #    output 6 ""${quantityOfContainersRunning}" containers found continuing"
+    #
+    #
+    #    if [[ "${DOWN_VOLUMES+x}" == 'true' ]];
+    #    then
+    #        output 6 'Removing old 📦  with previous volumes'
+    #        docker-compose -f ./docker/docker-compose.yml down -v
+    #    #        output 6 'Downing containers'
+    #    #        docker-compose -f ./docker/docker-compose.yml down
+    #    else
+
+    # http://www.bnikolic.co.uk/blog/bash-unbound-variable.html
+    if [ " $ {DOWN_VOLUMES} " != "on" ];
+    #    if [[ "${DOWN_VOLUMES}" == "true" ]];
+    quantityOfContainersRunning=$(docker ps --format "{{.Status}}" --filter=status=running | wc -l)
+    then
+        if [ "${quantityOfContainersRunning}" -ge 1 ];
+        then
+            output 6 "Removing "${quantityOfContainersRunning}" old 📦 with previous volumes"
+            docker-compose -f ./docker/docker-compose.yml down -v
+        fi
+        output 6 ""${quantityOfContainersRunning}" containers found"
+    fi
+
+    if [ $(docker ps --format "{{.Status}}" --filter=status=running | wc -l) -ge 1 ];
+    then
+        output 6 'Downing containers'
+        docker-compose -f ./docker/docker-compose.yml down
+    fi
+
+    if [ "${DOCKER_REUP:-off}" == "on" ] && [ "${CONTAINER}" == 'woocommerce-dev' ];
+    then
+        echo
+        output 6 "Restarting previously built ${CONTAINER} with volume persistence 🐳️"
+        output 2 "================================================="
+        quantityOfContainersRunning=$(docker ps --format "{{.Status}}" --filter=status=running | wc -l)
+        output 2 " echo -e "${quantityOfContainersRunning}" containers currently running"
+
+
+        docker-compose -f ./docker/docker-compose.yml up -d ${CONTAINER}
+        docker-compose -f ./docker/docker-compose.yml up -d adminer
+        if [ "${LOGGING:-}" == "on" ];
+        then
+            docker-compose -f ./docker/docker-compose.yml logs --timestamps ${CONTAINER} >> ./docker/logs/${CONTAINER}.log
+            docker-compose -f ./docker/docker-compose.yml logs --timestamps adminer >> ./docker/logs/adminer.log
+        fi
+
+        output 5 "CHECKING CONTAINER STATUS"
+        #    CONTAINER_STATUS=$(docker-compose -f ./docker/docker-compose.yml exec ${CONTAINER} wait-for-it -h ${HOST_CONTAINER} -p ${HOST_CONTAINER_PORT} --strict -t 40 || echo $?)
+        #        docker-compose -f ./docker/docker-compose.yml exec ${CONTAINER} wait-for-it -h ${HOST_CONTAINER} -p ${HOST_CONTAINER_PORT} --strict -t 30
+
+        . ./docker/scripts/wait-for-it.sh -h woocommerce-dev -p $(docker container port ${CONTAINER}) -s -t 30
+    #        local containerName=wordpress-cli
+    #        CONTAINER_STATUS=$(docker inspect --format='{{.State.Status}}' ${containerName})
+    #        CONTAINER_PID=$(docker inspect --format='{{.State.Pid}}' ${containerName})
+    #        isContainerPaused=$(docker inspect --format='{{.State.Paused}}' ${containerName})
+    #        isContainerDead=$(docker inspect --format='{{.State.Dead}}' ${containerName})
+    #        isContainerRunning=$(docker inspect --format "{{.State.Running}}" ${containerName} 2> /dev/null)
+    #        RETURN=1
+    #        while [[ "$RETURN" -ne "0" ]]; do
+    #            state=$(docker inspect --format "{{.State.Running}}" ${containerName} 2> /dev/null)
+    #            containerPID=$(docker inspect --format='{{.State.Pid}}' ${containerName} 2> /dev/null)
+    #            if [ "$state" = "true" ] || [ "$containerPID" -ne "0" ]; then
+    #                output 5 "Looks like WooCommerce Install is not finished yet.. waiting 10 more seconds"
+    #                sleep 10
+    #            else
+    #                CONTAINER_PORT=$(docker container port ${CONTAINER})
+    #                PORT=$(sed -e 's/.*://' <<< ${CONTAINER_PORT})
+    #                success " (*・‿・)ノ⌒*:･ﾟ✧ 🎉"
+    #                success " Build of Woocommerce complete: http://${CONTAINER}.docker:${PORT}/wp-admin/"
+    #                RETURN=0
+    #            fi
+    #            CONTAINER_PID=$(docker inspect --format='{{.State.Pid}}' ${containerName})
+    #            if [ "CONTAINER_PID" = "0" ];
+    #            then
+    #                output 1 "$(date +'%Y-%m-%dT%H:%M:%S%z')]"
+    #                output 1 "${CONTAINER} BUILD FAILED"
+    #                output 1 "CURRENT STATUS : ${CONTAINER_STATUS}"
+    #                output 1 "CONTAINER_EXIT_CODE : ${CONTAINER_PID}"
+    #                output 1 "FAILED - CURRENT : STATUS"
+    #                RETURN=0
+    #                exit 0
+    #            fi
+    #
+    #        done
+
+    fi
+
+    if [ "${TYPE}" == 'DEV' ] && [ "${CONTAINER}" == 'woocommerce-dev' ];
+    then
+
+        echo
+        output 6 "Starting Starting ${TYPE} env in ${CONTAINER} 🐳️"
+        output 2 "================================================="
+
+        docker-compose -f ./docker/docker-compose.yml up --build -d ${CONTAINER}
+        docker-compose -f ./docker/docker-compose.yml up --build -d adminer
+        docker-compose -f ./docker/docker-compose.yml up --build -d wordpress-cli
+
+        if [ -z "${LOGGING:-}" ];
+        then
+            docker-compose -f ./docker/docker-compose.yml logs --timestamps ${CONTAINER} >> ./docker/logs/${CONTAINER}.log
+            docker-compose -f ./docker/docker-compose.yml logs --timestamps adminer >> ./docker/logs/adminer.log
+
+        fi
+        output 5 "SLEEPING ${SLEEP_TIME} SECONDS TO GIVE TIME TO CONTAINERS TO SPIN UP"
+        sleep ${SLEEP_TIME}
+        echo
+        output 5 "CHECKING CONTAINER STATUS"
+
+        local containerName=wordpress-cli
+        CONTAINER_STATUS=$(docker inspect --format='{{.State.Status}}' ${containerName})
+        isContainerPaused=$(docker inspect --format='{{.State.Paused}}' ${containerName})
+        isContainerDead=$(docker inspect --format='{{.State.Dead}}' ${containerName})
+        isContainerRunning=$(docker inspect --format "{{.State.Running}}" ${containerName} 2> /dev/null)
+        RETURN=1
+        while [[ "$RETURN" -ne "0" ]]; do
+            state=$(docker inspect --format "{{.State.Running}}" ${containerName} 2> /dev/null)
+            containerPID=$(docker inspect --format='{{.State.Pid}}' ${containerName} 2> /dev/null)
+            if [ "$state" == "true" ] && [ "$containerPID" -ne "0" ]; then
+                output 5 "Looks like WooCommerce Install is not finished yet.. waiting 10 more seconds"
+                sleep 10
+            else
+
+                CONTAINER_PORT=$(docker container port ${CONTAINER})
+                PORT=$(sed -e 's/.*://' <<< ${CONTAINER_PORT})
+                success " (*・‿・)ノ⌒*:･ﾟ✧ 🎉"
+                success " Build of Woocommerce complete: http://${CONTAINER}.docker:${PORT}/wp-admin/"
+
+                echo
+                output 5 "ADDING REMOTE IP TO APACHE CONF"
+                #                #https://github.com/nextcloud/docker/blob/8231878052899baae3202353be39df9bf056a399/16.0/apache/Dockerfile#L105-L112
+                #                # https://github.com/MarschallElectronics/docker.me-php/blob/master/global/docker-me-entrypoint.sh
+                #                # without this apache wont allot us to use http://http://woocommerce-dev.docker:8091 in storefront
+                docker exec -it woocommerce-dev sh -c "echo "RemoteIPTrustedProxy 127.0.0.1" >> /etc/apache2/conf-enabled/remoteip.conf" 2> /dev/null
+                docker exec -it woocommerce-dev sh -c "apache2ctl restart" 2> /dev/null
+                docker exec -it woocommerce-dev sh -c "chmod -R o+rw /var/www/html/wp-content/uploads/" 2> /dev/null
+                echo
+                RETURN=0
+            fi
+
+            CONTAINER_PID=$(docker inspect --format='{{.State.Pid}}' ${containerName})
+            if [ "$CONTAINER_PID" == "0" ] && [ "$isContainerRunning" != 'true' ];
+            then
+                echo
+                output 1 "$(date +'%Y-%m-%dT%H:%M:%S%z')]"
+                output 1 "${CONTAINER} BUILD FAILED"
+                output 1 "CURRENT STATUS : ${CONTAINER_STATUS}"
+                output 1 "CONTAINER_EXIT_CODE : ${CONTAINER_PID}"
+                output 1 "FAILED - CURRENT : STATUS"
+                RETURN=0
+                exit 0
+            fi
+
+        done
+
+    fi
+    if [ "${TYPE+x}" = 'ZIP' ] && [ "${CONTAINER}" == 'woocommerce-test' ];
+    then
+        echo
+        output 6 "Starting ${TYPE} environment in ${CONTAINER} to zip plugin."
+        output 2 "======================="
+        echo
+
+        if [ ! -d "node_modules" ]; then
+            npm install
+        fi
+        # todo replace grunt by rsync grunt is old and poorly documented
+        node_modules/.bin/grunt
+    #      docker-compose -f ./docker/docker-compose.yml exec ${container} curl -s https://getcomposer.org/installer | php
+    #      docker-compose -f ./docker/docker-compose.yml exec ${container} ./composer.phar install
+    fi
+    if [ "${TYPE+x}" = 'RETRO' ] && [ "${CONTAINER}" == 'woocommerce-test-old' ];
+    then
+        echo
+        output 6 "Starting ${TYPE} environment in ${CONTAINER}"
+        output 2 "======================="
+
+        while true; do
+            read -p "Do you wish to run dev or test [test|dev]? " devtest
+            case $devtest in
+                [dev]*) container="woocommerce-dev";
+                test=false;
+                break ;;
+                [test]*) container="woocommerce-test";
+                test=true;
+                break ;;
+                *) echo "Please answer dev or test." ;;
+            esac
+        done
+        while true; do
+            read -p "You have chosen to start ${container}, are you sure [y/n]? " yn
+            case $yn in
+                [Yy]*) break ;;
+                [Nn]*) exit ;;
+                *) echo "Please answer yes or no." ;;
+            esac
+        done
+
+        # Prepare environment and build package
+        docker-compose down --volumes
+        docker-compose up -d --build ${container}
+        docker-compose up -d selenium
+        npm install
+        node_modules/.bin/grunt
+        docker-compose exec ${container} curl -s https://getcomposer.org/installer | php
+        docker-compose exec ${container} ./composer.phar install
+
+        # Time to boot and install woocommerce
+        sleep 80
+        set -e
+
+        export WOOCOMMERCE_TEST_ENV=${devtest}
+        while true; do
+            read -p "Do you want to run full tests battery or only configure the module [full/configure/none]? " tests
+            case $tests in
+                [full]*) break ;;
+                [configure]*) break ;;
+                [none]*) break ;;
+                *) echo "Please answer full, configure or none.";
+                exit ;;
+            esac
+        done
+
+        if [ ! -z "$tests" ] && [ "$tests" != "none" ];
+        then
+            vendor/bin/phpunit --group woocommerce3-basic
+
+            #Only for TEST environment. DEV environment is already installed
+            if [ $devtest = "test" ];
+            then
+                vendor/bin/phpunit --group woocommerce3-install
+            else
+                export WOOCOMMERCE_LANG=EN #in dev mode, woocommerce is installed in english
+                vendor/bin/phpunit --group woocommerce3-configure
+            fi
+
+            if [ $tests = "full" ];
+            then
+                vendor/bin/phpunit --group woocommerce3-buy
+            fi
+        fi
+
+        containerPort=$(docker container port ${container})
+        PORT=$(sed -e 's/.*://' <<< ${containerPort})
+        echo 'Build of Woocommerce complete: http://'${container}'.docker:'${PORT}
+
+    fi
+
+
+}
+
+# put the guts of your script in here. Functions are defined above.
+
+
+
+init "$@"
+
+#CONTAINER_PORT=$(docker container port ${CONTAINER})
+#PORT=$(sed -e 's/.*://' <<< $CONTAINER_PORT)
+#DEV_URL=`docker exec -ti ${CONTAINER} sh -c "wp option get siteurl"`
+#success "(*・‿・)ノ⌒*:･ﾟ✧ 🎉:\n Build of Woocommerce complete: http://'${CONTAINER}'.docker:'${PORT}'/wp-admin/"
+
+
+## the script exits successfully
+success_exit

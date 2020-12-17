@@ -1,0 +1,32 @@
+{
+  "name": "pagantis",
+  "version": "5.0.0",
+  "description": "Pagantis integration in woocommerce",
+  "main": "Gruntfile.js",
+  "dependencies": {
+    "lodash": "^4.17.12",
+    "bl": ">=2.2.1"
+  },
+  "devDependencies": {
+    "bl": ">=2.2.1",
+    "bower": "^1.8.8",
+    "grunt": "^1.1.0",
+    "grunt-contrib-compress": "^1.4.3",
+    "grunt-shell": "^2.1.0",
+    "lodash": "^4.17.12",
+    "tar": "^2.2.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pagantis/woocommerce.git"
+  },
+  "author": "Pagantis",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pagantis/woocommerce/issues"
+  },
+  "homepage": "https://github.com/pagantis/woocommerce#readme"
+}

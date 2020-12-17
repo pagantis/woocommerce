@@ -1,0 +1,125 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Pagantis WooCommerce V2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-17 17:49+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/"
+
+#: WC_Pagantis.php:511
+#, php-format
+msgid "or 4 installments of %s€, without fees, with "
+msgstr ""
+
+#: WC_Pagantis.php:600
+msgid "Settings"
+msgstr ""
+
+#: WC_Pagantis.php:618 controllers/paymentController4x.php:117
+#: controllers/paymentController.php:119
+msgid "Documentation"
+msgstr ""
+
+#: WC_Pagantis.php:620
+msgid "API documentation"
+msgstr ""
+
+#: WC_Pagantis.php:621
+msgid "Support"
+msgstr ""
+
+#: includes/settings-pagantis.php:12
+msgid "Activate the module 4x"
+msgstr ""
+
+#: includes/settings-pagantis.php:17
+msgid "Public Key 4x"
+msgstr ""
+
+#: includes/settings-pagantis.php:19 includes/settings-pagantis.php:24
+msgid "MANDATORY. You can get in your pagantis backoffice"
+msgstr ""
+
+#: includes/settings-pagantis.php:22
+msgid "Secret Key 4x"
+msgstr ""
+
+#: includes/settings-pagantis.php:27
+msgid "Activate the module 12x"
+msgstr ""
+
+#: includes/settings-pagantis.php:32
+msgid "Public Key 12x"
+msgstr ""
+
+#: includes/settings-pagantis.php:34 includes/settings-pagantis.php:39
+msgid "You can get in your pagantis backoffice"
+msgstr ""
+
+#: includes/settings-pagantis.php:37
+msgid "Secret Key 12x"
+msgstr ""
+
+#: includes/settings-pagantis.php:42
+msgid "Simulator 12x"
+msgstr ""
+
+#: controllers/paymentController4x.php:116
+#: controllers/paymentController.php:118
+msgid "Login to your panel"
+msgstr ""
+
+#: controllers/paymentController4x.php:342
+#: controllers/paymentController4x.php:464
+#: controllers/paymentController.php:379 controllers/paymentController.php:500
+msgid "Payment error "
+msgstr ""
+
+#: controllers/paymentController.php:135
+msgid " is not compatible with your php and/or curl version"
+msgstr ""
+
+#: controllers/paymentController.php:138
+msgid ""
+" is not configured correctly, the fields Public Key and Secret Key are "
+"mandatory for use this plugin"
+msgstr ""
+
+#: controllers/paymentController.php:141
+msgid " only can be used in Euros"
+msgstr ""
+
+#: controllers/paymentController.php:145 controllers/paymentController.php:148
+msgid " only can be payed from 2 to 12 installments"
+msgstr ""
+
+#: controllers/paymentController.php:150
+msgid " can not have a minimum amount less than 0"
+msgstr ""
+
+#. Name of the plugin
+#. Author of the plugin
+msgid "Pagantis"
+msgstr ""
+
+#. Description of the plugin
+msgid "Financiar con Pagantis"
+msgstr ""
+
+#. URI of the plugin
+msgid "http://www.pagantis.com/"
+msgstr ""
+
+msgid "Until 4 installments, without fees"
+msgstr ""
+
+msgid "Instant financing"
+msgstr ""

@@ -1,0 +1,23 @@
+.pg-no-interest{
+    color: #00c1d5
+}
+
+.mainPagantisSimulator {
+    font-family: Open Sans,sans-serif!important;
+    font-size: 14px!important;
+    font-weight: 400;
+    text-align: left!important;
+    color: #828282!important;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    padding: 0 0 10px 0;
+    min-width: 250px;
+    line-height: 20px;
+}
+.mainPagantisSimulator .mainImageLogo{
+    height: 20px;
+    display: inline;
+    vertical-align: bottom;
+}

@@ -1,0 +1,6 @@
+/node_modules
+/vendor
+pagantis*.zip
+composer.phar
+/svn
+!/svn/README.md

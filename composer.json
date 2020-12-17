@@ -1,0 +1,37 @@
+{
+    "name": "pagantis/woocommerce",
+    "description": "Woocommerce module to add Pagantis",
+    "license": "proprietary",
+    "type": "wordpress-plugin",
+    "keywords": [
+        "api",
+        "rest",
+        "woocommerce",
+        "module",
+        "ecommerce",
+        "payment",
+        "checkout",
+        "credit",
+        "pagantis",
+        "financiar",
+        "financiera",
+        "financiación"
+    ],
+    "authors": [
+        {
+            "name": "Pagantis",
+            "email": "pgarces@Pagantis.com"
+        }
+    ],
+    "require": {
+        "pagantis/orders-api-client": "^2.0",
+        "pagantis/module-utils": "^2.0"
+    },
+    "require-dev": {
+        "pagantis/selenium-form-utils": "^3.0"
+    },
+    "autoload-dev": {
+        "psr-4": { "Test\\Selenium\\Buy\\": "test/selenium/buy/", "Test\\Selenium\\": "test/selenium/" }
+    },
+    "minimum-stability": "stable"
+}
