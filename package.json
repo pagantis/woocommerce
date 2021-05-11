@@ -4,7 +4,7 @@
   "description": "Pagantis integration in woocommerce",
   "main": "Gruntfile.js",
   "dependencies": {
-    "lodash": "^4.17.12",
+    "lodash": "^4.17.21",
     "bl": ">=2.2.1"
   },
   "devDependencies": {
@@ -13,7 +13,7 @@
     "grunt": "^1.1.0",
     "grunt-contrib-compress": "^1.4.3",
     "grunt-shell": "^2.1.0",
-    "lodash": "^4.17.12",
+    "lodash": "^4.17.21",
     "tar": "^2.2.2"
   },
   "scripts": {
